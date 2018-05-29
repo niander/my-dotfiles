@@ -9,6 +9,7 @@
         wtf     = !$ZSH/bin/git-wtf
         rank-contributors = !$ZSH/bin/git-rank-contributors
         count   = !git shortlog -sn
+        change-commits = "!f() { VAR1=$1; VAR='$'$1; OLD=$2; NEW=$3; echo \"Are you sure for replace $VAR $OLD => $NEW ?(Y/N)\";read OK;if [ \"$OK\" = 'Y' ] ; then shift 3; git filter-branch --env-filter \"if [ \\\"${VAR}\\\" = '$OLD' ]; then export $VAR1='$NEW';echo 'to $NEW'; fi\" $@; fi;}; f "
 [color]
         diff = auto
         status = auto
@@ -17,6 +18,7 @@
 [core]
         excludesfile = ~/.gitignore
         editor = vim
+        autocrlf = false
 [apply]
         whitespace = nowarn
 [mergetool]
