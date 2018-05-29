@@ -21,8 +21,6 @@
         autocrlf = false
 [apply]
         whitespace = nowarn
-[mergetool]
-        keepBackup = false
 [difftool]
         prompt = false
 [help]
