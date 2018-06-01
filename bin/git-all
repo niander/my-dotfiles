@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Stage all unstaged.
+
+read -p "This will stage all unstaged. Continue? (y/N) " R
+[[ $R == "y" ]] && git add -A
