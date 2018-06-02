@@ -52,7 +52,7 @@ ZSH_CUSTOM=$DOTFILES/oh-my-zsh/custom
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git tmux globalias changes)
+plugins=(git tmux globalias sudo dircycle changes)
 
 # tmux plugin
 ZSH_TMUX_AUTOSTART=false

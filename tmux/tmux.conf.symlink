@@ -45,7 +45,14 @@ bind r source-file ~/.tmux.conf \; display "Reloaded!"
 # No delay for escape key press
 set -sg escape-time 0
 
+# Default terminal
 set -g default-terminal "screen-256color"
+
+# Turn on/off keys without prefix
+#set -g prefix None
+#bind -T root C-a switchc -Tprefix
+bind C-x if -F '#{s/empty//:key-table}' 'set key-table empty' 'set -u key-table'
+#bind -T empty F12 switchc -Tprefix
 
 ############
 ## DESIGN ##
