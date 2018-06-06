@@ -70,8 +70,8 @@ set -g status-bg black
 set -g message-fg black
 set -g message-bg brightwhite
 
-if-shell 'powerline-config tmux setenv' 'set -g status-left "#{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_FG]#[bg=$_POWERLINE_SESSION_PREFIX_BG]#[$_POWERLINE_SESSION_PREFIX_ATTR],#[fg=$_POWERLINE_SESSION_FG]#[bg=$_POWERLINE_SESSION_BG]#[$_POWERLINE_SESSION_ATTR]} #S #{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_BG],#[fg=$_POWERLINE_SESSION_BG]}#[bg=black]#[nobold]$_POWERLINE_LEFT_HARD_DIVIDER"'
-if-shell -F 'powerline-config tmux setenv' 'set -ga status-left "#(env $POWERLINE_COMMAND $POWERLINE_COMMAND_ARGS tmux left --width=`tmux display -p #{client_width}` -R width_adjust=`tmux show-options -g status-right-length | cut -d\" \" -f6` -R pane_id=\"`tmux display -p #D`\")"'
+if-shell 'powerline-config tmux setenv' 'set -g status-left "#{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_FG]#[bg=$_POWERLINE_SESSION_PREFIX_BG]#[$_POWERLINE_SESSION_PREFIX_ATTR],#[fg=$_POWERLINE_SESSION_FG]#[bg=$_POWERLINE_SESSION_BG]#[$_POWERLINE_SESSION_ATTR]} #S #{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_BG],#[fg=$_POWERLINE_SESSION_BG]}#[bg=black]#[nobold]$_POWERLINE_LEFT_HARD_DIVIDER" ; \
+set -ga status-left "#(env $POWERLINE_COMMAND $POWERLINE_COMMAND_ARGS tmux left --width=`tmux display -p #{client_width}` -R width_adjust=`tmux show-options -g status-right-length | cut -d\" \" -f6` -R pane_id=\"`tmux display -p #D`\")"'
 
 set -g status-left-length 50
 #set -g -a status-left "#[bg=green,fg=black] #S "
@@ -82,11 +82,11 @@ set -g -a status-left "#[fg=black,bg=yellow]#[bg=yellow,fg=black] #H #[fg=yel
 set -g -a status-left "#[fg=default,bg=black]"
 #set -g -a status-left "#T"
 
-if-shell -F 'powerline-config tmux setenv' '' 'set -g status-right-length 40 ; \
-set -g status-right "#[fg=colour232,bg=black]#[bg=colour232]" ; \
-set -g -a status-right "#[fg=white] #(cut -d \" \" -f 1-3 /proc/loadavg) " ; \
-set -g -a status-right "#[fg=black,bg=colour232]#[bg=black]" ; \
-set -g -a status-right "#[fg=yellow,bold] %H:%M  %F#[nobold]"'
+set -g status-right-length 40
+set -g status-right "#[fg=colour232,bg=black]#[bg=colour232]"
+set -g -a status-right "#[fg=white] #(cut -d \" \" -f 1-3 /proc/loadavg) "
+set -g -a status-right "#[fg=black,bg=colour232]#[bg=black]"
+set -g -a status-right "#[fg=yellow,bold] %H:%M  %F#[nobold]"
 
 # window status
 set -g set-titles-string '[tmux] #{pane_current_command}'
