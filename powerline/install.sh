@@ -1,5 +1,9 @@
+#!/bin/sh
+
 if ! pip show -q powerline-status; then
+  set -x
   pip install powerline-status
+  set +x
 fi
 
 if ! test -e "$HOME/.local/share/fonts/PowerlineSymbols.otf"; then
