@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
 # bootstrap installs things.
+# CHANGES:
+#   - relative path folder script stolen from @scarfacedeb
+#    
 
 cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd -P)
@@ -135,7 +138,16 @@ install_dotfiles () {
 
   for src in $(find -H "$DOTFILES_ROOT" -maxdepth 2 -name '*.symlink' -not -path '*.git*')
   do
-    dst="$HOME/.$(basename "${src%.*}")"
+    relative_src=$(echo $src | sed -e "s=$DOTFILES_ROOT==" -e "s=.symlink==")
+    dst="$HOME/.$(echo $relative_src | cut -d "/" -f3-)"
+
+    # create directory if needed
+    dir=$(dirname $dst)
+    if ! [ -d $dir ]
+    then
+      mkdir -p $dir
+    fi
+    #dst="$HOME/.$(basename "${src%.*}")"
     link_file "$src" "$dst"
   done
 }
