@@ -10,6 +10,7 @@ if empty(glob('~/.vim/autoload/plug.vim'))
 endif
 
 call plug#begin('~/.vim/plugged')
+Plug 'chriskempson/base16-vim'
 "Plug 'cjrh/vim-conda'
 call plug#end()
 
@@ -19,7 +20,7 @@ endif
 set rtp+=$POWERLINE_ROOT/powerline/bindings/vim
 "python3 from distutils.sysconfig import get_python_lib
 "python3 import vim
-"python3 vim.command("set rtp+=" + vim.eval("powerline_root") + "/powerline/bindings/vim")
+"python3 vim.command("set rtp+=" + vim.eval("powerline_root") + '/powerline/bindings/vim')
 "python3 from powerline.vim import setup as powerline_setup
 "python3 powerline_setup()
 "python3 del powerline_setup
@@ -27,13 +28,25 @@ set rtp+=$POWERLINE_ROOT/powerline/bindings/vim
 "set rtp+=$HOME/miniconda2/lib/python2.7/site-packages/powerline/bindings/vim
 
 if !has('nvim')
-    set ttymouse=xterm2
+  set ttymouse=xterm
 endif
 
+set number
 set hlsearch
+set expandtab
 set mouse=a
 set backspace=2
 set laststatus=2
 set t_Co=256
+
+"if has("termguicolors")
+"  set termguicolors
+"endif
+
+"colorscheme base16-eighties
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
 
 
