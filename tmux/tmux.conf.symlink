@@ -59,23 +59,28 @@ bind C-x if -F '#{s/empty//:key-table}' 'set key-table empty' 'set -u key-table'
 ############
 
 # set poweline
-# run-shell "powerline-daemon -q"
+if-shell 'powerline-daemon -q' ''
 PYTHON_LIB="run-shell \"python -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())'\""
 #source "$HOME/miniconda2/lib/python2.7/site-packages/powerline/bindings/tmux/powerline.conf"
 if-shell '[[ -r $PYTHON_LIB/powerline/bindings/tmux/powerline.conf ]]' 'source $PYTHON_LIB/powerline/bindings/tmux/powerline.conf"'
 
 # status bar
 set -g status-bg black
-#set -g status-fg default
+set -g status-fg default
 set -g message-fg black
 set -g message-bg brightwhite
 
-if-shell 'powerline-config tmux setenv' 'set -g status-left "#{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_FG]#[bg=$_POWERLINE_SESSION_PREFIX_BG]#[$_POWERLINE_SESSION_PREFIX_ATTR],#[fg=$_POWERLINE_SESSION_FG]#[bg=$_POWERLINE_SESSION_BG]#[$_POWERLINE_SESSION_ATTR]} #S #{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_BG],#[fg=$_POWERLINE_SESSION_BG]}#[bg=black]#[nobold]$_POWERLINE_LEFT_HARD_DIVIDER" ; \
-set -ga status-left "#(env $POWERLINE_COMMAND $POWERLINE_COMMAND_ARGS tmux left --width=`tmux display -p #{client_width}` -R width_adjust=`tmux show-options -g status-right-length | cut -d\" \" -f6` -R pane_id=\"`tmux display -p #D`\")"'
-
 set -g status-left-length 50
-#set -g -a status-left "#[bg=green,fg=black] #S "
-set -g -a status-left "#[fg=black,bg=yellow]#[bg=yellow,fg=black] #H #[fg=yellow,bg=black]"
+set -g status-left ''
+#if-shell "powerline-config tmux setenv && return 1"
+if-shell -F "" \
+"set -g -a status-left '#{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_FG]#[bg=$_POWERLINE_SESSION_PREFIX_BG]#[$_POWERLINE_SESSION_PREFIX_ATTR],#[fg=$_POWERLINE_SESSION_FG]#[bg=$_POWERLINE_SESSION_BG]#[$_POWERLINE_SESSION_ATTR]} #S #{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_BG],#[fg=$_POWERLINE_SESSION_BG]}#[bg=black]#[nobold]$_POWERLINE_LEFT_HARD_DIVIDER' ; \
+set -g -a status-left '#(powerline tmux left --width=#{client_width} -R width_adjust=#{status-right-length} -R pane_id=\"#D\")'" \
+"set -g -a status-left '#{?client_prefix,#[fg=colour233]#[bg=green],#[fg=green]#[bg=colour233]}#[bold] #S #{?client_prefix,#[fg=green],#[fg=colour232]}#[bg=black]#[nobold]' ; \
+set -g -a status-left '#[fg=black,bg=yellow]#[bg=yellow,fg=black] #H #[fg=yellow,bg=black]'"
+#set -ga status-left '#(powerline tmux left --width=`tmux display -p \"#{client_width}\"` -R width_adjust=`tmux show-options -g status-right-length | cut -d\" \" -f6` -R pane_id=\"`tmux display -p \'#D\'`\")'"
+
+#set -g -a status-left "#[fg=black,bg=yellow]#[bg=yellow,fg=black] #H #[fg=yellow,bg=black]"
 #set -g -a status-left "#[fg=yellow,bg=blue]#[fg=black] "
 #set -g -a status-left "#H "
 #set -g -a status-left "#[fg=blue,bg=black]"
