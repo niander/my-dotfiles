@@ -13,7 +13,9 @@ call plug#begin('~/.vim/plugged')
 "Plug 'cjrh/vim-conda'
 call plug#end()
 
-let $POWERLINE_ROOT = system("pip show powerline-status | sed -n -e 's/Location:\s*// p' | tr -d '\n'")
+if empty($POWERLINE_ROOT)
+  let $POWERLINE_ROOT = system("pip show powerline-status | sed -n -e 's/Location:\s*// p' | tr -d '\n'")
+endif
 set rtp+=$POWERLINE_ROOT/powerline/bindings/vim
 "python3 from distutils.sysconfig import get_python_lib
 "python3 import vim
