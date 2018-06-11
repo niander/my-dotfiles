@@ -6,13 +6,10 @@ if ! pip show -q powerline-status; then
   set +x
 fi
 
-#git clone https://github.com/powerline/fonts.git fontsinstall --depth=1
-# install
-#cd fontsinstall
-#./install.sh
-# clean-up a bit
-#cd ..
-#rm -rf fontsinstall
+if ! test -d "$DOTFILES/powerline/.powerline-fonts"; then
+  git clone https://github.com/powerline/fonts.git $DOTFILES/powerline/.powerline-fonts --depth=1
+  $DOTFILES/powerline/.powerline-fonts/install.sh
+fi
 
 if ! test -e "$HOME/.local/share/fonts/PowerlineSymbols.otf"; then
   wget https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf
