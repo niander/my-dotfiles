@@ -33,17 +33,19 @@ endif
 
 set number
 set hlsearch
-set expandtab
 set mouse=a
 set backspace=2
 set laststatus=2
 set t_Co=256
 
-"if has("termguicolors")
-"  set termguicolors
-"endif
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 
-"colorscheme base16-eighties
+set autoindent
+set textwidth=80
+
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
