@@ -21,7 +21,7 @@ DEFAULT_USER="niander"
 # DISABLE_AUTO_UPDATE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+export UPDATE_ZSH_DAYS=5
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -52,7 +52,7 @@ ZSH_CUSTOM=$DOTFILES/oh-my-zsh/custom
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git tmux globalias sudo dircycle wd pip changes) #themes
+plugins=(git tmux globalias sudo dircycle wd pip common-aliases changes) #themes
 
 # tmux plugin
 ZSH_TMUX_AUTOSTART=false
