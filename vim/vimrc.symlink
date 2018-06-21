@@ -1,54 +1,55 @@
 " Wrap gitcommit file types at the appropriate length
 filetype plugin indent on
+
 syntax on
+set ruler
+set number
+set textwidth=80
 
-" install vim-plug if necessary
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-      \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+set hlsearch
+
+set tabstop=4
+set softtabstop=0
+set shiftwidth=4
+set expandtab
+
+set laststatus=2
+
+set mouse=a
+set t_Co=256
+set backspace=2
+
+if filereadable(expand("~/.vimrc.bootstrap"))
+  source ~/.vimrc.bootstrap
+else
+  " install vim-plug if necessary
+  if empty(glob('~/.vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  endif
+
+  call plug#begin('~/.vim/plugged')
+  if filereadable(expand("~/.vimrc.local.bundles"))
+    source ~/.vimrc.local.bundles
+  endif
+  call plug#end()
+
+  if !has('nvim')
+    set ttymouse=xterm
+  endif
 endif
 
-call plug#begin('~/.vim/plugged')
-Plug 'chriskempson/base16-vim'
-"Plug 'cjrh/vim-conda'
-call plug#end()
-
-if empty($POWERLINE_ROOT)
-  let $POWERLINE_ROOT = system("pip show powerline-status | sed -n -e 's/Location:\s*// p' | tr -d '\n'")
-endif
-set rtp+=$POWERLINE_ROOT/powerline/bindings/vim
 "python3 from distutils.sysconfig import get_python_lib
 "python3 import vim
 "python3 vim.command("set rtp+=" + vim.eval("powerline_root") + '/powerline/bindings/vim')
 "python3 from powerline.vim import setup as powerline_setup
 "python3 powerline_setup()
 "python3 del powerline_setup
-
-"set rtp+=$HOME/miniconda2/lib/python2.7/site-packages/powerline/bindings/vim
-
-if !has('nvim')
-  set ttymouse=xterm
-endif
-
-set number
-set hlsearch
-set mouse=a
-set backspace=2
-set laststatus=2
-set t_Co=256
-
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-
-set autoindent
-set textwidth=80
+set rtp+=$POWERLINE_ROOT/bindings/vim
 
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
 endif
-
 
