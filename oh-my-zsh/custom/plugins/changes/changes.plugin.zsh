@@ -21,7 +21,7 @@ if which tmux &> /dev/null
                 fi
         }
 
-	compdef _tmux _zsh_tmux_plugin_run	
+	compdef _tmux _zsh_tmux_plugin_run
 
 	alias tmux=_zsh_tmux_plugin_run
 fi
