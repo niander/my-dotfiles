@@ -4,7 +4,8 @@
 
 set -e
 
-cd "$(dirname $0)"/..
+export DOTFILES="$(dirname $0)"/..
+cd $DOTFILES
 
 # Run Homebrew through the Brewfile
 if [ "$(uname -s)" == "Darwin" ]

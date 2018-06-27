@@ -25,3 +25,11 @@ if which tmux &> /dev/null
 
 	alias tmux=_zsh_tmux_plugin_run
 fi
+
+# Params
+ZSH_TMUX_AUTOSTART=false
+
+# zsh_autosuggestions
+ZSH_AUTOSUGGEST_STRATEGY=match_prev_cmd
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+

@@ -1,0 +1,2 @@
+unsetopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
