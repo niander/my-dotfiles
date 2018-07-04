@@ -54,6 +54,9 @@ set -g default-terminal "screen-256color"
 bind C-x if -F '#{s/empty//:key-table}' 'set key-table empty' 'set -u key-table'
 #bind -T empty F12 switchc -Tprefix
 
+# For vim-focus-events
+set -g focus-events on
+
 ############
 ## DESIGN ##
 ############
