@@ -1,0 +1,6 @@
+if (!suppressWarnings(require("pacman", quietly = TRUE))) {
+  if (interactive()) {
+    utils::install.packages("pacman", repo = "https://cran.rstudio.com")
+    library(pacman)
+  }
+}
