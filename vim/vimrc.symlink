@@ -21,6 +21,7 @@ set backspace=2
 
 if filereadable(expand("~/.vimrc.bootstrap"))
   source ~/.vimrc.bootstrap
+  set swapfile
 else
   " install vim-plug if necessary
   if empty(glob('~/.vim/autoload/plug.vim'))
@@ -40,9 +41,6 @@ else
   endif
 endif
 
-"python3 from distutils.sysconfig import get_python_lib
-"python3 import vim
-"python3 vim.command("set rtp+=" + vim.eval("powerline_root") + '/powerline/bindings/vim')
 "python3 from powerline.vim import setup as powerline_setup
 "python3 powerline_setup()
 "python3 del powerline_setup
