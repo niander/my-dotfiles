@@ -64,7 +64,7 @@ set -g focus-events on
 # status bar
 set -g status-bg black
 set -g status-fg default
-set -g status-justify left 
+set -g status-justify left
 set -g status-interval 3
 set -g status-position bottom
 
@@ -88,10 +88,19 @@ set -g window-status-current-format '#[fg=black,bg=blue]#[fg=black,bg=blue] #
 set -g window-status-format '#[bg=brightblack,fg=black]#[fg=black,bg=brightblack] #I #[bg=black,fg=brightblack]#[fg=brightblack,bg=black] #W  '
 
 # set poweline
-run-shell -b 'powerline-daemon -q --replace'
-if-shell "[ -r $POWERLINE_ROOT/bindings/tmux/powerline.conf ]" "source $POWERLINE_ROOT/bindings/tmux/powerline.conf"
+#run-shell -b 'powerline-daemon -q --replace'
+source "$DOTFILES/powerline/tmux-source.conf"
+#if-shell "[ -r $POWERLINE_ROOT/bindings/tmux/powerline.conf ]" "run-shell 'powerline-config tmux setenv'"
+#if-shell "[ -r $POWERLINE_ROOT/bindings/tmux/powerline.conf ]" "source $POWERLINE_ROOT/bindings/tmux/powerline.conf"
 
 set -g status-left-length 50
+
+#display -p "$_POWERLINE_LEFT_HARD_DIVIDER a"
+_POWERLINE_LEFT_HARD_DIVIDER_NOSPACES="#(echo $_POWERLINE_LEFT_HARD_DIVIDER | sed -e 's/[[:space:]]\+//')"
+#run-shell "echo $_POWERLINE_LEFT_HARD_DIVIDER | sed -e 's/[[:space:]]\+//' | xargs tmux setenv -g _POWERLINE_LEFT_HARD_DIVIDER_NOSPACES"
+#run-shell "_POWERLINE_LEFT_HARD_DIVIDER_NOSPACES=`echo $_POWERLINE_LEFT_HARD_DIVIDER | sed -e 's/[[:space:]]\+//'`; export _POWERLINE_LEFT_HARD_DIVIDER_NOSPACES"
+set -g status-left "#{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_FG]#[bg=$_POWERLINE_SESSION_PREFIX_BG]#[$_POWERLINE_SESSION_PREFIX_ATTR],#[fg=$_POWERLINE_SESSION_FG]#[bg=$_POWERLINE_SESSION_BG]#[$_POWERLINE_SESSION_ATTR]} #S #{?client_prefix,#[fg=$_POWERLINE_SESSION_PREFIX_BG],#[fg=$_POWERLINE_SESSION_BG]}#[bg=$_POWERLINE_SESSION_PREFIX_BG]#[nobold]$_POWERLINE_LEFT_HARD_DIVIDER_NOSPACES"
+set -ga status-left "#(env $POWERLINE_COMMAND $POWERLINE_COMMAND_ARGS tmux left -R pane_id=\"`tmux display -p '#''D'`\")"
 
 # title
 set -g set-titles-string '[tmux] #{pane_current_command}'
