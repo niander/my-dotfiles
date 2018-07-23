@@ -1,31 +1,37 @@
 {
-	"segments": {
-		"right": [
-			{
-				"function": "powerline.segments.common.sys.system_load",
-				"priority": 50
-			},
-			{
-                "function": "powerline.segments.common.time.date",
-                "name": "time",
-                "args": {
-					"format": "%H:%M",
-					"istime": true
-                }
-			},
-			{
-				"function": "powerline.segments.common.time.date"
-			}
-		],
-		"left": [
-			{
-				"function": "powerline.segments.common.net.hostname",
-				"args": {
-					"only_if_ssh": true
-				},
-				"before": "",
-				"draw_hard_divider": true
-			}
+    "segments": {
+        "right": [
+        {
+            "function": "powerline.segments.common.bat.battery"
+        },
+        {
+            "function": "powerline.segments.common.sys.system_load",
+            "priority": 50
+        },
+        {
+            "function": "powerline.segments.common.time.date",
+            "name": "date"
+        },
+        {
+            "function": "powerline.segments.common.time.date",
+            "name": "time",
+            "args": {
+                "istime": true
+            },
+            "before": ""
+        },
+        {
+            "function": "powerline.segments.common.net.hostname",
+            "args": {
+                "only_if_ssh": false
+            },
+            "before": ""
+        }
+        ],
+        "left": [
+        {
+            "function": "powerline.segments.common.env.user"
+        }
         ]
-	}
+    }
 }
