@@ -1,6 +1,6 @@
-if (!suppressWarnings(require("pacman", quietly = TRUE))) {
+if (!suppressWarnings(require("pacman", lib.loc = Sys.getenv("R_LIBS_USER"), quietly = TRUE))) {
   if (interactive()) {
-    utils::install.packages("pacman", repo = "https://cran.rstudio.com")
-    library(pacman)
+    utils::install.packages("pacman", lib.loc = Sys.getenv("R_LIBS_USER"), repo = "https://cran.rstudio.com")
+    library(pacman, lib.loc = Sys.getenv("R_LIBS_USER"))
   }
 }
