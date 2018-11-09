@@ -1,0 +1,1 @@
+alias vimR='vim -R'
