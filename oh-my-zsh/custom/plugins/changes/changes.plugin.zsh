@@ -30,6 +30,8 @@ fi
 ZSH_TMUX_AUTOSTART=false
 
 # zsh_autosuggestions
-ZSH_AUTOSUGGEST_STRATEGY=match_prev_cmd
+ZSH_AUTOSUGGEST_STRATEGY=default
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 
+# colorize
+cless() { colorize_via_pygmentize $1 | less }
