@@ -23,6 +23,7 @@ setopt HIST_VERIFY
 setopt EXTENDED_HISTORY
 # adds history incrementally and share it across sessions
 setopt SHARE_HISTORY
+
 setopt CORRECT
 setopt PROMPT_SUBST
 setopt COMPLETE_IN_WORD
