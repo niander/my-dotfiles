@@ -18,3 +18,4 @@ else
     git pull --rebase --stat origin master
 fi
 
+echo '> You should install python package [pygments]'
