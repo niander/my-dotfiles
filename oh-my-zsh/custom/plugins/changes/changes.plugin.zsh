@@ -33,5 +33,3 @@ ZSH_TMUX_AUTOSTART=false
 ZSH_AUTOSUGGEST_STRATEGY=history
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 
-# colorize
-cless() { colorize_via_pygmentize $1 | less }
