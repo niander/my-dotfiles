@@ -54,11 +54,10 @@ ZSH_CUSTOM=$DOTFILES/oh-my-zsh/custom
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git tmux globalias
          sudo dircycle wd
-         pip common-aliases
-         zsh-autosuggestions
+         pip common-aliases zsh-autosuggestions
          colorize z
          poetry changes
-         vagrant gitfast) #themes
+         vagrant) #themes
 
 source $ZSH/oh-my-zsh.sh
 
