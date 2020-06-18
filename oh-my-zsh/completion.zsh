@@ -57,7 +57,7 @@ plugins=(git tmux globalias
          pip common-aliases zsh-autosuggestions
          colorize z
          poetry changes
-         vagrant) #themes
+         vagrant conda-zsh-completion) #themes
 
 source $ZSH/oh-my-zsh.sh
 
