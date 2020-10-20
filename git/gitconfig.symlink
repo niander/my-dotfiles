@@ -16,7 +16,7 @@
 [core]
         excludesfile = ~/.gitignore
         editor = vim
-        autocrlf = false
+        autocrlf = input
 [apply]
         whitespace = nowarn
 [difftool]
@@ -29,5 +29,11 @@
         #
         # Setting to git 2.0 default to suppress warning message
         default = simple
+[pull]
+        ff = only
 [include]
         path = ~/.gitconfig.local
+[credential]
+        helper = /mnt/c/Program\\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe
+[user]
+        useConfigOnly = true
