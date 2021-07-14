@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Show the diff of everything you haven't pushed yet.
 
