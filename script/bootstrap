@@ -167,5 +167,13 @@ then
   fi
 fi
 
+# Add ~/.dotfiles link if not yet
+if ! [[ -a "$HOME/.dotfiles" ]]
+then
+  echo ''
+  echo "  Creating symbolic link ~/.dotfiles to $DOTFILES_ROOT"
+  ln -s "$DOTFILES_ROOT" "$HOME/.dotfiles"
+fi
+
 echo ''
 echo '  All installed!'
