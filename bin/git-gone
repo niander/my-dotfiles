@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Delete local branches with remote branches gone (already deleted)
+#
+
+for branch in `git branch -vv | grep ': gone]' | awk '{print $1}'`;
+do
+    read -p "Want to delete $branch? (y/N) " confirm
+    [[ $confirm == "y" ]] && git branch -D $branch
+done
