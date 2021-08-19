@@ -33,7 +33,5 @@
         ff = only
 [include]
         path = ~/.gitconfig.local
-[credential]
-        helper = /mnt/c/Program\\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe
 [user]
         useConfigOnly = true
