@@ -4,8 +4,13 @@
 
 set -e
 
-export DOTFILES="$(dirname $0)"/..
-cd $DOTFILES
+if [ -z $DOTFILES ]
+then
+  echo "Please run bootstrap first and reload shell. Aborting."
+  exit 1
+fi
+
+pushd $DOTFILES > /dev/null
 
 # Run Homebrew through the Brewfile
 if [ "$(uname -s)" == "Darwin" ]
@@ -15,4 +20,6 @@ then
 fi
 
 # find the installers and run them iteratively
-find . -maxdepth 2 -name install.sh | while read installer ; do sh -c "${installer}" ; done
+find . -maxdepth 2 -name install.sh | while read installer ; do bash -c "${installer}" ; done
+
+popd > /dev/null
