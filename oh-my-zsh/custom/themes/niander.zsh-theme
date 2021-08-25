@@ -1,5 +1,6 @@
 # inspired by robbyrussell theme
 
+# Prompts
 function conda_prompt_info() {
   local env=$(echo "${CONDA_DEFAULT_ENV:#base}" | tr -d "[:space:]")
   [[ -n $env ]] && ret="%F{magenta}🅒 ($env)%f " && echo "$ret"
@@ -20,3 +21,6 @@ ZSH_THEME_GIT_PROMPT_PREFIX="%F{blue} ("
 ZSH_THEME_GIT_PROMPT_SUFFIX=")%f "
 ZSH_THEME_GIT_PROMPT_DIRTY="*"
 ZSH_THEME_GIT_PROMPT_CLEAN=""
+
+# Term titles
+ZSH_THEME_TERM_TAB_TITLE_IDLE="%n:$ZSH_THEME_TERM_TAB_TITLE_IDLE"
