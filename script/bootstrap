@@ -39,6 +39,9 @@ setup_gitconfig () {
     if [ "$(uname -s)" == "Darwin" ]
     then
       git_credential='osxkeychain'
+    else
+      user ' - What is your git credential provider path?'
+      read -e -i $git_credential git_credential
     fi
     
     user ' - What is your github login?'
@@ -46,7 +49,7 @@ setup_gitconfig () {
     user ' - What is your git author name?'
     read -e -i $git_login git_authorname
     user ' - What is your git author email?'
-    read -e -i $git_login'@users.noreply.github.com' git_authoremail
+    read -e -i "$git_login@users.noreply.github.com" git_authoremail
     
 
     sed -e "s/LOGIN/$git_login/g" -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
