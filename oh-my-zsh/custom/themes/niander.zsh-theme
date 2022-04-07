@@ -3,7 +3,7 @@
 # Prompts
 function conda_prompt_info() {
   local env=$(echo "${CONDA_DEFAULT_ENV:#base}" | tr -d "[:space:]")
-  [[ -n $env ]] && ret="%F{magenta}🅒 ($env)%f " && echo "$ret"
+  [[ -n $env ]] && ret="%F{magenta}%{%G©%} ($env)%f " && echo "$ret"
 }
 
 function ret_status_prompt_info() {
