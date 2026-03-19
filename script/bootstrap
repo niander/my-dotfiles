@@ -35,13 +35,13 @@ setup_gitconfig () {
   then
     info 'setup gitconfig'
 
-    git_credential='cache'
+    git_credential='/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe'
     if [ "$(uname -s)" == "Darwin" ]
     then
       git_credential='osxkeychain'
     else
       user ' - What is your git credential provider path?'
-      read -e -i $git_credential git_credential
+      read -r -e -i "$git_credential" git_credential
     fi
     
     user ' - What is your github login?'
@@ -52,7 +52,8 @@ setup_gitconfig () {
     read -e -i "$git_login@users.noreply.github.com" git_authoremail
     
 
-    sed -e "s/LOGIN/$git_login/g" -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
+    git_credential_escaped=$(printf '%s\n' "$git_credential" | sed 's/[&/\\]/\\&/g')
+    sed -e "s/LOGIN/$git_login/g" -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential_escaped/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
 
     success 'gitconfig'
   fi
