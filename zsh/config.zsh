@@ -15,8 +15,6 @@ autoload -U $DOTFILES/functions/*(:t)
 ## Options
 # don't nice background tasks
 setopt NO_BG_NICE
-# don't kill background jobs on shell exit
-setopt NO_HUP
 setopt NO_LIST_BEEP
 # allow functions to have local options/traps
 setopt LOCAL_OPTIONS
