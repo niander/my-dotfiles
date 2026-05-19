@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Downloads the embedded video on any web page straight to ~/Downloads (or the
+# directory in $YT_DOWNLOAD_DIR if set).
+#
+# Uses yt-dlp: https://github.com/yt-dlp/yt-dlp
+#
+
+target="${YT_DOWNLOAD_DIR:-$HOME/Downloads}"
+mkdir -p "$target"
+cd "$target" && yt-dlp -S "ext" "$1"

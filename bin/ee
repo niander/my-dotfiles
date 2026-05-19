@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Open files in $EDITOR and wait for the editor to exit.
+#
+# Useful when $EDITOR is a GUI editor (e.g. code, zed, windsurf) and you're
+# invoking it from a tool that needs to block until you're done editing.
+#
+EDITOR="$EDITOR --wait" "$@"

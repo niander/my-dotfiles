@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Quick shortcut to an AI client.
+#
+# Loads up an AI client with preferable settings. Defaults to claude; override
+# with $AI_CLIENT (e.g. AI_CLIENT="codex" a).
+#
+# USAGE:
+#
+#   $ a            # opens claude with skip-permissions
+#   $ a "prompt"   # passes args through
+#
+
+client="${AI_CLIENT:-claude}"
+case "$client" in
+  claude)
+    exec claude --dangerously-skip-permissions "$@"
+    ;;
+  *)
+    exec "$client" "$@"
+    ;;
+esac
