@@ -15,7 +15,14 @@ autoload -U $DOTFILES/functions/*(:t)
 ## Options
 # don't nice background tasks
 setopt NO_BG_NICE
+# don't kill background jobs on shell exit
+setopt NO_HUP
 setopt NO_LIST_BEEP
+# allow functions to have local options/traps
+setopt LOCAL_OPTIONS
+setopt LOCAL_TRAPS
+# don't exit on ctrl-D
+setopt IGNORE_EOF
 
 # expand history before executing
 setopt HIST_VERIFY
@@ -23,6 +30,11 @@ setopt HIST_VERIFY
 setopt EXTENDED_HISTORY
 # adds history incrementally and share it across sessions
 setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+# don't record duplicate commands
+setopt HIST_IGNORE_ALL_DUPS
+# trim extra blanks
+setopt HIST_REDUCE_BLANKS
 
 setopt CORRECT
 setopt PROMPT_SUBST
