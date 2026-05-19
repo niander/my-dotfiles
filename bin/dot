@@ -40,19 +40,51 @@ done
 
 export DOTFILES=$HOME/.dotfiles
 
-if [ "$(uname -s)" == "Darwin" ]
-then
-	# Set macOS defaults
-	$DOTFILES/macos/set-defaults.sh
+# Detect OS and pick a package manager update step.
+update_packages() {
+	local uname_s
+	uname_s="$(uname -s)"
+	case "$uname_s" in
+		Linux*)
+			# Distinguish WSL from native Linux only for messaging.
+			local label="Linux"
+			if grep -qi microsoft /proc/version 2>/dev/null; then
+				label="WSL"
+			fi
+			if command -v apt-get >/dev/null 2>&1; then
+				echo "› $label: apt-get update && apt-get upgrade"
+				sudo apt-get update && sudo apt-get -y upgrade
+			elif command -v dnf >/dev/null 2>&1; then
+				echo "› $label: dnf upgrade"
+				sudo dnf -y upgrade
+			elif command -v pacman >/dev/null 2>&1; then
+				echo "› $label: pacman -Syu"
+				sudo pacman -Syu --noconfirm
+			else
+				echo "› $label: no known package manager — skipping system upgrade"
+			fi
+			;;
+		MINGW*|MSYS*|CYGWIN*)
+			if command -v winget >/dev/null 2>&1; then
+				echo "› Windows: winget upgrade --all"
+				winget upgrade --all --accept-source-agreements --accept-package-agreements || true
+			else
+				echo "› Windows: winget not available — skipping system upgrade"
+			fi
+			;;
+		*)
+			echo "› Unknown OS ($uname_s) — skipping system upgrade"
+			;;
+	esac
+}
 
-	# Install homebrew
-	$DOTFILES/homebrew/install.sh 2>&1
+# Pull the dotfiles repo itself.
+echo "› git pull"
+git -C "$DOTFILES" pull --ff-only
 
-	# Upgrade homebrew
-	echo "› brew update"
-	brew update
-fi
+# Upgrade system packages.
+update_packages
 
-# Install software
+# Install software (topical install.sh scripts).
 echo "› $DOTFILES/script/install"
 $DOTFILES/script/install

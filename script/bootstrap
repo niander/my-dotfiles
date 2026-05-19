@@ -35,22 +35,31 @@ setup_gitconfig () {
   then
     info 'setup gitconfig'
 
-    git_credential='/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe'
-    if [ "$(uname -s)" == "Darwin" ]
-    then
-      git_credential='osxkeychain'
-    else
-      user ' - What is your git credential provider path?'
-      read -r -e -i "$git_credential" git_credential
-    fi
-    
+    # Pick a sensible default credential helper for the current OS.
+    git_credential='cache'
+    uname_s="$(uname -s)"
+    case "$uname_s" in
+      Linux*)
+        if grep -qi microsoft /proc/version 2>/dev/null; then
+          # WSL — reuse the Windows credential manager.
+          git_credential='/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe'
+        fi
+        ;;
+      MINGW*|MSYS*|CYGWIN*)
+        git_credential='manager'
+        ;;
+    esac
+
+    user " - What is your git credential provider? [$git_credential]"
+    read -r -e -i "$git_credential" git_credential
+
     user ' - What is your github login?'
     read -e git_login
     user ' - What is your git author name?'
     read -e -i $git_login git_authorname
     user ' - What is your git author email?'
     read -e -i "$git_login@users.noreply.github.com" git_authoremail
-    
+
 
     git_credential_escaped=$(printf '%s\n' "$git_credential" | sed 's/[&/\\]/\\&/g')
     sed -e "s/LOGIN/$git_login/g" -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential_escaped/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
@@ -158,18 +167,6 @@ install_dotfiles () {
 
 setup_gitconfig
 install_dotfiles
-
-# If we're on a Mac, let's install and setup homebrew.
-if [ "$(uname -s)" == "Darwin" ]
-then
-  info "installing dependencies"
-  if source bin/dot | while read -r data; do info "$data"; done
-  then
-    success "dependencies installed"
-  else
-    fail "error installing dependencies"
-  fi
-fi
 
 # Add ~/.dotfiles link if not yet
 if ! [[ -a "$HOME/.dotfiles" ]]
