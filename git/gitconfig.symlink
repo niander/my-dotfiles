@@ -19,8 +19,12 @@
         autocrlf = input
 [apply]
         whitespace = nowarn
+[mergetool]
+        keepBackup = false
 [difftool]
         prompt = false
+[init]
+        defaultBranch = main
 [help]
         autocorrect = 30
 [push]
