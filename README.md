@@ -58,7 +58,7 @@ git log --oneline master..upstream/master      # what's new upstream
 git diff --stat master..upstream/master        # which files changed
 ```
 
-Cherry-pick concepts, not commits — most upstream changes are macOS-only.
+Cherry-pick what's useful.
 
 ## Credits
 
