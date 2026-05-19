@@ -7,5 +7,6 @@
 #
 
 target="${YT_DOWNLOAD_DIR:-$HOME/Downloads}"
-mkdir -p "$target"
-cd "$target" && yt-dlp -S "ext" "$1"
+mkdir -p "$target" || { echo "Failed to create $target" >&2; exit 1; }
+cd "$target" || { echo "Failed to cd to $target" >&2; exit 1; }
+yt-dlp -S "ext" "$1"
