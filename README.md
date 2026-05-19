@@ -47,19 +47,6 @@ Then run `script/install` (or just `dot`) to install per-topic dependencies.
 
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by git).
 
-## Keeping in sync with upstream
-
-`holman/dotfiles` keeps evolving and is occasionally worth raiding. To pull in new ideas:
-
-```sh
-git remote add upstream https://github.com/holman/dotfiles.git
-git fetch upstream
-git log --oneline master..upstream/master      # what's new upstream
-git diff --stat master..upstream/master        # which files changed
-```
-
-Cherry-pick what's useful.
-
 ## Credits
 
 Forked from [holman/dotfiles](https://github.com/holman/dotfiles), which in turn was inspired by [ryanb/dotfiles](https://github.com/ryanb/dotfiles). The topical-dotfiles architecture is theirs.
