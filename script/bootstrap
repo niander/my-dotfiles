@@ -176,5 +176,9 @@ then
   ln -s "$DOTFILES_ROOT" "$HOME/.dotfiles"
 fi
 
+# Run topical install scripts.
+info 'running script/install'
+DOTFILES="$DOTFILES_ROOT" "$DOTFILES_ROOT/script/install"
+
 echo ''
 echo '  All installed!'
