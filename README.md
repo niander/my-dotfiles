@@ -62,4 +62,4 @@ Cherry-pick concepts, not commits — most upstream changes are macOS-only.
 
 ## Credits
 
-Originally forked from [holman/dotfiles](https://github.com/holman/dotfiles), which in turn was inspired by [ryanb/dotfiles](https://github.com/ryanb/dotfiles). All of the original topical-dotfiles architecture is theirs; this fork just adapts it for non-macOS environments.
+Forked from [holman/dotfiles](https://github.com/holman/dotfiles), which in turn was inspired by [ryanb/dotfiles](https://github.com/ryanb/dotfiles). The topical-dotfiles architecture is theirs.
