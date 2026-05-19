@@ -14,7 +14,7 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 
 ## What's inside
 
-Topic dirs: `atuin/`, `base16-shell/`, `bin/`, `docker/`, `editors/`, `functions/`, `git/`, `miniconda/`, `node/`, `oh-my-zsh/`, `powerline/`, `R/`, `system/`, `tmux/`, `vim/`, `zsh/`.
+Topic dirs: `base16-shell/`, `bin/`, `docker/`, `editors/`, `functions/`, `git/`, `miniconda/`, `node/`, `oh-my-zsh/`, `powerline/`, `R/`, `system/`, `tmux/`, `vim/`, `zsh/`.
 
 Notable scripts in `bin/`:
 

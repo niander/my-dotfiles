@@ -1,5 +1,8 @@
+# NOTE: oh-my-zsh's `common-aliases` plugin defines `d='dirs -v | head -10'`
+# and loads AFTER this file (oh-my-zsh/completion.zsh runs last). So we don't
+# define `d` here. Use `dk` instead, or just type `docker`.
 if (( $+commands[docker] )); then
-  alias d='docker'
+  alias dk='docker'
 fi
 
 if (( $+commands[docker-compose] )); then
