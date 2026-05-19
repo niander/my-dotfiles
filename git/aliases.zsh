@@ -6,6 +6,10 @@ then
   alias git=$hub_path
 fi
 
-# NOTE: most git aliases (gl, gp, gd, gs, gc, gco, gb, gca, glog, ...) come from
-# the oh-my-zsh `git` plugin loaded later. Overrides and additions live in
-# oh-my-zsh/custom/git-aliases.zsh so they take effect after the plugin.
+# Most short git aliases (gl, gp, gst, gd, gc, gco, gb, gca, glog, ...) come
+# from the oh-my-zsh `git` plugin loaded later via oh-my-zsh/completion.zsh.
+# Only define names the plugin doesn't, so these survive load order.
+alias gac='git add --all && git commit -m'
+alias gcpb='git copy-branch-name'
+alias gcb='git copy-branch-name'
+alias ge='git-edit-new'
