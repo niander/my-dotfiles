@@ -42,8 +42,11 @@ script/bootstrap
 1. Prompt for your git identity and pick a sensible credential helper for your OS (WSL → Windows credential manager; native Linux → `cache`; MinGW/MSYS → `manager`).
 2. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
 3. Create the `~/.dotfiles` symlink if needed.
+4. Run `script/install`, which executes every topic's `install.sh`.
 
-Then run `script/install` (or just `dot`) to install per-topic dependencies.
+After that, open a new shell so the zsh config loads.
+
+To keep things fresh later, run `dot` periodically — it pulls the latest from the repo, upgrades system packages (apt/dnf/pacman/winget), and re-runs `script/install`.
 
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by git).
 

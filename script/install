@@ -4,20 +4,13 @@
 
 set -e
 
-if [ -z $DOTFILES ]
-then
-  echo "Please run bootstrap first and reload shell. Aborting."
-  exit 1
+# Default DOTFILES to the dir containing this script's parent if not set.
+if [ -z "$DOTFILES" ]; then
+  DOTFILES="$(cd "$(dirname "$0")/.." && pwd -P)"
+  export DOTFILES
 fi
 
-pushd $DOTFILES > /dev/null
-
-# Run Homebrew through the Brewfile
-if [ "$(uname -s)" == "Darwin" ]
-then
-  echo "› brew bundle"
-  brew bundle
-fi
+pushd "$DOTFILES" > /dev/null
 
 # find the installers and run them iteratively
 find . -maxdepth 2 -name install.sh | while read installer ; do bash -c "${installer}" ; done
