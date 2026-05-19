@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Open new, unstaged files in your $EDITOR.
+#
+# Handy after a generator drops new files in your working directory and you
+# want to jump straight to editing them.
+
+files=$(git ls-files --others --exclude-standard)
+if [ -z "$files" ]; then
+  echo "No new untracked files."
+  exit 0
+fi
+
+# shellcheck disable=SC2086
+$EDITOR $files

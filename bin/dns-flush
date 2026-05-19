@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Flush DNS caches. Picks the right mechanism for the current OS.
+#
+
+set -e
+
+uname_s="$(uname -s)"
+
+case "$uname_s" in
+  Linux*)
+    if command -v resolvectl >/dev/null 2>&1; then
+      sudo resolvectl flush-caches
+    elif command -v systemd-resolve >/dev/null 2>&1; then
+      sudo systemd-resolve --flush-caches
+    elif command -v nscd >/dev/null 2>&1; then
+      sudo systemctl restart nscd
+    else
+      echo "No known DNS cache utility found." >&2
+      exit 1
+    fi
+    ;;
+  MINGW*|MSYS*|CYGWIN*)
+    ipconfig.exe /flushdns
+    ;;
+  *)
+    echo "Unsupported OS: $uname_s" >&2
+    exit 1
+    ;;
+esac
