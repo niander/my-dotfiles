@@ -38,10 +38,9 @@ Notable scripts in `bin/`:
 ## Install
 
 ```sh
-cd ~/code   # or wherever you keep checkouts
 git clone https://github.com/niander/my-dotfiles.git
 cd my-dotfiles
-script/bootstrap
+./script/bootstrap
 ```
 
 `script/bootstrap` will:
