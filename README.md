@@ -33,8 +33,6 @@ cd ~/dotfiles
 script/bootstrap
 ```
 
-> Pick any clone path you like (e.g. `~/code/dotfiles`, `~/projects/dotfiles`) — just **don't clone into `~/.dotfiles`**. `script/bootstrap` creates `~/.dotfiles` as a symlink to wherever the repo lives, and that symlink is later used as a "bootstrap-was-run" marker by `script/install`.
-
 `script/bootstrap` will:
 
 1. Prompt for your git identity and pick a sensible credential helper for your OS (WSL → Windows credential manager; native Linux → `cache`; MinGW/MSYS → `manager`).
