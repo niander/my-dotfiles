@@ -14,6 +14,8 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 
 ## What's inside
 
+A few representative topics: `zsh/`, `oh-my-zsh/`, `git/`, `vim/`, `tmux/`, `docker/`, `bin/`. Each follows the convention above.
+
 Notable scripts in `bin/`:
 
 | Command | What it does |
