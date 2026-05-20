@@ -20,9 +20,7 @@ Notable scripts in `bin/`:
 
 | Command | What it does |
 | --- | --- |
-| `dot` | Re-bootstrap: pulls the repo, upgrades system packages (apt/dnf/pacman/winget), runs all `install.sh` scripts |
 | `e` / `ee` | Open in `$EDITOR` (`ee` waits for editors that fork) |
-| `a` | Launch your default AI client (default: `claude`) |
 | `git-amend`, `git-credit`, `git-edit-new`, `git-copy-branch-name`, `git-up`, `git-undo`, `git-nuke`, `git-track`, … | Git workflow helpers |
 | `dns-flush` | OS-aware DNS cache flush |
 | `yt` | yt-dlp wrapper |
@@ -48,7 +46,11 @@ script/bootstrap
 
 After that, open a new shell so the zsh config loads.
 
-To keep things fresh later, run `dot` periodically — it pulls the latest from the repo, upgrades system packages (apt/dnf/pacman/winget), and re-runs `script/install`.
+To refresh later (e.g. after pulling new topics):
+
+```sh
+git -C ~/dotfiles pull --ff-only && ~/dotfiles/script/install
+```
 
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by git).
 
