@@ -1,3 +1,11 @@
+> **Reference snapshot, not active documentation.**
+>
+> This file is a verbatim copy of [holman/dotfiles](https://github.com/holman/dotfiles)'s README, kept here so future upstream syncs can diff against it. **Do not follow these install instructions for this fork** -- in particular, do **not** clone into `~/.dotfiles` (this fork's `script/install` requires `~/.dotfiles` to be a symlink that `script/bootstrap` creates).
+>
+> See [`README.md`](./README.md) for this fork's actual install steps.
+
+---
+
 # holman does dotfiles
 
 Your dotfiles are how you personalize your system. These are mine.
