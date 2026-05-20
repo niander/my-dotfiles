@@ -1,9 +1,8 @@
 # Use `hub` as our git wrapper if available:
 #   https://hub.github.com/
-hub_path=$(which hub)
-if (( $+commands[hub] ))
-then
-  alias git=$hub_path
+if (( $+commands[hub] )); then
+  hub_path=$(command -v hub)
+  alias git="$hub_path"
 fi
 
 # Most short git aliases (gl, gp, gst, gd, gc, gco, gb, gca, glog, ...) come
