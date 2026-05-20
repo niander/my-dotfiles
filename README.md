@@ -52,10 +52,12 @@ cd my-dotfiles
 
 After that, open a new shell so the zsh config loads.
 
-To update later (from anywhere, thanks to the `~/.dotfiles` symlink):
+To update later:
 
 ```sh
-git -C ~/.dotfiles pull --ff-only && ~/.dotfiles/script/install
+cd ~/.dotfiles
+git pull --ff-only
+./script/install
 ```
 
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by git).
