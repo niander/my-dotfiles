@@ -176,6 +176,14 @@ then
   ln -s "$DOTFILES_ROOT" "$HOME/.dotfiles"
 fi
 
+# Verify ~/.dotfiles is now the expected symlink. If the user cloned directly
+# into ~/.dotfiles (against README guidance), the directory exists but is not
+# a symlink, and script/install's guard will (correctly) refuse to run.
+# Fail here with a clearer message than install's guard would give.
+if [ ! -L "$HOME/.dotfiles" ]; then
+  fail "~/.dotfiles exists but is not a symlink (cloned directly into ~/.dotfiles?). Move the clone to another path (e.g. ~/code/dotfiles) and rerun script/bootstrap."
+fi
+
 # Run topical install scripts.
 info 'running script/install'
 DOTFILES="$DOTFILES_ROOT" "$DOTFILES_ROOT/script/install"

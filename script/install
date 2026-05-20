@@ -11,18 +11,27 @@ if [ -z "$DOTFILES" ]; then
 fi
 
 # Require bootstrap to have run first. bootstrap creates ~/.dotfiles as a
-# symlink to the actual repo location (as long as the user didn't clone
-# directly into ~/.dotfiles — which the README warns against). Without this
-# guard, oh-my-zsh/install.sh's upstream installer can clobber/replace
-# ~/.zshrc on a virgin machine.
+# symlink to the actual repo location. Without this guard, oh-my-zsh's
+# upstream installer can clobber ~/.zshrc on a virgin machine.
 if [ ! -L "$HOME/.dotfiles" ]; then
   echo "script/install: run script/bootstrap first (~/.dotfiles is not a symlink)" >&2
+  exit 1
+fi
+
+# Also verify the symlink resolves to THIS repo. Otherwise we could be running
+# installers from one checkout while the shell is configured to use another.
+dotfiles_link="$(cd "$HOME/.dotfiles" 2>/dev/null && pwd -P)"
+if [ "$dotfiles_link" != "$DOTFILES" ]; then
+  echo "script/install: ~/.dotfiles resolves to '$dotfiles_link', not '$DOTFILES'." >&2
+  echo "  Run script/bootstrap from this checkout, or update the ~/.dotfiles symlink." >&2
   exit 1
 fi
 
 pushd "$DOTFILES" > /dev/null
 
 # find the installers and run them iteratively
-find . -maxdepth 2 -name install.sh | while read installer ; do bash -c "${installer}" ; done
+find . -maxdepth 2 -name install.sh -print0 | while IFS= read -r -d '' installer; do
+  bash "$installer"
+done
 
 popd > /dev/null
