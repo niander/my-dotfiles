@@ -38,8 +38,9 @@ Notable scripts in `bin/`:
 ## Install
 
 ```sh
-git clone https://github.com/niander/my-dotfiles.git ~/dotfiles
-cd ~/dotfiles
+cd ~/code   # or wherever you keep checkouts
+git clone https://github.com/niander/my-dotfiles.git
+cd my-dotfiles
 script/bootstrap
 ```
 
@@ -52,10 +53,10 @@ script/bootstrap
 
 After that, open a new shell so the zsh config loads.
 
-To update later:
+To update later (from anywhere, thanks to the `~/.dotfiles` symlink):
 
 ```sh
-git -C ~/dotfiles pull --ff-only && ~/dotfiles/script/install
+git -C ~/.dotfiles pull --ff-only && ~/.dotfiles/script/install
 ```
 
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by git).
