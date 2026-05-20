@@ -44,7 +44,7 @@ script/bootstrap
 
 After that, open a new shell so the zsh config loads.
 
-To refresh later (e.g. after pulling new topics):
+To update later:
 
 ```sh
 git -C ~/dotfiles pull --ff-only && ~/dotfiles/script/install
