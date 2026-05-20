@@ -32,16 +32,18 @@ Notable scripts in `bin/`:
 ## Install
 
 ```sh
-git clone https://github.com/niander/my-dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+git clone https://github.com/niander/my-dotfiles.git ~/dotfiles
+cd ~/dotfiles
 script/bootstrap
 ```
+
+> Pick any clone path you like (e.g. `~/code/dotfiles`, `~/projects/dotfiles`) — just **don't clone into `~/.dotfiles`**. `script/bootstrap` creates `~/.dotfiles` as a symlink to wherever the repo lives, and that symlink is later used as a "bootstrap-was-run" marker by `script/install`.
 
 `script/bootstrap` will:
 
 1. Prompt for your git identity and pick a sensible credential helper for your OS (WSL → Windows credential manager; native Linux → `cache`; MinGW/MSYS → `manager`).
 2. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
-3. Create the `~/.dotfiles` symlink if needed.
+3. Create the `~/.dotfiles` symlink pointing at the repo.
 4. Run `script/install`, which executes every topic's `install.sh`.
 
 After that, open a new shell so the zsh config loads.
