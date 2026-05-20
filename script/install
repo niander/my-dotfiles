@@ -10,6 +10,16 @@ if [ -z "$DOTFILES" ]; then
   export DOTFILES
 fi
 
+# Require bootstrap to have run first. ~/.zshrc being a symlink is the
+# strongest cheap signal that script/bootstrap completed its symlink phase
+# (~/.dotfiles is unreliable because the README recommends cloning into it).
+# Without this, oh-my-zsh/install.sh's upstream installer can clobber/replace
+# ~/.zshrc on a virgin machine.
+if [ ! -L "$HOME/.zshrc" ]; then
+  echo "script/install: run script/bootstrap first (~/.zshrc is not a symlink)" >&2
+  exit 1
+fi
+
 pushd "$DOTFILES" > /dev/null
 
 # find the installers and run them iteratively
