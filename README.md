@@ -14,7 +14,15 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 
 ## What's inside
 
-A few representative topics: `zsh/`, `oh-my-zsh/`, `git/`, `vim/`, `tmux/`, `docker/`, `bin/`. Each follows the convention above.
+A few representative topics (folders):
+
+- `zsh/` — shell config, history, options
+- `oh-my-zsh/` — oh-my-zsh setup, plugins, custom overrides
+- `git/` — gitconfig, aliases, ignore rules, helpers
+- `vim/` — vimrc + plugin setup
+- `tmux/` — tmux.conf and tpm
+- `docker/` — docker/docker-compose aliases
+- `bin/` — small command-line tools on `$PATH`
 
 Notable scripts in `bin/`:
 
