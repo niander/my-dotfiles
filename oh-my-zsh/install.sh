@@ -15,7 +15,7 @@ then
   # Install non-destructively: keep our ~/.zshrc, don't change the login shell,
   # and don't launch zsh. Set zsh as the login shell manually once (see README).
   wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O - | \
-    KEEP_ZSHRC=yes CHSH=no RUNZSH=no sh -s -- --unattended --keep-zshrc
+    sh -s -- --unattended --keep-zshrc
 fi
 
 # install zsh-zutosuggestions
