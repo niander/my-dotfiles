@@ -50,7 +50,11 @@ cd my-dotfiles
 3. Create the `~/.dotfiles` symlink pointing at the repo.
 4. Run `script/install`, which executes every topic's `install.sh`.
 
-After that, open a new shell so the zsh config loads.
+After that, set zsh as your login shell (one time) and open a new shell so the config loads:
+
+```sh
+chsh -s "$(command -v zsh)"
+```
 
 To update later:
 
