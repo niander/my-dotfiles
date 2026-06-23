@@ -17,9 +17,9 @@ then
   # Download first so a failed fetch aborts under `set -e`; a piped `wget | sh`
   # would mask wget's exit status (POSIX sh has no pipefail).
   omz_installer="$(mktemp)"
-  trap 'rm -f "$omz_installer"' EXIT
   wget -O "$omz_installer" https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
   sh "$omz_installer" --unattended --keep-zshrc
+  rm -f "$omz_installer"
 fi
 
 # install zsh-zutosuggestions
