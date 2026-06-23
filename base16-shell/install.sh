@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 BASE16_SHELL=$DOTFILES/base16-shell/.base16-shell/
 if ! test -d $BASE16_SHELL
 then

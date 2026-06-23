@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 dirname="$(dirname $0)"
 
 echo ''
