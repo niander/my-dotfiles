@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if ! `whereis tmux >/dev/null 2>&1`
 then
   echo 'you should install tmux'

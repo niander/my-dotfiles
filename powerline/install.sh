@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if ! pip show -q powerline-status; then
   set -x
   pip install powerline-status
