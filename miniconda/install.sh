@@ -2,7 +2,7 @@
 
 set -e
 
-dirname="$(dirname $0)"
+dirname="$(dirname "$0")"
 
 echo ''
 
