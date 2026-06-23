@@ -14,8 +14,12 @@ then
   fi
   # Install non-destructively: keep our ~/.zshrc, don't change the login shell,
   # and don't launch zsh. Set zsh as the login shell manually once (see README).
-  wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O - | \
-    sh -s -- --unattended --keep-zshrc
+  # Download first so a failed fetch aborts under `set -e`; a piped `wget | sh`
+  # would mask wget's exit status (POSIX sh has no pipefail).
+  omz_installer="$(mktemp)"
+  trap 'rm -f "$omz_installer"' EXIT
+  wget -O "$omz_installer" https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+  sh "$omz_installer" --unattended --keep-zshrc
 fi
 
 # install zsh-zutosuggestions
