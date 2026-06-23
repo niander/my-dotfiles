@@ -1,11 +1,21 @@
 #!/bin/sh
 
+set -e
+
 # install oh my zsh
 if ! test -d "$HOME/.oh-my-zsh"
 then
-  wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O - | sh
-  # Make zsh default shell
-  which zsh >/dev/null 2>&1 && sudo chsh -s `which zsh`
+  # Refuse to run before bootstrap: ~/.zshrc must already be our symlink, or the
+  # upstream installer can create/clobber a real ~/.zshrc.
+  if ! test -L "$HOME/.zshrc"
+  then
+    echo "oh-my-zsh/install.sh: run script/bootstrap first (~/.zshrc is not a symlink)" >&2
+    exit 1
+  fi
+  # Install non-destructively: keep our ~/.zshrc, don't change the login shell,
+  # and don't launch zsh. Set zsh as the login shell manually once (see README).
+  wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O - | \
+    KEEP_ZSHRC=yes CHSH=no RUNZSH=no sh -s -- --unattended --keep-zshrc
 fi
 
 # install zsh-zutosuggestions
