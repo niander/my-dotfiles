@@ -1,17 +1,13 @@
 BASE16_SHELL=$DOTFILES/base16-shell/.base16-shell
 BASE16_ENABLED_FILE=$DOTFILES/base16-shell/.base16_enabled
 
-function base16() {
+function toggle_base16_shell() {
     case "$1" in
         on)
             touch "$BASE16_ENABLED_FILE" || return
-            source "$BASE16_SHELL/profile_helper.sh"
-            [[ -z "$BASE16_THEME" ]] && base16_eighties
             ;;
         off)
-            rm -f "$BASE16_ENABLED_FILE" "$HOME/.base16_theme"
-            unset BASE16_THEME
-            command reset
+            rm -f "$BASE16_ENABLED_FILE"
             ;;
         status)
             [[ -f "$BASE16_ENABLED_FILE" ]] && echo "base16 is on" || echo "base16 is off"
