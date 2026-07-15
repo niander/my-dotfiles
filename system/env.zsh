@@ -1,5 +1,10 @@
 export EDITOR=code
 
+if [[ -n "${WT_SESSION:-}" ]]
+then
+    export COLORTERM=truecolor
+fi
+
 if [[ -a $(which less) ]]
 then
     ver=$(less -V | grep -Eo 'less [0-9]+' | grep -Eo '[0-9]+')

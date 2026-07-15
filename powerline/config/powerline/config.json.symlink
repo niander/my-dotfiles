@@ -1,7 +1,7 @@
 {
 	"common": {
         "default_top_theme": "powerline",
-		"term_truecolor": false
+		"term_truecolor": true
 	},
 	"ext": {
 		"tmux": {
