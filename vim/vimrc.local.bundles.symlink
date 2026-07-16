@@ -2,11 +2,15 @@ Plug 'chriskempson/base16-vim'
 "Plug 'cjrh/vim-conda'
 Plug 'tmux-plugins/vim-tmux-focus-events'
 
-" Unplug
-if filereadable(expand("~/.vimrc.bootstrap"))
-  Plug 'vim-airline/vim-airline', { 'on': [] }
-  Plug 'vim-airline/vim-airline-themes', { 'on': [] }
-endif
+" Previously airline was "unplugged" here so the Python powerline plugin could
+" own the statusline. Powerline is now disabled (it crashes under the conda vs
+" system libpython mismatch — see ~/.vimrc), so let airline load normally and
+" draw the statusline instead. To go back to python-powerline, restore the
+" { 'on': [] } lazy stubs below.
+"if filereadable(expand("~/.vimrc.bootstrap"))
+"  Plug 'vim-airline/vim-airline', { 'on': [] }
+"  Plug 'vim-airline/vim-airline-themes', { 'on': [] }
+"endif
 
 " Fix bug from polyglot (needs to be set before loading polyglot)
 let g:polyglot_disabled = ['python']

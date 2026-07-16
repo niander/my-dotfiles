@@ -44,7 +44,17 @@ endif
 "python3 from powerline.vim import setup as powerline_setup
 "python3 powerline_setup()
 "python3 del powerline_setup
-set rtp+=$POWERLINE_ROOT/bindings/vim
+" Only load conda's powerline bindings when NOT inside a conda env. Vim is linked
+" against the system libpython3, but with conda active its embedded python loads
+" miniconda's stdlib, causing an ABI mismatch (ctypes: "class must define a
+" '_type_' attribute") that crashes powerline on startup. vim-airline already
+" provides the statusline, so this is safe to skip. Set VIM_ENABLE_POWERLINE=1
+" to force-enable it.
+if empty($CONDA_PREFIX) || !empty($VIM_ENABLE_POWERLINE)
+  if !empty($POWERLINE_ROOT) && isdirectory($POWERLINE_ROOT . '/bindings/vim')
+    set rtp+=$POWERLINE_ROOT/bindings/vim
+  endif
+endif
 
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256

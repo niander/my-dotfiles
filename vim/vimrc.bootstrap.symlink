@@ -172,7 +172,7 @@ else
 
   " IndentLine
   let g:indentLine_enabled = 1
-  let g:indentLine_concealcursor = 0
+  let g:indentLine_concealcursor = ''
   let g:indentLine_char = '┆'
   let g:indentLine_faster = 1
 
@@ -222,7 +222,7 @@ if exists("*fugitive#statusline")
 endif
 
 " vim-airline
-let g:airline_theme = 'powerlineish'
+let g:airline_theme = 'molokai'
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#tabline#enabled = 1
@@ -494,6 +494,11 @@ endif
 "*****************************************************************************
 
 " vim-airline
+" Use the powerline glyphs for separators/symbols. The powerline fonts are
+" installed by powerline/install.sh, so this is safe. Without it airline falls
+" back to plain ASCII arrows.
+let g:airline_powerline_fonts = 1
+
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
