@@ -1,0 +1,19 @@
+#compdef pnpm pn
+
+local -a reply
+local IFS=$'\n'
+
+reply=($(
+    COMP_CWORD="$((CURRENT - 1))" \
+    COMP_LINE="$BUFFER" \
+    COMP_POINT="$CURSOR" \
+    SHELL=zsh \
+    pnpm completion-server -- "${words[@]}"
+))
+
+if [[ "$reply" == "__tabtab_complete_files__" ]]
+then
+    _files
+else
+    _describe 'values' reply
+fi
