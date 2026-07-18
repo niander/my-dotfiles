@@ -2,11 +2,15 @@
 
 set -e
 
-if ! pip show -q powerline-status; then
-  set -x
-  pip install powerline-status
-  set +x
-fi
+# Python powerline engine intentionally NOT installed: the tmux status bar is now native
+# (see tmux/tmux.conf.symlink) and vim uses airline. Only the fonts below are still needed.
+# Note: the fontconfig install below only affects Linux-native renderers (gvim, kitty,
+# gnome-terminal, WSLg, etc.); under Windows Terminal set a Nerd Font in the terminal itself.
+# if ! pip show -q powerline-status; then
+#   set -x
+#   pip install powerline-status
+#   set +x
+# fi
 
 if ! test -d "$DOTFILES/powerline/.powerline-fonts"; then
   git clone https://github.com/powerline/fonts.git $DOTFILES/powerline/.powerline-fonts --depth=1
