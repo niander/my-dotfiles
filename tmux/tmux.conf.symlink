@@ -47,8 +47,8 @@ set -sg escape-time 0
 
 # Default terminal — tmux-256color gives correct caps (italics/undercurl) + 256 colors.
 set -g default-terminal "tmux-256color"
-# Pass 24-bit truecolor through from the outer terminal. Windows Terminal advertises RGB
-# (its outer $TERM is xterm-256color); without this, tmux clamps truecolor apps to 256.
+# Pass 24-bit truecolor through from the outer terminal. Many terminals advertise RGB
+# while reporting $TERM as xterm-256color; without this, tmux clamps truecolor apps to 256.
 set -as terminal-features ",xterm-256color:RGB"
 
 # Turn on/off keys without prefix
@@ -64,33 +64,37 @@ set -g focus-events on
 ## DESIGN ##
 ############
 
-# status bar
-set -g status-bg black
-set -g status-fg default
+# Status bar: soft dark background (not pure black) so powerline arrows fill cleanly.
+set -g status-style 'bg=colour233,fg=default'
 set -g status-justify left
-set -g status-interval 3
+set -g status-interval 5
 set -g status-position bottom
 
-# status left
-set -g status-left-length 50
-set -g status-left '#{?client_prefix,#[fg=colour233]#[bg=green],#[fg=green]#[bg=colour233]}#[bold] #S #{?client_prefix,#[fg=green],#[fg=colour232]}#[bg=black]#[nobold]'
-set -g -a status-left '#[fg=black,bg=yellow]#[bg=yellow,fg=black] #H #[fg=yellow,bg=black]'
-set -g -a status-left "#[fg=default,bg=black]"
-set -g -a status-left "#T"
+# Breathing room above the bar: a thin pane-border line at each pane's bottom.
+# Drawn in the pane layer (bg=default) so it's transparent — a status row can't be.
+# `simple` ASCII '-' in a dark colour + blank format = a faint hairline separator.
+set -g pane-border-status bottom
+set -g pane-border-format ''
+set -g pane-border-lines simple
+set -g pane-border-style 'fg=colour236'
+set -g pane-active-border-style 'fg=colour236'
 
-# status right
-set -g status-right-length 80
-set -g status-right '#[fg=colour232,bg=black]#[bg=colour232]'
-set -g -a status-right '#[fg=white] #(cut -d \" \" -f 1-3 /proc/loadavg) '
-set -g -a status-right '#[fg=black,bg=colour232]#[bg=black]'
-set -g -a status-right '#[fg=yellow,bold] %H:%M  %F#[nobold]'
+# Left: session pill, flat right edge — the leftmost window draws the arrow so the pill bleeds into it. Green, red while prefix pending.
+set -g status-left-length 30
+set -g status-left '#{?client_prefix,#[fg=black bg=red] #S ,#[fg=black bg=green] #S }#[default]'
 
-# window status
+# Right: date + time.
+set -g status-right-length 40
+set -g status-right '#[fg=brightblack]%d %b  %H:%M '
+
+# Windows: spacing baked into each window (no global separator) so the active segment's arrows don't stack with it. Inactive = 1 space each side (2 between two), active = yellow arrow segment.
 set -g window-status-separator ''
-set -g window-status-current-format '#[fg=black,bg=blue]#[fg=black,bg=blue] #I#F  #W #[fg=blue,bg=black]'
-set -g window-status-format '#[bg=brightblack,fg=black]#[fg=black,bg=brightblack] #I #[bg=black,fg=brightblack]#[fg=brightblack,bg=black] #W  '
+set -g window-status-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=colour233],#[fg=green bg=colour233]} ,#[default] }#[fg=brightblack]#I:#W #[default]'
+set -g window-status-current-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=yellow],#[fg=green bg=yellow]},#[fg=colour233 bg=yellow]}#[fg=black bg=yellow] #I:#W#{?window_zoomed_flag, Z,} #[fg=yellow bg=colour233]#[default]'
+set -g window-status-activity-style 'fg=magenta'
+set -g window-status-bell-style 'fg=red,bold'
 
-# set poweline — DISABLED: powerline engine off; native status bar above (lines 71-88) is authoritative
+# set poweline — DISABLED: powerline engine off; native status bar in the DESIGN block above is authoritative
 #run-shell -b 'powerline-daemon -q --replace'
 #source "$DOTFILES/powerline/tmux-source.conf"
 #if-shell "[ -r $POWERLINE_ROOT/bindings/tmux/powerline.conf ]" "run-shell 'powerline-config tmux setenv'"
@@ -108,8 +112,8 @@ set -g window-status-format '#[bg=brightblack,fg=black]#[fg=black,bg=brightbl
 # title
 set -g set-titles-string '[tmux] #{pane_current_command}'
 
-# Set messages
-set -g message-style fg=colour232,bg=colour2,bold
+# Messages.
+set -g message-style fg=black,bg=green
 
 # The modes {
 #setw -g clock-mode-colour colour135
