@@ -7,7 +7,7 @@ set-window-option -g automatic-rename on
 set-option -g set-titles on
 
 # set mouse mode on
-setw -g mouse on
+set -g mouse on
 
 # set vi mode
 setw -g mode-keys vi
@@ -50,6 +50,13 @@ set -g default-terminal "tmux-256color"
 # Pass 24-bit truecolor through from the outer terminal. Many terminals advertise RGB
 # while reporting $TERM as xterm-256color; without this, tmux clamps truecolor apps to 256.
 set -as terminal-features ",xterm-256color:RGB"
+
+# Extended keys: forward modified combos (Shift+Enter, Ctrl+Enter, …) that modern terminals emit.
+set -s extended-keys on
+set -as terminal-features 'xterm*:extkeys'
+
+# Let apps pass escape sequences through to the outer terminal (notifications, inline images, progress).
+set -g allow-passthrough on
 
 # Turn on/off keys without prefix
 #set -g prefix None
