@@ -29,7 +29,7 @@ then
     git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_AUTOSUGGESTIONS"
 else
     cd "$ZSH_AUTOSUGGESTIONS"
-    git pull --rebase --stat origin master
+    git pull --rebase --stat origin HEAD
 fi
 
 # install conda-zsh-completion
@@ -39,7 +39,7 @@ then
     git clone https://github.com/esc/conda-zsh-completion "$CONDA_ZSH_COMPLETION"
 else
     cd "$CONDA_ZSH_COMPLETION"
-    git pull --rebase --stat origin master
+    git pull --rebase --stat origin HEAD
 fi
 
 echo '> You should install python package [pygments]'
