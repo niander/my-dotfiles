@@ -36,6 +36,9 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `topic/completion.zsh` | Sourced **last**, after `compinit` — completion setup |
 | `topic/*.symlink` | Symlinked into `$HOME` as `.<name>` (extension stripped) by `script/bootstrap` |
 | `topic/install.sh` | Run **once** by `script/install`; named `.sh` (not `.zsh`) precisely so it is *not* auto-sourced every shell |
+| `topic/path.ps1` | Dot-sourced into the PowerShell profile **first** — PATH setup, before other `*.ps1` |
+| `topic/*.ps1` | Dot-sourced into the PowerShell profile every shell, except `path.ps1` and `install.ps1` |
+| `topic/install.ps1` | Run **once** by `script/install.ps1` (cross-platform: WSL2/Windows/macOS) |
 
 ### Shell load order (`zsh/zshrc.symlink`)
 
@@ -66,10 +69,18 @@ Non-obvious consequences:
 - **Cross-platform:** branch on OS via `uname -s` and `grep -qi microsoft /proc/version` (WSL detection). Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
 - **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git). `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
 - Match the surrounding style of each topic when editing.
+- **Comments describe the code, not the change or the machine.** Write comments
+  that make sense to someone reading the file cold, with no knowledge of this
+  machine or how the code was written. Explain non-obvious *why* in general
+  terms. Do **not** put in a comment:
+  - references to a specific machine/user or their installed tools (e.g. a hardcoded path, a username);
+  - references to a parallel implementation ("mirror of the zsh side", "same as X");
+  - meta-narration of the edit or session ("as decided", "see above", "now we…");
+  - restatements of what the code plainly does.
 
 ## Commit & PR Guidelines
 
-- **Commit messages:** `topic: short description` — lowercase topic prefix matching the folder (e.g. `tmux: redesign status line`, `omz: require bootstrap`).
+- **Commit messages:** `topic: short description` — **single line** lowercase topic prefix matching the folder (e.g. `tmux: redesign status line`, `omz: require bootstrap`).
 
 ## Gotchas
 
