@@ -4,7 +4,6 @@
 
 set -e
 
-# Default DOTFILES to the dir containing this script's parent if not set.
 if [ -z "$DOTFILES" ]; then
   DOTFILES="$(cd "$(dirname "$0")/.." && pwd -P)"
   export DOTFILES
@@ -21,15 +20,15 @@ fi
 # Also verify the symlink resolves to THIS repo. Otherwise we could be running
 # installers from one checkout while the shell is configured to use another.
 dotfiles_link="$(cd "$HOME/.dotfiles" 2>/dev/null && pwd -P)"
-if [ "$dotfiles_link" != "$DOTFILES" ]; then
-  echo "script/install: ~/.dotfiles resolves to '$dotfiles_link', not '$DOTFILES'." >&2
+dotfiles_real="$(cd "$DOTFILES" 2>/dev/null && pwd -P)"
+if [ "$dotfiles_link" != "$dotfiles_real" ]; then
+  echo "script/install: ~/.dotfiles resolves to '$dotfiles_link', not '$dotfiles_real' (\$DOTFILES=$DOTFILES)." >&2
   echo "  Run script/bootstrap from this checkout, or update the ~/.dotfiles symlink." >&2
   exit 1
 fi
 
 pushd "$DOTFILES" > /dev/null
 
-# find the installers and run them iteratively
 find . -maxdepth 2 -name install.sh -print0 | while IFS= read -r -d '' installer; do
   bash "$installer"
 done
