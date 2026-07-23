@@ -1,0 +1,81 @@
+# PowerShell profile -- niander/my-dotfiles
+# ---------------------------------------------------------------------------
+# Canonical profile. On Linux/WSL (PowerShell 7) script/bootstrap symlinks this
+# to  ~/.config/powershell/Microsoft.PowerShell_profile.ps1  (the path
+# $PROFILE.CurrentUserCurrentHost resolves to there).
+#
+# On Windows, PowerShell reads its profile from ~/Documents/PowerShell (pwsh 7)
+# or ~/Documents/WindowsPowerShell (Windows PowerShell 5.1) instead, so it is
+# NOT symlinked automatically. Dot-source this file from that $PROFILE -- see
+# powershell/README.md.
+
+# Resolve the dotfiles powershell topic dir regardless of how we were loaded
+# (symlinked into ~/.config on Linux, or dot-sourced from $HOME/.dotfiles on
+# Windows). ~/.dotfiles is the symlink script/bootstrap creates to the checkout.
+$DotfilesRoot = if (Test-Path "$HOME/.dotfiles") { "$HOME/.dotfiles" } else { $null }
+$PSTopic = if ($DotfilesRoot) { Join-Path $DotfilesRoot 'powershell' } else { $PSScriptRoot }
+
+# --- Modules ---------------------------------------------------------------
+# Optional starter pack; each imports only if installed (see install.sh).
+# Import-Module -EA SilentlyContinue already no-ops on a missing module, so we
+# skip the slow `Get-Module -ListAvailable` disk scan that would run per module.
+foreach ($m in 'posh-git', 'Terminal-Icons', 'CompletionPredictor') {
+    Import-Module $m -ErrorAction SilentlyContinue
+}
+
+# --- PSReadLine ------------------------------------------------------------
+# Gate on the in-memory module (fast); PSReadLine auto-loads in interactive pwsh.
+if (Get-Module PSReadLine) {
+    Set-PSReadLineOption -EditMode Windows
+    Set-PSReadLineOption -HistoryNoDuplicates
+    Set-PSReadLineKeyHandler -Key Tab             -Function MenuComplete
+    Set-PSReadLineKeyHandler -Key Ctrl+RightArrow -Function ForwardWord
+    Set-PSReadLineKeyHandler -Key UpArrow         -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow       -Function HistorySearchForward
+
+    # Predictions need PSReadLine >= 2.2; degrade gracefully on older builds
+    # (e.g. the 2.0 that ships with Windows PowerShell 5.1). Inline is the
+    # everyday view; F2 toggles to the ListView dropdown.
+    try {
+        Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+        Set-PSReadLineOption -PredictionViewStyle InlineView
+        Set-PSReadLineKeyHandler -Key F2 -Function SwitchPredictionView
+    }
+    catch {
+        try { Set-PSReadLineOption -PredictionSource History } catch { }
+    }
+}
+
+# --- PSFzf (Ctrl+T files, Ctrl+R history) ----------------------------------
+# PSFzf's chord setup throws when the fzf binary isn't on PATH, so gate on it.
+if (Get-Command fzf -ErrorAction SilentlyContinue) {
+    Import-Module PSFzf -ErrorAction SilentlyContinue
+    if (Get-Module PSFzf) {
+        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+    }
+}
+
+# --- Prompt: oh-my-posh ----------------------------------------------------
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    $ompTheme = Join-Path $PSTopic 'niander.omp.json'
+    if (Test-Path $ompTheme) {
+        oh-my-posh init pwsh --config $ompTheme | Invoke-Expression
+    }
+    else {
+        oh-my-posh init pwsh | Invoke-Expression
+    }
+}
+
+# --- base16 theming --------------------------------------------------------
+# Emits OSC palette sequences so PowerShell follows the same base16 theme the
+# zsh side selected. Themes come from the shared base16-shell/ topic.
+$base16 = Join-Path $PSTopic 'base16.ps1'
+if (Test-Path $base16) { . $base16 }
+
+# --- Per-machine overrides -------------------------------------------------
+$localProfile = Join-Path $HOME '.localprofile.ps1'
+if (Test-Path $localProfile) { . $localProfile }
+
+# This profile runs in the global scope, so its top-level variables would
+# linger in the session; drop the startup scratch ones.
+Remove-Variable DotfilesRoot, PSTopic, base16, ompTheme, localProfile, m -ErrorAction SilentlyContinue
