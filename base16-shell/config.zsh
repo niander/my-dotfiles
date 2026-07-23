@@ -55,7 +55,9 @@ function toggle_base16_shell() {
 }
 alias base16='toggle_base16_shell'
 
-if [[ -f "$BASE16_ENABLED_FILE" && -z $TERM_PROGRAM && (! $TTY =~ "tty" || -n $WSL_DISTRO_NAME) ]]; then
+# Skip GUI terminals that manage their own colors (VSCode, etc.), but allow tmux
+# -- tmux >=3.2 sets TERM_PROGRAM=tmux yet is just a multiplexer, not a GUI.
+if [[ -f "$BASE16_ENABLED_FILE" && ( -z $TERM_PROGRAM || $TERM_PROGRAM == tmux ) && (! $TTY =~ "tty" || -n $WSL_DISTRO_NAME) ]]; then
     if [[ -n "$PS1" && -s $BASE16_SHELL/profile_helper.sh ]]; then
         # tinted-shell: keep its bundled hooks off (uncreated dir), default to eighties, honour the 256 marker.
         export BASE16_SHELL_PATH="$BASE16_SHELL"
