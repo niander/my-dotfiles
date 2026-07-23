@@ -12,7 +12,7 @@ tmuxplugin=$HOME/.tmux/plugins/tpm
 if [ -d "$tmuxplugin" ]
 then
   cd "$tmuxplugin"
-  git pull --rebase --stat origin master
+  git pull --rebase --stat origin HEAD
 else
   git clone https://github.com/tmux-plugins/tpm $tmuxplugin
 fi
