@@ -40,9 +40,11 @@ function toggle_base16_shell() {
 
 if [[ -f "$BASE16_ENABLED_FILE" && -z $TERM_PROGRAM && (! $TTY =~ "tty" || -n $WSL_DISTRO_NAME) ]]; then
     if [[ -n "$PS1" && -s $BASE16_SHELL/profile_helper.sh ]]; then
-        # Pin tinted-shell's path, keep its bundled vim/tmux/fzf hooks off by
-        # pointing the hook dir at an uncreated path, default to eighties, and
-        # honour the slot 16-21 marker file.
+        # Pin tinted-shell's path, keep its bundled hooks off by pointing the hook
+        # dir at an uncreated path (parity with the old base16-shell, which ran
+        # none; the stock hooks self-guard to no-ops unless tinted-tmux/-fzf/-vim
+        # are installed, but this avoids writing unused theme files on each switch).
+        # Default to eighties and honour the slot 16-21 marker file.
         export BASE16_SHELL_PATH="$BASE16_SHELL"
         export BASE16_SHELL_HOOKS_PATH="$DOTFILES/base16-shell/hooks"
         export BASE16_THEME_DEFAULT=eighties
