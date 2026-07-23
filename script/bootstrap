@@ -149,7 +149,7 @@ install_dotfiles () {
 
   local overwrite_all=false backup_all=false skip_all=false
 
-  for src in $(find -H "$DOTFILES_ROOT" -name '*.symlink' -not -path '*.git*')
+  for src in $(find -H "$DOTFILES_ROOT" -mindepth 1 -name '.*' -type d -prune -o -name '*.symlink' -print)
   do
     relative_src=$(echo $src | sed -e "s=$DOTFILES_ROOT==" -e "s=.symlink==")
     dst="$HOME/.$(echo $relative_src | cut -d "/" -f3-)"
