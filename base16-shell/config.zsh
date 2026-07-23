@@ -14,7 +14,9 @@ function toggle_base16_shell() {
             [[ -f "$BASE16_ENABLED_FILE" ]] && echo "base16 is on" || echo "base16 is off"
             ;;
         256)
-            # Persisted toggle for base16's ANSI-256 slot 16-21 remap; off keeps index 16 = black (see install.sh).
+            # Persisted toggle for base16's ANSI-256 slot 16-21 remap. Off stops the
+            # remap so index 16 = black for TUIs like Claude Code; new shells pick it
+            # up, run `reset` to drop it in the current terminal too. See install.sh.
             case "$2" in
                 on)  touch "$BASE16_256_FILE" && export BASE16_SHELL_SET_256COLORSPACE=1 ;;
                 off) rm -f "$BASE16_256_FILE"; unset BASE16_SHELL_SET_256COLORSPACE ;;
@@ -32,6 +34,7 @@ function toggle_base16_shell() {
             ;;
     esac
 }
+alias base16='toggle_base16_shell'
 
 if [[ -f "$BASE16_ENABLED_FILE" && -z $TERM_PROGRAM && (! $TTY =~ "tty" || -n $WSL_DISTRO_NAME) ]]; then
     if [[ -n "$PS1" && -s $BASE16_SHELL/profile_helper.sh ]]; then
@@ -39,7 +42,7 @@ if [[ -f "$BASE16_ENABLED_FILE" && -z $TERM_PROGRAM && (! $TTY =~ "tty" || -n $W
         export BASE16_SHELL_PATH="$BASE16_SHELL"
         export BASE16_SHELL_HOOKS_PATH="$DOTFILES/base16-shell/hooks"
         export BASE16_THEME_DEFAULT=eighties
-        [[ -f "$BASE16_256_FILE" ]] && export BASE16_SHELL_SET_256COLORSPACE=1
+        [[ -f "$BASE16_256_FILE" ]] && export BASE16_SHELL_SET_256COLORSPACE=1 || unset BASE16_SHELL_SET_256COLORSPACE
         source "$BASE16_SHELL/profile_helper.sh"
         [[ -z "$BASE16_THEME" ]] && base16_eighties
     fi
