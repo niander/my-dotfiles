@@ -11,7 +11,12 @@ set -g mouse on
 
 # set vi mode
 setw -g mode-keys vi
+
+# Watch other windows for activity. The status bar flags it (see window-status-format);
+# `visual-activity on` makes the alert a silent status-line message instead of a bell —
+# with the default `off`, tmux rings the terminal bell on every activity (incl. window switches).
 setw -g monitor-activity on
+set -g visual-activity on
 
 # change copy and paste key binds
 bind c-v copy-mode
@@ -92,9 +97,12 @@ set -g status-right '#[fg=brightblack]%d %b  %H:%M '
 
 # Windows: spacing baked into each window (no global separator) so the active segment's arrows don't stack with it. Inactive = 1 space each side (2 between two), active = yellow arrow segment.
 set -g window-status-separator ''
-set -g window-status-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=colour233],#[fg=green bg=colour233]} ,#[default] }#[fg=brightblack]#I:#W #[default]'
+set -g window-status-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=colour233],#[fg=green bg=colour233]} ,#[default] }#{?window_activity_flag,#[fg=brightmagenta bold],#[fg=brightblack]}#I:#W #[default]'
 set -g window-status-current-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=yellow],#[fg=green bg=yellow]},#[fg=colour233 bg=yellow]}#[fg=black bg=yellow] #I:#W#{?window_zoomed_flag, Z,} #[fg=yellow bg=colour233]#[default]'
-set -g window-status-activity-style 'fg=magenta'
+# Activity is highlighted directly in window-status-format via #{?window_activity_flag,…}
+# above: the custom format hardcodes fg, so these *-style options get overridden and never
+# show on their own — kept only as a fallback for tmux's default format.
+set -g window-status-activity-style 'fg=brightmagenta,bold'
 set -g window-status-bell-style 'fg=red,bold'
 
 # set poweline — DISABLED: powerline engine off; native status bar in the DESIGN block above is authoritative
