@@ -3,11 +3,9 @@
 # Runtime port of tinted-shell / base16-shell (github.com/tinted-theming/tinted-shell).
 #
 # base16 themes work by emitting OSC escape sequences that reprogram the
-# terminal's palette *live* -- they never touch a config file. This is how the
-# zsh side (base16-shell/) themes Windows Terminal from WSL. This script gives
-# PowerShell the same behavior by re-emitting the very same base16-*.sh theme
-# definitions (single source of truth, shared with the zsh side) as OSC 4/10/
-# 11/12 sequences.
+# terminal's palette *live* -- they never touch a config file. This re-emits the
+# base16-*.sh theme definitions from the base16-shell/ topic (the single source
+# of truth for the themes) as OSC 4/10/11/12 sequences.
 #
 # Applies in terminals that honor those sequences: Windows Terminal, ConEmu/
 # Cmder, Windows 11 conhost, and *nix terminals. GUI terminals that manage their
@@ -20,15 +18,14 @@
 # exists and the terminal is capable, following the theme in ~/.base16_theme and
 # honoring the shared .base16_256colorspace toggle.
 
-# Locate the checkout from this file's own location (powershell/ -> repo root),
-# matching the profile's location-independent resolution. Falls back to the
-# ~/.dotfiles symlink only if $PSScriptRoot is somehow unavailable.
-$script:DotfilesRoot = if ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { Join-Path $HOME '.dotfiles' }
-$script:Base16Root        = Join-Path $script:DotfilesRoot 'base16-shell/.base16-shell'
+# Locate the checkout from this file's own location (powershell/ -> repo root).
+# Falls back to the ~/.dotfiles symlink only if $PSScriptRoot is unavailable.
+$script:Base16DotfilesRoot = if ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { Join-Path $HOME '.dotfiles' }
+$script:Base16Root        = Join-Path $script:Base16DotfilesRoot 'base16-shell/.base16-shell'
 $script:Base16ScriptsDir  = Join-Path $script:Base16Root 'scripts'
-$script:Base16EnabledFile = Join-Path $script:DotfilesRoot 'base16-shell/.base16_enabled'
-$script:Base16_256File    = Join-Path $script:DotfilesRoot 'base16-shell/.base16_256colorspace'
-$script:Base16ThemeLink   = Join-Path $HOME '.base16_theme'   # maintained by zsh base16-shell
+$script:Base16EnabledFile = Join-Path $script:Base16DotfilesRoot 'base16-shell/.base16_enabled'
+$script:Base16_256File    = Join-Path $script:Base16DotfilesRoot 'base16-shell/.base16_256colorspace'
+$script:Base16ThemeLink   = Join-Path $HOME '.base16_theme'
 
 function Get-Base16Theme {
     <#.SYNOPSIS List available base16 theme names.#>
@@ -154,7 +151,7 @@ function script:Test-Base16Capable {
 # Auto-apply on load when enabled and the terminal is capable.
 if ((Test-Path -LiteralPath $script:Base16EnabledFile) -and (script:Test-Base16Capable)) {
     if (Test-Path -LiteralPath $script:Base16ThemeLink) {
-        script:Invoke-Base16File -Path $script:Base16ThemeLink   # follow zsh's current choice
+        script:Invoke-Base16File -Path $script:Base16ThemeLink   # apply the theme in ~/.base16_theme
     }
     else {
         Set-Base16Theme -Name eighties
