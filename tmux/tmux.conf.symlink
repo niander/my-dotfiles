@@ -32,10 +32,6 @@ bind -T root M-Left  select-pane -L
 bind -T root M-Up    select-pane -U
 bind -T root M-Down  select-pane -D
 
-# easy split screens
-bind -n C-O split-window -h
-bind -n C-E split-window
-
 # easy start copy mode PageUP
 #bind -n PgUp copy-mode -eu
 
