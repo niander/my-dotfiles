@@ -4,6 +4,10 @@ export DOTFILES=$HOME/.dotfiles
 # your project folder that we can `c [tab]` to
 export PROJECTS=~/workspace
 
+# Keep PATH entries unique so re-sourcing this file (e.g. reload!) doesn't stack
+# duplicate entries every time.
+typeset -U path PATH
+
 # Stash your environment variables in ~/.localrc. This means they'll stay out
 # of your main dotfiles repository (which may be public, like this one), but
 # you'll have access to them in your scripts.
