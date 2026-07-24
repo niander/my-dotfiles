@@ -7,7 +7,7 @@
 #
 # oh-my-posh loads later and displays the active environment in the prompt.
 
-$condaExe = (Get-Command conda -ErrorAction SilentlyContinue).Source
+$condaExe = (Get-Command conda -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
 
 if (-not $condaExe) {
     $roots = @("$HOME/miniconda3", "$HOME/anaconda3")
