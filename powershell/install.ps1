@@ -41,6 +41,11 @@ if ($IsWindows) {
     Install-WingetPackage -Id 'junegunn.fzf' -Command 'fzf'
 }
 
+# Module starter pack, installed with PSResourceGet (the current gallery
+# client). -TrustRepository suppresses the interactive untrusted-repository
+# prompt without mutating global repository config. Installs are non-fatal --
+# the profile imports each module only when present, so a host that refuses a
+# module still loads a working prompt.
 foreach ($m in 'posh-git', 'Terminal-Icons', 'PSFzf', 'CompletionPredictor') {
     if (Get-Module -ListAvailable -Name $m) {
         Write-Host "ok       module $m already installed"
@@ -48,7 +53,7 @@ foreach ($m in 'posh-git', 'Terminal-Icons', 'PSFzf', 'CompletionPredictor') {
     }
     Write-Host "install  module $m ..."
     try {
-        Install-Module $m -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
+        Install-PSResource -Name $m -Repository PSGallery -TrustRepository -Scope CurrentUser -ErrorAction Stop
     }
     catch {
         Write-Warning "failed to install ${m}: $($_.Exception.Message)"
