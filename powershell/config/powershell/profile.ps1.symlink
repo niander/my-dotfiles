@@ -8,6 +8,7 @@
 
 # Resolve the checkout via the ~/.dotfiles symlink script/bootstrap creates.
 $DotfilesRoot = if (Test-Path "$HOME/.dotfiles") { "$HOME/.dotfiles" } else { $null }
+if ($DotfilesRoot) { $env:DOTFILES = $DotfilesRoot }
 $PSTopic = if ($DotfilesRoot) { Join-Path $DotfilesRoot 'powershell' } else { $PSScriptRoot }
 
 # --- Topical PATH setup ----------------------------------------------------
