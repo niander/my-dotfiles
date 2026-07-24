@@ -5,9 +5,7 @@ if (( $+commands[hub] )); then
   alias git="$hub_path"
 fi
 
-# Most short git aliases (gl, gp, gst, gd, gc, gco, gb, gca, glog, ...) come
-# from the oh-my-zsh `git` plugin loaded later via oh-my-zsh/completion.zsh.
-# Only define names the plugin doesn't, so these survive load order.
+# git aliases that the plugin git of omz doesn't provide, or that I want to override
 alias gac='git add --all && git commit -m'
 alias gcpb='git copy-branch-name'
 alias gcb='git copy-branch-name'

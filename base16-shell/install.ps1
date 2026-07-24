@@ -1,13 +1,7 @@
 #Requires -Version 7.0
-# Clones the tinted-shell theme scripts into .base16-shell so the PowerShell
-# base16 loader has themes to read. Run by script/install.ps1. Idempotent:
-# only clones when the checkout is missing.
-#
-# On Linux/WSL a sibling bash installer owns updates and additionally patches
-# the theme scripts' ANSI-256 slots; a hard reset here would discard that patch
-# on a shared checkout, so this step never touches an existing clone. The
-# PowerShell loader gates the 256-color slots itself at runtime, so the raw
-# scripts are enough on hosts that only ever run this installer.
+# Clone tinted-shell themes into .base16-shell for the PowerShell loader.
+# Called by script/install.ps1; existing checkouts are left alone.
+# The Linux/WSL installer manages updates and ANSI-256 patches.
 
 $ErrorActionPreference = 'Continue'
 

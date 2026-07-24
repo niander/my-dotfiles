@@ -1,6 +1,8 @@
 #Requires -Version 7.0
-# Installs the PowerShell prompt tooling: oh-my-posh, fzf, and the module
-# starter pack. Cross-platform, idempotent. Run by script/install.ps1.
+
+# Installs the PowerShell prompt tooling.
+# Cross-platform, idempotent.
+# Run by script/install.ps1.
 
 $ErrorActionPreference = 'Continue'
 
@@ -41,11 +43,6 @@ if ($IsWindows) {
     Install-WingetPackage -Id 'junegunn.fzf' -Command 'fzf'
 }
 
-# Module starter pack, installed with PSResourceGet (the current gallery
-# client). -TrustRepository suppresses the interactive untrusted-repository
-# prompt without mutating global repository config. Installs are non-fatal --
-# the profile imports each module only when present, so a host that refuses a
-# module still loads a working prompt.
 foreach ($m in 'posh-git', 'git-aliases', 'PSFzf', 'CompletionPredictor') {
     if (Get-Module -ListAvailable -Name $m) {
         Write-Host "ok       module $m already installed"

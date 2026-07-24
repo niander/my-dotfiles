@@ -69,14 +69,12 @@ Non-obvious consequences:
 - **Cross-platform:** branch on OS via `uname -s` and `grep -qi microsoft /proc/version` (WSL detection). Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
 - **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git). `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
 - Match the surrounding style of each topic when editing.
-- **Comments describe the code, not the change or the machine.** Write comments
-  that make sense to someone reading the file cold, with no knowledge of this
-  machine or how the code was written. Explain non-obvious *why* in general
-  terms. Do **not** put in a comment:
-  - references to a specific machine/user or their installed tools (e.g. a hardcoded path, a username);
+- **Comments are brief** — usually 1–3 lines. Cut rationale a competent reader can infer; a 6-line explanation almost always wants to be 2. Describe the code, not the change or the machine. Write for someone reading the file cold, with no knowledge of this machine or how the code was written. Explain non-obvious *why* tersely. Do **not** put in a comment:
+  - references to a specific machine/user, their installed tools, or a product/app name (e.g. a hardcoded path, a username, a specific editor/app);
   - references to a parallel implementation ("mirror of the zsh side", "same as X");
   - meta-narration of the edit or session ("as decided", "see above", "now we...");
-  - restatements of what the code plainly does.
+  - restatements of what the code plainly does; prefer a clear name over a comment (e.g. `$esc` not `$e` + a comment).
+- **No cosmetic alignment** — don't pad with extra spaces to line up `=`, braces, or trailing comments.
 
 ## Commit & PR Guidelines
 

@@ -1,13 +1,9 @@
-# The git-aliases module removes several built-in aliases (gc, gcb, gcm, gcs,
-# gl, gm, gp, gpv) to define its own git functions in their place. Reassert the
-# built-ins here, and keep the most useful displaced git shortcuts under names
-# that do not collide. The module auto-loads lazily on first use, so import it
-# up front to make these reversions deterministic.
+# git-aliases replaces several built-in aliases with git functions.
+# Import it first, preserve selected git shortcuts under new names, then
+# restore the built-in aliases.
 Import-Module git-aliases -DisableNameChecking -ErrorAction SilentlyContinue
 
-# Preserve a few git shortcuts under non-colliding names before their originals
-# revert to built-ins below. Copying the module's own function keeps whatever
-# behavior it defines (e.g. main-branch detection) rather than reimplementing it.
+# Keep selected git shortcuts before restoring the built-in aliases.
 $gitAliasRename = [ordered]@{
     gl  = 'gpull'    # git pull
     gcm = 'gcmain'   # git checkout <main branch>
@@ -18,7 +14,7 @@ foreach ($from in $gitAliasRename.Keys) {
     if ($body) { Set-Item "Function:global:$($gitAliasRename[$from])" -Value $body }
 }
 
-# Restore the built-in aliases the module stripped.
+# Restore built-in aliases.
 $gitAliasRestore = [ordered]@{
     gc  = 'Get-Content'
     gcb = 'Get-Clipboard'

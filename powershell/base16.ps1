@@ -1,22 +1,7 @@
-# base16-shell for PowerShell
-# ---------------------------------------------------------------------------
+#Requires -Version 7.0
+
+# --- base16-shell for PowerShell ---------------------------------------------------
 # Runtime port of tinted-shell / base16-shell (github.com/tinted-theming/tinted-shell).
-#
-# base16 themes work by emitting OSC escape sequences that reprogram the
-# terminal's palette *live* -- they never touch a config file. This re-emits the
-# base16-*.sh theme definitions from the base16-shell/ topic (the single source
-# of truth for the themes) as OSC 4/10/11/12 sequences.
-#
-# Applies in terminals that honor those sequences: Windows Terminal, ConEmu/
-# Cmder, Windows 11 conhost, and *nix terminals. GUI terminals that manage their
-# own colors (VS Code, etc.) and legacy Windows conhost are skipped.
-#
-# Public commands:
-#   Set-Base16Theme <name>   apply a theme now (alias: base16); tab-completes
-#   Get-Base16Theme          list available theme names
-# On load it auto-applies when the shared enable flag base16-shell/.base16_enabled
-# exists and the terminal is capable, following the theme in ~/.base16_theme and
-# honoring the shared .base16_256colorspace toggle.
 
 # Locate the checkout from this file's own location (powershell/ -> repo root).
 # Falls back to the ~/.dotfiles symlink only if $PSScriptRoot is unavailable.
@@ -59,16 +44,16 @@ function script:Invoke-Base16File {
         }
     }
 
-    $e = [char]27
-    # tmux swallows OSC palette sequences unless they are wrapped in a DCS
-    # passthrough with inner ESCs doubled (needs `set -g allow-passthrough on`).
+    $esc = [char]27
     if ($env:TMUX) {
-        $pre = "${e}Ptmux;${e}${e}]"
-        $suf = "${e}${e}\${e}\"
+        # tmux swallows OSC palette sequences unless wrapped in a DCS passthrough
+        # with inner ESCs doubled (needs `set -g allow-passthrough on`).
+        $pre = "${esc}Ptmux;${esc}${esc}]"
+        $suf = "${esc}${esc}\${esc}\"
     }
     else {
-        $pre = "${e}]"
-        $suf = "${e}\"
+        $pre = "${esc}]"
+        $suf = "${esc}\"
     }
 
     $out = [System.Text.StringBuilder]::new()
@@ -80,10 +65,8 @@ function script:Invoke-Base16File {
             [void]$out.Append("$pre" + "4;$i;rgb:$($vars[$key])" + "$suf")
         }
     }
-    # base16 maps slots 16-21 onto the ANSI-256 cube; index 16 becomes base09
-    # (orange), which TUIs that treat 16 as "black" render as unreadable. Emit
-    # the theme values only when the 256 toggle is on; otherwise restore xterm's
-    # default 6x6x6 cube so index 16 stays black.
+    # Slots 16-21: theme values when the 256 toggle is on, else xterm's default
+    # cube so slot 16 stays black (base16 would remap it to orange).
     $set256 = (Test-Path -LiteralPath $script:Base16_256File) -or [bool]$env:BASE16_SHELL_SET_256COLORSPACE
     $xtermCube = @{ 16 = '00/00/00'; 17 = '00/00/5f'; 18 = '00/00/87'; 19 = '00/00/af'; 20 = '00/00/d7'; 21 = '00/00/ff' }
     for ($i = 16; $i -le 21; $i++) {
@@ -144,8 +127,6 @@ function Set-Base16Theme {
 Set-Alias base16 Set-Base16Theme
 
 function script:Test-Base16Capable {
-    # Skip GUI terminals that manage their own colors (VS Code, etc.); they set
-    # TERM_PROGRAM to something other than tmux. Windows Terminal / conhost don't.
     if ($env:TERM_PROGRAM -and $env:TERM_PROGRAM -ne 'tmux') { return $false }
     if ($env:WT_SESSION)          { return $true }   # Windows Terminal
     if ($env:ConEmuANSI -eq 'ON') { return $true }   # ConEmu / Cmder
@@ -158,7 +139,7 @@ function script:Test-Base16Capable {
 # Auto-apply on load when enabled and the terminal is capable.
 if ((Test-Path -LiteralPath $script:Base16EnabledFile) -and (script:Test-Base16Capable)) {
     if (Test-Path -LiteralPath $script:Base16ThemeLink) {
-        script:Invoke-Base16File -Path $script:Base16ThemeLink   # apply the theme in ~/.base16_theme
+        script:Invoke-Base16File -Path $script:Base16ThemeLink
     }
     else {
         Set-Base16Theme -Name eighties

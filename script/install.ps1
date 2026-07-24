@@ -1,6 +1,5 @@
 #Requires -Version 7.0
 # Runs each topic's install.ps1. Cross-platform (WSL2, Windows, macOS).
-# Idempotent -- topics guard their own work.
 
 $ErrorActionPreference = 'Continue'
 

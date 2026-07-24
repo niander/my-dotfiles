@@ -1,9 +1,11 @@
-# Initialize conda for PowerShell: discover conda from PATH or a conventional
-# install root, then set up its shell integration. Prefer dot-sourcing conda's
-# generated hook script, which is fast; fall back to `conda shell.powershell
-# hook` (which spawns a Python process every shell start) only when that script
-# is absent. oh-my-posh loads after this and owns the prompt, so the active env
-# shows once (via the theme) instead of being prepended twice.
+#Requires -Version 7.0
+# Set up conda for PowerShell.
+#
+# First, look for conda in PATH. If it is not found, check common install
+# locations. Use conda's hook script when available because it starts faster.
+# Otherwise, run `conda shell.powershell hook` as a fallback.
+#
+# oh-my-posh loads later and displays the active environment in the prompt.
 
 $condaExe = (Get-Command conda -ErrorAction SilentlyContinue).Source
 

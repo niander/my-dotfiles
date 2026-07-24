@@ -2,10 +2,8 @@
 
 set -e
 
-# Update the vendored tinted-shell (successor to chriskempson/base16-shell), then
-# gate each theme's ANSI-256 slot 16-21 writes behind $BASE16_SHELL_SET_256COLORSPACE
-# so index 16 stays black by default -- base16 remaps it to base09 orange, which TUIs
-# like Claude Code render as unreadable text. Toggle with `base16 256 on`.
+# Update vendored tinted-shell and optionally set ANSI-256 slots 16-21.
+# Keep index 16 black by default; enable remapping with `base16 256 on`.
 
 BASE16_SHELL="$DOTFILES/base16-shell/.base16-shell"
 BASE16_REMOTE="https://github.com/tinted-theming/tinted-shell.git"

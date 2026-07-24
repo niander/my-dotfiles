@@ -31,10 +31,6 @@ if (-not $IsWindows) {
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
 # --- ~/.dotfiles symlink ---------------------------------------------------
-# The profile and base16.ps1 resolve everything through $HOME/.dotfiles.
-# A symbolic link (not a junction). Windows needs Developer Mode (Settings >
-# System > For developers) or an elevated shell to create one; if it can't, we
-# fail loudly rather than fall back.
 $dotfilesLink = Join-Path $HOME '.dotfiles'
 $existingLink = Get-Item -LiteralPath $dotfilesLink -Force -ErrorAction SilentlyContinue
 if ($existingLink) {
@@ -61,10 +57,7 @@ else {
 }
 
 # --- profile.ps1 symlink ---------------------------------------------------
-# Symlink the all-hosts profile to the repo profile, so the live file is
-# profile.ps1 and the host profile (Microsoft.PowerShell_profile.ps1) is left
-# alone. pwsh loads $PROFILE by the .ps1 symlink name and follows it, so the
-# *.ps1.symlink target extension is fine. Any existing profile.ps1 is backed up.
+# CurrentUserAllHosts is profile.ps1
 $profilePath = $PROFILE.CurrentUserAllHosts
 $profileTarget = Join-Path $RepoRoot 'powershell/config/powershell/profile.ps1.symlink'
 $profileDir = Split-Path -Parent $profilePath
