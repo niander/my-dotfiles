@@ -37,6 +37,7 @@ foreach ($m in 'posh-git', 'CompletionPredictor') {
 if (Get-Module PSReadLine) {
     Set-PSReadLineOption -EditMode Windows
     Set-PSReadLineOption -HistoryNoDuplicates
+    Set-PSReadLineOption -BellStyle None
     Set-PSReadLineKeyHandler -Key Tab             -Function MenuComplete
     Set-PSReadLineKeyHandler -Key Ctrl+RightArrow -Function ForwardWord
     Set-PSReadLineOption -HistorySearchCursorMovesToEnd
