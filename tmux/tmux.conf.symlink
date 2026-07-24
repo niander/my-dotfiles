@@ -26,6 +26,9 @@ bind c-p paste-buffer
 bind -n S-Left  previous-window
 bind -n S-Right next-window
 
+# ` acts like 0 — jump to window 0
+bind ` select-window -t 0
+
 # remap prefix from 'C-b' to 'C-a'
 unbind C-b
 set-option -g prefix C-a
