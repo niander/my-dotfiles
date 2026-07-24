@@ -1,17 +1,26 @@
-# Long directory listings. Get-ChildItem already renders a long-format table;
-# -Force adds hidden and system entries.
-function l  { Get-ChildItem -Force @args }
-function la { Get-ChildItem -Force @args }
-function ll { Get-ChildItem @args }
+#Requires -Version 7.0
 
-# Built-in file coloring (PowerShell 7.2+): bold blue directories, bold cyan
-# symlinks, bold green executables, bold red archives; everything else stays
-# uncolored. ANSI color names emit the standard 16 colors, which base16
-# reprograms, so these track the active theme.
+# Listing aliases used when eza is not installed; eza's own aliases replace these when it is.
+if (-not (Get-Command eza -ErrorAction SilentlyContinue)) {
+    # Differences from traditional ls:
+    #   - Get-ChildItem already uses a detailed, tabular view, so no -l alias is needed.
+    #   - l and la are equivalent: PowerShell has no . or .. entries, so there is no
+    #     distinction between ls -A and ls -a. Here, -Force simply includes hidden items.
+    function l { Get-ChildItem -Force @args }
+    function la { Get-ChildItem -Force @args }
+    function ll { Get-ChildItem @args }
+    function lt { Get-ChildItem @args | Sort-Object LastWriteTime -Descending }  # newest first
+    function lr { Get-ChildItem -Recurse @args }
+}
+
+# Color Get-ChildItem output (PowerShell 7.2+).
+# This is not conditional on eza: bare `ls` remains native even when eza is
+# installed. ANSI color names, rather than fixed RGB values, let listings
+# follow the active base16 theme.
 if ($PSStyle) {
     $fi = $PSStyle.FileInfo
     $fg = $PSStyle.Foreground
-    $b  = $PSStyle.Bold
+    $b = $PSStyle.Bold
 
     $fi.Directory    = $b + $fg.Blue
     $fi.SymbolicLink = $b + $fg.Cyan

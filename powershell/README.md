@@ -19,6 +19,11 @@ adding `~/.local/bin`), then dot-sources each topic's other `*.ps1` — e.g.
 `powershell/base16.ps1`, `git/aliases.ps1`, and `miniconda/conda.ps1`.
 Installers (`install.ps1`) and anything under `script/` are skipped.
 
+When [eza](https://eza.rocks) is installed (via the `eza/` topic), `l`/`la`/`ll`/
+`lt`/`lr` route through it, plus `ltree` for a tree view; without eza they fall
+back to `Get-ChildItem` with the built-in coloring below (except `ltree`, which
+is eza-only). Bare `ls` stays native either way.
+
 The starter pack: `posh-git`, `git-aliases`, `PSFzf`, `CompletionPredictor`
 (+ built-in `PSReadLine`). Each is imported only if installed, so the profile
 works before `install.ps1` has run. File listings stay colored without an extra

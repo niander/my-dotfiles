@@ -5,3 +5,7 @@
 # git local config
 git/gitconfig.local.symlink
 
+# eza completions are fetched fresh by eza/install.*, not committed
+eza/_eza
+eza/_eza.ps1
+
