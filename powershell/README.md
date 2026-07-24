@@ -19,9 +19,10 @@ adding `~/.local/bin`), then dot-sources each topic's other `*.ps1` — e.g.
 `powershell/base16.ps1`, `git/aliases.ps1`, and `miniconda/conda.ps1`.
 Installers (`install.ps1`) and anything under `script/` are skipped.
 
-The starter pack: `posh-git`, `git-aliases`, `Terminal-Icons`, `PSFzf`,
-`CompletionPredictor` (+ built-in `PSReadLine`). Each is imported only if
-installed, so the profile works before `install.ps1` has run.
+The starter pack: `posh-git`, `git-aliases`, `PSFzf`, `CompletionPredictor`
+(+ built-in `PSReadLine`). Each is imported only if installed, so the profile
+works before `install.ps1` has run. File listings stay colored without an extra
+module via PowerShell's built-in `$PSStyle.FileInfo`.
 
 ## Linux / WSL (PowerShell 7)
 

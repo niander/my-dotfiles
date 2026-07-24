@@ -28,7 +28,7 @@ if ($DotfilesRoot) {
 # Optional starter pack; each imports only if installed (see install.ps1).
 # Import-Module -EA SilentlyContinue already no-ops on a missing module, so we
 # skip the slow `Get-Module -ListAvailable` disk scan that would run per module.
-foreach ($m in 'posh-git', 'Terminal-Icons', 'CompletionPredictor') {
+foreach ($m in 'posh-git', 'CompletionPredictor') {
     Import-Module $m -ErrorAction SilentlyContinue
 }
 
