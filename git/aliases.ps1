@@ -3,7 +3,7 @@
 # built-ins here, and keep the most useful displaced git shortcuts under names
 # that do not collide. The module auto-loads lazily on first use, so import it
 # up front to make these reversions deterministic.
-Import-Module git-aliases -ErrorAction SilentlyContinue
+Import-Module git-aliases -DisableNameChecking -ErrorAction SilentlyContinue
 
 # Preserve a few git shortcuts under non-colliding names before their originals
 # revert to built-ins below. Copying the module's own function keeps whatever
