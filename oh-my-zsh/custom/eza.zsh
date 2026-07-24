@@ -6,14 +6,15 @@
 # This lives in the oh-my-zsh custom dir (not a top-level topic) because custom
 # files load after plugins and base aliases, so these overrides take effect.
 if (( $+commands[eza] )); then
-    alias l='eza -la'
-    alias la='eza -la'
-    alias ll='eza -l'
-    alias lt='eza -l --sort=modified --reverse'   # newest first
-    alias lr='eza -l -R'
-    alias lsr='eza -la -R'
+    export EZA_COLORS="da=0" # date in default color
+    alias l='eza -la --smart-group'
+    alias la='eza -la --smart-group'
+    alias ll='eza -l --smart-group'
+    alias lt='eza -l --smart-group --sort=modified --reverse' # newest first
+    alias lr='eza -l --smart-group -R'
+    alias lsr='eza -la --smart-group -R'
     alias lsn='eza -1'
-    alias lS='eza -l --sort=size --reverse' # biggest first
-    alias ldot='eza -ld .*' # hidden only
-    alias ltree='eza --tree'                       # --level=N to limit depth
+    alias lS='eza -l --smart-group --sort=size --reverse' # biggest first
+    alias ldot='eza -ld --smart-group .*' # hidden only
+    alias ltree='eza --tree' # --level=N to limit depth
 fi
