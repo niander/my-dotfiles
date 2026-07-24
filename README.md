@@ -30,7 +30,7 @@ Notable scripts in `bin/`:
 | Command | What it does |
 | --- | --- |
 | `e` / `ee` | Open in `$EDITOR` (`ee` waits for editors that fork) |
-| `git-amend`, `git-credit`, `git-edit-new`, `git-copy-branch-name`, `git-up`, `git-undo`, `git-nuke`, `git-track`, … | Git workflow helpers |
+| `git-amend`, `git-credit`, `git-edit-new`, `git-copy-branch-name`, `git-up`, `git-undo`, `git-nuke`, `git-track`, ... | Git workflow helpers |
 | `dns-flush` | OS-aware DNS cache flush |
 | `yt` | yt-dlp wrapper |
 | `search` | `ack`/`ack-grep` shortcut |

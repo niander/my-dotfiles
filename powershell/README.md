@@ -16,12 +16,12 @@ side selects**.
 
 The profile runs each topic's `path.ps1` first (PATH setup, like `system/path.ps1`
 adding `~/.local/bin`), then dot-sources each topic's other `*.ps1` — e.g.
-`powershell/base16.ps1` and `miniconda/conda.ps1`. Installers (`install.ps1`) and
-anything under `script/` are skipped.
+`powershell/base16.ps1`, `git/aliases.ps1`, and `miniconda/conda.ps1`.
+Installers (`install.ps1`) and anything under `script/` are skipped.
 
-The starter pack: `posh-git`, `Terminal-Icons`, `PSFzf`, `CompletionPredictor`
-(+ built-in `PSReadLine`). Each is imported only if installed, so the profile
-works before `install.ps1` has run.
+The starter pack: `posh-git`, `git-aliases`, `Terminal-Icons`, `PSFzf`,
+`CompletionPredictor` (+ built-in `PSReadLine`). Each is imported only if
+installed, so the profile works before `install.ps1` has run.
 
 ## Linux / WSL (PowerShell 7)
 
@@ -104,6 +104,28 @@ Get-Base16Theme                     # list available themes
 
 Set `$env:BASE16_SHELL_SET_BACKGROUND = 'false'` before load to keep your
 terminal's own background (matches base16-shell's option of the same name).
+
+## git aliases
+
+The `git-aliases` module ports oh-my-zsh-style git shortcuts (`gst`, `gco`,
+`gaa`, ...) to PowerShell. It also **strips several built-in aliases** — `gc`,
+`gcb`, `gcm`, `gcs`, `gl`, `gm`, `gp`, `gpv` — replacing them with git functions,
+and it does so whenever it auto-loads (on first use of any of its commands), so a
+one-off `Set-Alias` won't hold.
+
+`git/aliases.ps1` handles this deterministically: it imports the module up front,
+then puts the built-ins back (`gc` → `Get-Content`, `gl` → `Get-Location`, ...).
+The three most useful displaced shortcuts are kept under non-colliding names:
+
+| Shortcut | Runs |
+| --- | --- |
+| `gpull` | `git pull` (was `gl`) |
+| `gcmain` | `git checkout <main branch>` (was `gcm`) |
+| `gpush` | `git push` (was `gp`) |
+
+All the non-conflicting git shortcuts (`gst`, `gco`, `gaa`, ...) keep working. To
+change which built-ins are restored or add more renames, edit the two maps in
+`git/aliases.ps1`.
 
 ## Local overrides
 

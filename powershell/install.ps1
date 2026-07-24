@@ -46,7 +46,7 @@ if ($IsWindows) {
 # prompt without mutating global repository config. Installs are non-fatal --
 # the profile imports each module only when present, so a host that refuses a
 # module still loads a working prompt.
-foreach ($m in 'posh-git', 'Terminal-Icons', 'PSFzf', 'CompletionPredictor') {
+foreach ($m in 'posh-git', 'git-aliases', 'Terminal-Icons', 'PSFzf', 'CompletionPredictor') {
     if (Get-Module -ListAvailable -Name $m) {
         Write-Host "ok       module $m already installed"
         continue

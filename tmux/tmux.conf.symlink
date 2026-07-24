@@ -52,7 +52,7 @@ set -g default-terminal "tmux-256color"
 # while reporting $TERM as xterm-256color; without this, tmux clamps truecolor apps to 256.
 set -as terminal-features ",xterm-256color:RGB"
 
-# Extended keys: forward modified combos (Shift+Enter, Ctrl+Enter, …) that modern terminals emit.
+# Extended keys: forward modified combos (Shift+Enter, Ctrl+Enter, ...) that modern terminals emit.
 set -s extended-keys on
 set -as terminal-features 'xterm*:extkeys'
 
@@ -99,7 +99,7 @@ set -g status-right '#[fg=brightblack]%d %b  %H:%M '
 set -g window-status-separator ''
 set -g window-status-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=colour233],#[fg=green bg=colour233]} ,#[default] }#{?window_activity_flag,#[fg=brightmagenta bold],#[fg=brightblack]}#I:#W #[default]'
 set -g window-status-current-format '#{?window_start_flag,#{?client_prefix,#[fg=red bg=yellow],#[fg=green bg=yellow]},#[fg=colour233 bg=yellow]}#[fg=black bg=yellow] #I:#W#{?window_zoomed_flag, Z,} #[fg=yellow bg=colour233]#[default]'
-# Activity is highlighted directly in window-status-format via #{?window_activity_flag,…}
+# Activity is highlighted directly in window-status-format via #{?window_activity_flag,...}
 # above: the custom format hardcodes fg, so these *-style options get overridden and never
 # show on their own — kept only as a fallback for tmux's default format.
 set -g window-status-activity-style 'fg=brightmagenta,bold'

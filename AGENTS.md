@@ -27,7 +27,7 @@ chsh -s "$(command -v zsh)"
 
 ## Architecture
 
-Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `node/`, `uv/`, …). A file's **extension/name determines its behavior**:
+Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `node/`, `uv/`, ...). A file's **extension/name determines its behavior**:
 
 | Pattern | Behavior |
 | --- | --- |
@@ -62,7 +62,7 @@ Non-obvious consequences:
 - **new/changed `*.symlink`** → re-run `./script/bootstrap` (only it creates symlinks).
 - **`install.sh` change** → re-run `./script/install`.
 
-`script/install` runs every `install.sh` (`find -maxdepth 2`). These are idempotent — they check-then-clone-or-`git pull` vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, …), which is why those directories are committed in-tree rather than as submodules (there is no `.gitmodules`).
+`script/install` runs every `install.sh` (`find -maxdepth 2`). These are idempotent — they check-then-clone-or-`git pull` vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, ...), which is why those directories are committed in-tree rather than as submodules (there is no `.gitmodules`).
 
 ## Code Style / Conventions
 
@@ -75,7 +75,7 @@ Non-obvious consequences:
   terms. Do **not** put in a comment:
   - references to a specific machine/user or their installed tools (e.g. a hardcoded path, a username);
   - references to a parallel implementation ("mirror of the zsh side", "same as X");
-  - meta-narration of the edit or session ("as decided", "see above", "now we…");
+  - meta-narration of the edit or session ("as decided", "see above", "now we...");
   - restatements of what the code plainly does.
 
 ## Commit & PR Guidelines
