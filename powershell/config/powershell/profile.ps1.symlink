@@ -39,6 +39,7 @@ if (Get-Module PSReadLine) {
     Set-PSReadLineOption -HistoryNoDuplicates
     Set-PSReadLineKeyHandler -Key Tab             -Function MenuComplete
     Set-PSReadLineKeyHandler -Key Ctrl+RightArrow -Function ForwardWord
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
     Set-PSReadLineKeyHandler -Key UpArrow         -Function HistorySearchBackward
     Set-PSReadLineKeyHandler -Key DownArrow       -Function HistorySearchForward
 
