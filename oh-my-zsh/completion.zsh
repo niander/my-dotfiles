@@ -73,8 +73,8 @@ plugins=(git tmux globalias
          sudo dircycle wd
          pip common-aliases zsh-autosuggestions
          colorize z
-         changes vagrant
-         conda-zsh-completion) #themes
+         vagrant conda-zsh-completion
+         changes) #themes
 
 source $ZSH/oh-my-zsh.sh
 
