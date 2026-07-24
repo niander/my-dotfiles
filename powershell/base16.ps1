@@ -132,6 +132,13 @@ function Set-Base16Theme {
         return
     }
     script:Invoke-Base16File -Path $path
+
+    # Persist the choice so new shells re-apply it on load: copy the theme
+    # definition to the pointer the loader reads, and set the enable flag.
+    Copy-Item -LiteralPath $path -Destination $script:Base16ThemeLink -Force
+    if (-not (Test-Path -LiteralPath $script:Base16EnabledFile)) {
+        New-Item -ItemType File -Path $script:Base16EnabledFile -Force | Out-Null
+    }
 }
 
 Set-Alias base16 Set-Base16Theme
