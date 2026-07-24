@@ -58,8 +58,12 @@ Notes:
   specific lines in `~/.localprofile.ps1` (the profile sources it) — conda now
   loads automatically via the `miniconda/` topic, so you usually won't need to.
 - Only **PowerShell 7** is wired; Windows PowerShell 5.1 is left alone.
-- Git config and base16 aren't set up on Windows by this script (the profile
-  still *displays* git/conda state, it just doesn't manage those tools).
+- Git config isn't set up on Windows by this script (the profile still
+  *displays* git state, it just doesn't manage that tool). base16 **theme
+  scripts** are installed, so `base16 <name>` and tab-completion work; but
+  auto-applying a theme on startup only happens when the shared enable flag
+  exists (normally toggled from zsh), so on a Windows-only host apply one
+  manually with `base16 <name>`.
 - If scripts are blocked by execution policy, run
   `powershell -ExecutionPolicy Bypass -File .\script\bootstrap.ps1` (or
   `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
@@ -72,7 +76,9 @@ Notes:
 base16 themes recolor the terminal by emitting OSC escape sequences at runtime,
 not by editing terminal config. `base16.ps1` reuses the exact `base16-*.sh`
 definitions from the [`base16-shell/`](../base16-shell) topic — one source of
-truth for both shells.
+truth for both shells. Those definitions are a tinted-shell clone, fetched by
+`script/install` (bash) on Linux/WSL or `script/install.ps1` (cross-platform)
+on any host, so the themes are present on Windows too.
 
 On load the profile auto-applies a theme **when**:
 
