@@ -11,6 +11,13 @@ $DotfilesRoot = if (Test-Path "$HOME/.dotfiles") { "$HOME/.dotfiles" } else { $n
 if ($DotfilesRoot) { $env:DOTFILES = $DotfilesRoot }
 $PSTopic = if ($DotfilesRoot) { Join-Path $DotfilesRoot 'powershell' } else { $PSScriptRoot }
 
+# Re-source both startup profiles (this dotfiles one + the host $PROFILE).
+function reload! {
+    foreach ($p in $PROFILE.CurrentUserAllHosts, $PROFILE.CurrentUserCurrentHost) {
+        if (Test-Path $p) { . $p }
+    }
+}
+
 # --- Topical PATH setup ----------------------------------------------------
 # Each topic's path.ps1 runs first, so later fragments and prompt tools (fzf,
 # oh-my-posh) see the finished PATH. A failing one is warned about, not fatal.
