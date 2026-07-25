@@ -16,10 +16,9 @@ set -g mouse on
 setw -g mode-keys vi
 
 # Watch other windows for activity. The status bar flags it (see window-status-format);
-# `visual-activity on` makes the alert a silent status-line message instead of a bell —
-# with the default `off`, tmux rings the terminal bell on every activity (incl. window switches).
+# `activity-action none` drops the alert itself — no bell, no status-line message.
 setw -g monitor-activity on
-set -g visual-activity on
+set -g activity-action none
 
 # change copy and paste key binds
 bind c-v copy-mode
