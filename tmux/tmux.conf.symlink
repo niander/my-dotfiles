@@ -37,6 +37,10 @@ unbind C-b
 set-option -g prefix C-a
 bind C-a send-prefix
 
+# Splits inherit the pane's directory, unlike the default split binds.
+bind | split-window -h -c '#{pane_current_path}'
+bind _ split-window -v -c '#{pane_current_path}'
+
 # map new naviage panels binds
 bind -T root M-Right select-pane -R
 bind -T root M-Left  select-pane -L
