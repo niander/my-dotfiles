@@ -132,9 +132,11 @@ set -g pane-active-border-style 'fg=colour236'
 set -g status-left-length 30
 set -g status-left '#{?client_prefix,#[fg=black bg=red] #S ,#[fg=black bg=green] #S }#[default]'
 
-# Right: date + time.
+# Right: copy-mode badge + date + time. A drag or double-click leaves copy mode open
+# with the selection live, so the badge is the cue that keys still go to the pager.
+# Matched against pane_mode, not pane_in_mode, to skip the tree/clock/buffer modes.
 set -g status-right-length 40
-set -g status-right '#[fg=brightblack]%d %b  %H:%M '
+set -g status-right '#{?#{==:#{pane_mode},copy-mode},#[fg=black bg=brightcyan] COPY #[default] ,}#[fg=brightblack]%d %b  %H:%M '
 
 # Windows: spacing baked into each window (no global separator) so the active segment's arrows don't stack with it. Inactive = 1 space each side (2 between two), active = yellow arrow segment.
 set -g window-status-separator ''
