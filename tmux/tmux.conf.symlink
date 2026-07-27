@@ -24,6 +24,32 @@ set -g activity-action none
 bind c-v copy-mode
 bind c-p paste-buffer
 
+# Selecting must never touch the clipboard — a stray drag would otherwise wipe it.
+# Drag and double/triple click only mark text; copy mode stays open with the
+# selection live until `y`/Enter copies it, or a left-click, `q` or Escape drops it.
+set -g @yank_with_mouse off
+bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X stop-selection
+bind -T copy-mode-vi MouseDown1Pane select-pane \; send-keys -X cancel
+bind -T copy-mode-vi DoubleClick1Pane select-pane \; send-keys -X select-word \; send-keys -X stop-selection
+bind -T copy-mode-vi TripleClick1Pane select-pane \; send-keys -X select-line \; send-keys -X stop-selection
+
+# Clicks that land outside copy mode enter it first. `send-keys -M` hands the
+# click to the application instead whenever it has taken over the mouse.
+bind -n DoubleClick1Pane select-pane -t = \; if -F '#{||:#{pane_in_mode},#{mouse_any_flag}}' {
+    send-keys -M
+} {
+    copy-mode
+    send-keys -X select-word
+    send-keys -X stop-selection
+}
+bind -n TripleClick1Pane select-pane -t = \; if -F '#{||:#{pane_in_mode},#{mouse_any_flag}}' {
+    send-keys -M
+} {
+    copy-mode
+    send-keys -X select-line
+    send-keys -X stop-selection
+}
+
 # Shift arrow to switch windows
 bind -n S-Left  previous-window
 bind -n S-Right next-window
