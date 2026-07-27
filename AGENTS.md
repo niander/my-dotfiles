@@ -34,6 +34,7 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `topic/*.zsh` | Auto-sourced into the shell (see load order below) |
 | `topic/path.zsh` | Sourced **first** — sets `$PATH` and similar |
 | `topic/completion.zsh` | Sourced **last**, after `compinit` — completion setup |
+| `oh-my-zsh/custom/*.zsh` | Sourced by oh-my-zsh itself, after its `lib/` and plugins — the slot for code that must load *after* omz |
 | `topic/*.symlink` | Symlinked into `$HOME` as `.<name>` (extension stripped) by `script/bootstrap` |
 | `topic/install.sh` | Run **once** by `script/install`; named `.sh` (not `.zsh`) precisely so it is *not* auto-sourced every shell |
 | `topic/path.ps1` | Dot-sourced into the PowerShell profile **first** — PATH setup, before other `*.ps1` |
@@ -49,6 +50,7 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 
 Non-obvious consequences:
 - The glob is only two levels deep, so `oh-my-zsh/custom/*.zsh` files are **not** picked up here. They load via oh-my-zsh's own `ZSH_CUSTOM` mechanism when `oh-my-zsh/completion.zsh` runs `source $ZSH/oh-my-zsh.sh` — i.e. **oh-my-zsh (plugins, theme, custom aliases) initializes in the last/completion pass.**
+- Inside that pass omz loads `lib/*.zsh` → plugins → `$ZSH_CUSTOM/*.zsh` → theme. Anything that must override or survive omz — an option it sets, a `zle` widget hook — belongs in `oh-my-zsh/custom/`, not `topic/*.zsh`.
 - Only a file named exactly `path.zsh` sources first. `system/_path.zsh` (underscore) loads in the general pass, not the path pass.
 - `zsh/fpath.zsh` adds every top-level topic folder to `$fpath`, which is how autoloaded functions/completions in `functions/` (e.g. `_boom`, `_brew`, `#compdef` scripts) become available.
 
@@ -59,6 +61,7 @@ Non-obvious consequences:
 ## Applying changes while developing
 
 - **`*.zsh` change** → open a new shell (files are symlinked live via `~/.zshrc` sourcing `$DOTFILES`).
+- **prompt / `zle` change** → verify in a real interactive shell; `zsh -f` loads no plugins, so load-order and widget conflicts don't appear there.
 - **new/changed `*.symlink`** → re-run `./script/bootstrap` (only it creates symlinks).
 - **`install.sh` change** → re-run `./script/install`.
 
@@ -67,6 +70,7 @@ Non-obvious consequences:
 ## Code Style / Conventions
 
 - **Cross-platform:** branch on OS via `uname -s` and `grep -qi microsoft /proc/version` (WSL detection). Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
+- **Register hooks additively** — use `add-zsh-hook` / `add-zle-hook-widget`. Defining a `precmd`/`preexec` function, or binding a widget with `zle -N`, overwrites any handler oh-my-zsh or a plugin already installed under that name.
 - **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git). `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
 - Match the surrounding style of each topic when editing.
 - **Comments are brief** — usually 1–3 lines. Cut rationale a competent reader can infer; a 6-line explanation almost always wants to be 2. Describe the code, not the change or the machine. Write for someone reading the file cold, with no knowledge of this machine or how the code was written. Explain non-obvious *why* tersely. Do **not** put in a comment:
