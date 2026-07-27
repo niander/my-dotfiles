@@ -2,7 +2,7 @@
 export DOTFILES=$HOME/.dotfiles
 
 # your project folder that we can `c [tab]` to
-export PROJECTS=~/workspace
+export PROJECTS=~/projects
 
 # Keep PATH entries unique so re-sourcing this file (e.g. reload!) doesn't stack
 # duplicate entries every time.
