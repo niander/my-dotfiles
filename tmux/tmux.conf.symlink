@@ -114,19 +114,19 @@ set -g focus-events on
 ############
 
 # Status bar: soft dark background (not pure black) so powerline arrows fill cleanly.
+set -g status 2
+set -g 'status-format[1]' '#[bg=terminal,fill=terminal]'
 set -g status-style 'bg=colour233,fg=default'
 set -g status-justify left
 set -g status-interval 5
-set -g status-position bottom
+set -g status-position top
 
-# Breathing room above the bar: a thin pane-border line at each pane's bottom.
-# Drawn in the pane layer (bg=default) so it's transparent — a status row can't be.
-# `simple` ASCII '-' in a dark colour + blank format = a faint hairline separator.
+# Keep pane status at the bottom as a faint hairline separator.
 set -g pane-border-status bottom
 set -g pane-border-format ''
 set -g pane-border-lines simple
-set -g pane-border-style 'fg=colour236'
-set -g pane-active-border-style 'fg=colour236'
+set -g pane-border-style 'fg=brightblack'
+set -g pane-active-border-style 'fg=yellow'
 
 # Left: session pill, flat right edge — the leftmost window draws the arrow so the pill bleeds into it. Green, red while prefix pending.
 set -g status-left-length 30
