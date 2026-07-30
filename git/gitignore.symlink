@@ -3,3 +3,4 @@
 *.swp
 
 **/.claude/settings.local.json
+**/.github/copilot/settings.local.json
