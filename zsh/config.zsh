@@ -22,8 +22,6 @@ setopt HIST_VERIFY
 # add timestamps to history
 setopt EXTENDED_HISTORY
 # adds history incrementally and share it across sessions
-# NOTE: INC_APPEND_HISTORY is intentionally NOT set here — oh-my-zsh/custom/history.zsh
-# unsets it because share_history covers the same need without its drawbacks.
 setopt SHARE_HISTORY
 # don't record duplicate commands
 setopt HIST_IGNORE_ALL_DUPS
