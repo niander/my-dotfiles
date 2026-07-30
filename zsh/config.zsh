@@ -16,9 +16,6 @@ autoload -U $DOTFILES/functions/*(:t)
 # don't nice background tasks
 setopt NO_BG_NICE
 setopt NO_LIST_BEEP
-# allow functions to have local options/traps
-setopt LOCAL_OPTIONS
-setopt LOCAL_TRAPS
 
 # expand history before executing
 setopt HIST_VERIFY
