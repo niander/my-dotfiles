@@ -53,6 +53,11 @@ backed up), and runs `script\install.ps1` (oh-my-posh + fzf via winget, plus the
 module starter pack). Open a new PowerShell 7 window afterward.
 
 Notes:
+- PowerShell modules are installed under `~/PowerShell/Modules`, outside a
+  redirected or OneDrive-backed Documents folder. The installer adds this as
+  the current-user `PSModulePath` in `powershell.config.json` when the setting
+  is absent. If that file already defines a different `PSModulePath`, module
+  installation stops rather than overwriting the machine's configuration.
 - Both links are real **symbolic links** (`~/.dotfiles` and `profile.ps1`); if
   Windows can't create one (no Developer Mode and not elevated), bootstrap fails
   with the exception rather than falling back.
