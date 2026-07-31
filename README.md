@@ -46,7 +46,7 @@ cd my-dotfiles
 
 `script/bootstrap` will:
 
-1. Prompt for your git identity and pick a sensible credential helper for your OS (WSL → Windows credential manager; native Linux → `cache`; MinGW/MSYS → `manager`).
+1. Prompt for the Git credential helper, choosing an OS-specific default.
 2. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
 3. Create the `~/.dotfiles` symlink pointing at the repo.
 4. Run `script/install`, which executes every topic's `install.sh`.
@@ -65,7 +65,9 @@ git pull --ff-only
 ./script/install
 ```
 
-Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by git).
+Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and
+`~/.gitconfig.local` (auto-included by git). Bootstrap configures only the Git
+credential helper, not `user.name` or `user.email`.
 
 ## Credits
 

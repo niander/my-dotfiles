@@ -41,7 +41,7 @@ setup_gitconfig () {
     case "$uname_s" in
       Linux*)
         if grep -qi microsoft /proc/version 2>/dev/null; then
-          # WSL — reuse the Windows credential manager.
+          # WSL - reuse the Windows credential manager.
           git_credential='/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe'
         fi
         ;;
@@ -53,16 +53,8 @@ setup_gitconfig () {
     user " - What is your git credential provider? [$git_credential]"
     read -r -e -i "$git_credential" git_credential
 
-    user ' - What is your github login?'
-    read -e git_login
-    user ' - What is your git author name?'
-    read -e -i $git_login git_authorname
-    user ' - What is your git author email?'
-    read -e -i "$git_login@users.noreply.github.com" git_authoremail
-
-
     git_credential_escaped=$(printf '%s\n' "$git_credential" | sed 's/[&/\\]/\\&/g')
-    sed -e "s/LOGIN/$git_login/g" -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential_escaped/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
+    sed -e "s/GIT_CREDENTIAL_HELPER/$git_credential_escaped/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
 
     success 'gitconfig'
   fi

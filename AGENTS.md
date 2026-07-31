@@ -10,13 +10,13 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 ## Setup Commands
 
 ```bash
-./script/bootstrap   # one-time: prompts for git identity, symlinks *.symlink into $HOME,
+./script/bootstrap   # one-time: prompts for git credential helper, symlinks *.symlink into $HOME,
                      # creates the ~/.dotfiles symlink, then runs script/install
 ./script/install     # re-runnable: runs every topic install.sh (requires ~/.dotfiles symlink)
 ```
 
 `script/bootstrap` (interactive) does, in order:
-1. `setup_gitconfig` — generates `git/gitconfig.local.symlink` from `git/gitconfig.local.symlink.example`, prompting for identity and picking a credential helper by OS (WSL → Windows `git-credential-manager.exe`; native Linux → `cache`; MinGW/MSYS → `manager`). The generated file is gitignored.
+1. `setup_gitconfig` generates `git/gitconfig.local.symlink` from `git/gitconfig.local.symlink.example`, prompting only for a credential helper and picking a default by OS (WSL -> Windows `git-credential-manager.exe`; native Linux -> `cache`; MinGW/MSYS -> `manager`). The generated file is gitignored.
 2. Symlinks every `*.symlink` into `$HOME` as `.<name>` (interactive skip/overwrite/backup prompts).
 3. Creates the **`~/.dotfiles` symlink** to the checkout, then runs `script/install`.
 
