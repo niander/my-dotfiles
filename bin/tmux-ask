@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Ask a plain-English question about the live tmux setup and get a command back.
+# Ask a plain-English question about the live tmux setup and get an answer back.
 #
 # Reads the question on stdin rather than taking it as an argument, so the text
 # never crosses tmux's command parser — quotes and apostrophes need no escaping.
 #
-# Prints the answer. Never runs it.
+# Prints shortcuts and prefix-prompt commands. Never runs them.
 #
 # USAGE:
 #
@@ -18,6 +18,7 @@ set -uo pipefail
 MODEL="${TMUX_ASK_MODEL:-haiku}"
 ADVISOR_MODEL="${TMUX_ASK_ADVISOR_MODEL:-sonnet}"
 TIMEOUT="${TMUX_ASK_TIMEOUT:-45}"
+STATE_TIMEOUT="${TMUX_ASK_STATE_TIMEOUT:-10}"
 
 # Empty non-repo cwd: no CLAUDE.md or project settings for the backend to find.
 SCRATCH="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-ask"
@@ -45,49 +46,56 @@ hold() {
   printf '\n'
 }
 
+new_log() {
+  mktemp "${SCRATCH}/error.XXXXXX" 2>/dev/null ||
+    mktemp "${TMPDIR:-/tmp}/tmux-ask-error.XXXXXX"
+}
+
 # Everything the model needs to answer with real names instead of placeholders.
 gather_state() {
   local pane="$1"
 
   printf 'tmux %s, prefix %s, base-index %s, pane-base-index %s\n' \
-    "$(tmux -V | awk '{print $2}')" \
-    "$(tmux show-options -gv prefix)" \
-    "$(tmux show-options -gv base-index)" \
-    "$(tmux show-window-options -gv pane-base-index)"
+    "$(timeout -k 2s "$STATE_TIMEOUT" tmux -V | awk '{print $2}')" \
+    "$(timeout -k 2s "$STATE_TIMEOUT" tmux show-options -gv prefix)" \
+    "$(timeout -k 2s "$STATE_TIMEOUT" tmux show-options -gv base-index)" \
+    "$(timeout -k 2s "$STATE_TIMEOUT" tmux show-window-options -gv pane-base-index)"
 
   printf '\nCURRENT (where the question came from):\n'
-  tmux display-message -p -t "$pane" -F \
+  timeout -k 2s "$STATE_TIMEOUT" tmux display-message -p -t "$pane" -F \
     '  session=#{session_name} window=#{window_index}:#{window_name} pane=#{pane_index} (#{pane_id}) cmd=#{pane_current_command} path=#{pane_current_path}'
 
   printf '\nSESSIONS:\n'
-  tmux list-sessions -F '  #{session_name} — #{session_windows} window(s), #{?session_attached,attached,detached}'
+  timeout -k 2s "$STATE_TIMEOUT" tmux list-sessions -F '  #{session_name} — #{session_windows} window(s), #{?session_attached,attached,detached}'
 
   printf '\nWINDOWS (all sessions):\n'
-  tmux list-windows -a -F \
+  timeout -k 2s "$STATE_TIMEOUT" tmux list-windows -a -F \
     '  #{session_name}:#{window_index} #{window_name} — #{window_panes} pane(s)#{?window_active, [active in its session],}'
 
   printf '\nPANES (current window):\n'
-  tmux list-panes -t "$pane" -F \
+  timeout -k 2s "$STATE_TIMEOUT" tmux list-panes -t "$pane" -F \
     '  #{pane_index} (#{pane_id}) #{pane_current_command} #{pane_width}x#{pane_height}#{?pane_active, [active],}'
 
   # Behavioural options only; styles and formats are long and never the answer.
   local noise='style|-format|^terminal-|^@resurrect-|^@sidebar-key-|^status-(left|right)|^message-|^mode-|^copy-mode|^clock-mode|^display-panes-(active-)?colour|^window-status'
   printf '\nOPTIONS (session):\n'
-  tmux show-options -g | grep -vE "$noise" | sed 's/^/  /'
+  timeout -k 2s "$STATE_TIMEOUT" tmux show-options -g | grep -vE "$noise" | sed 's/^/  /'
   printf '\nOPTIONS (window):\n'
-  tmux show-window-options -g | grep -vE "$noise" | sed 's/^/  /'
+  timeout -k 2s "$STATE_TIMEOUT" tmux show-window-options -g | grep -vE "$noise" | sed 's/^/  /'
 
-  # Bindings from the config, not the merged default table.
-  local conf="$HOME/.tmux.conf"
-  if [ -r "$conf" ]; then
-    printf '\nCUSTOM KEYBINDINGS (from ~/.tmux.conf):\n'
-    grep -E '^\s*(bind|unbind)' "$conf" | sed 's/^\s*/  /'
-  fi
+  # This includes bindings supplied by plugins as well as tmux defaults.
+  printf '\nLIVE KEYBINDINGS (all key tables):\n'
+  timeout -k 2s "$STATE_TIMEOUT" tmux list-keys | sed 's/^/  /'
 }
 
 # Short by design: extra rules cost latency without sharpening the answers.
 SYSTEM_PROMPT='Answer tmux questions from the STATE block describing the user'"'"'s live session.
-Line 1: the exact shell command, starting with "tmux ", using real names from STATE, never placeholders. Quote names containing spaces.
+Use LIVE KEYBINDINGS as the authoritative source for shortcuts; never invent one.
+Treat CURRENT as the operation context. When the question says "this" or "current" pane, window, or session, use its ID or name from CURRENT explicitly; never infer it from a destination or from whichever target a previous command made active.
+For multi-command operations, trace the state after each command and make every source and destination explicit. A newly created session has its own starter window and pane: preserve the requested object before cleaning up only the temporary object you created.
+When a relevant shortcut exists, line 1 must be "Keys: ..." with the exact sequence. Use the STATE prefix value for prefix-table bindings; root-table bindings need no prefix. Choose the clearest matching shortcut and mention alternatives only when materially useful.
+When a tmux command would help, line 2 must be "Command: ..." containing only the command accepted after pressing prefix then colon: omit the "tmux " executable prefix. Use real names from STATE, never placeholders, and quote names containing spaces.
+If no relevant shortcut exists, say so on line 1 and provide the Command line when possible.
 Then at most one short explanation line. Four lines max.
 Plain terminal text only: no markdown, no backticks, no bullets, no preamble.
 STATE lists current option values; if asked whether something is set, read it from STATE.
@@ -133,24 +141,29 @@ main() {
     die "tmux-ask: backend 'claude' not found on PATH." \
         "Install it, or point tmux-ask at another CLI agent."
 
-  local state
-  state="$(gather_state "$pane" 2>/dev/null)" ||
-    die "tmux-ask: could not read tmux state."
+  mkdir -p "$SCRATCH" 2>/dev/null || SCRATCH="${TMPDIR:-/tmp}/tmux-ask"
+  mkdir -p "$SCRATCH" 2>/dev/null || die "tmux-ask: could not create a diagnostics directory."
 
-  printf '%sthinking…%s\r' "$dim" "$reset"
+  printf '%sreading tmux…%s\r' "$dim" "$reset"
 
-  mkdir -p "$SCRATCH" 2>/dev/null || SCRATCH="."
+  local state state_log
+  state_log="$(new_log)" || die "tmux-ask: could not create a diagnostics log."
+  state="$(gather_state "$pane" 2>"$state_log")" ||
+    die "tmux-ask: could not read tmux state within ${STATE_TIMEOUT}s." "Diagnostics: $state_log"
+  rm -f "$state_log"
+
+  printf '\033[2K%sasking Claude…%s\r' "$dim" "$reset"
 
   # Single round-trip: state is pre-gathered and no tools are offered, so there
   # is no agentic loop. --system-prompt replaces the agent prompt, not appends.
   local out rc errfile
-  errfile="$(mktemp 2>/dev/null)" || errfile="${SCRATCH}/err.$$"
+  errfile="$(new_log)" || die "tmux-ask: could not create a diagnostics log."
   out="$(
     cd "$SCRATCH" 2>/dev/null
     printf 'STATE:\n%s\n\nQUESTION: %s\n' "$state" "$question" |
       CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 \
       ENABLE_CLAUDEAI_MCP_SERVERS=false \
-        timeout "$TIMEOUT" claude -p \
+        timeout -k 5s "$TIMEOUT" claude -p \
           --model "$MODEL" \
           --advisor "$ADVISOR_MODEL" \
           --system-prompt "$SYSTEM_PROMPT" \
@@ -166,38 +179,46 @@ main() {
   # This exits 0, so it has to be matched on rather than caught as a failure.
   case "$out" in
     *"Not logged in"*|*"auth login"*|*"/login"*)
-      rm -f "$errfile"
       die "tmux-ask: not logged in." \
           "Run once:" \
-          "  claude auth login"
+          "  claude auth login" \
+          "Diagnostics: $errfile"
       ;;
   esac
 
-  if [ "$rc" -eq 124 ]; then
-    rm -f "$errfile"
-    die "tmux-ask: backend timed out after ${TIMEOUT}s."
+  if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+    die "tmux-ask: backend timed out after ${TIMEOUT}s." "Diagnostics: $errfile"
   fi
 
   if [ "$rc" -ne 0 ] || [ -z "${out//[[:space:]]/}" ]; then
     local detail
     detail="$(head -c 400 "$errfile" 2>/dev/null | head -n 4)"
-    rm -f "$errfile"
-    die "tmux-ask: backend failed (exit $rc)." "${detail:-No output.}"
+    die "tmux-ask: backend failed (exit $rc)." "${detail:-No output.}" "Diagnostics: $errfile"
   fi
   rm -f "$errfile"
 
   printf '%s\n' "$out"
 
-  # Copies the command alone, without a trailing newline so a paste cannot
-  # self-execute.
+  # Copy a prefix-prompt command only, without a trailing newline.
   if [ -t 0 ]; then
-    printf '\n%s[y] copy command   [any key] dismiss%s' "$dim" "$reset"
+    local command
+    command="$(printf '%s\n' "$out" | sed -n 's/^Command: //p' | head -n 1)"
+    case "$command" in
+      *[![:space:]]*) ;;
+      *) command="" ;;
+    esac
+
+    if [ -n "$command" ]; then
+      printf '\n%s[y] copy command   [any key] dismiss%s' "$dim" "$reset"
+    else
+      printf '\n%s[any key] dismiss%s' "$dim" "$reset"
+    fi
     local key
     read -rsn1 key 2>/dev/null || true
     printf '\n'
-    if [ "$key" = "y" ]; then
+    if [ "$key" = "y" ] && [ -n "$command" ]; then
       # -w forwards the buffer to the terminal's clipboard over OSC52.
-      printf '%s' "$(printf '%s\n' "$out" | head -n 1)" |
+      printf '%s' "$command" |
         tmux load-buffer -w - 2>/dev/null &&
         printf '%scopied to clipboard%s\n' "$dim" "$reset"
       sleep 0.6

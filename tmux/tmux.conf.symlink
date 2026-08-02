@@ -78,7 +78,7 @@ bind -T root M-Down  select-pane -D
 # reload config file
 bind r source-file ~/.tmux.conf \; display "Reloaded!"
 
-# Ask a plain-English question about this setup; prints a command, never runs it.
+# Ask a plain-English question about this setup; prints shortcuts or commands, never runs them.
 # The question is typed inside the popup rather than passed as an argument, so
 # quotes and apostrophes never reach tmux's parser. The script resolves the
 # calling pane itself — tmux expands no formats in a popup's command.
