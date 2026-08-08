@@ -49,8 +49,9 @@ cd my-dotfiles
 
 It symlinks `~/.dotfiles` to the checkout, symlinks your **all-hosts**
 `profile.ps1` to this repo's profile (same as WSL; any existing `profile.ps1` is
-backed up), and runs `script\install.ps1` (oh-my-posh + fzf via winget, plus the
-module starter pack). Open a new PowerShell 7 window afterward.
+backed up), wires up the git config (see below), and runs `script\install.ps1`
+(oh-my-posh + fzf via winget, plus the module starter pack). Open a new
+PowerShell 7 window afterward.
 
 Notes:
 - PowerShell modules are installed under `~/PowerShell/Modules`, outside a
@@ -58,9 +59,9 @@ Notes:
   the current-user `PSModulePath` in `powershell.config.json` when the setting
   is absent. If that file already defines a different `PSModulePath`, module
   installation stops rather than overwriting the machine's configuration.
-- Both links are real **symbolic links** (`~/.dotfiles` and `profile.ps1`); if
-  Windows can't create one (no Developer Mode and not elevated), bootstrap fails
-  with the exception rather than falling back.
+- The links (`~/.dotfiles`, `profile.ps1` and `~/.gitignore`) are real
+  **symbolic links**; if Windows can't create one (no Developer Mode and not
+  elevated), bootstrap fails with the exception rather than falling back.
 - It links the **all-hosts** profile (`profile.ps1` = `$PROFILE.CurrentUserAllHosts`),
   so it loads in every host (console, VS Code, ...) and leaves the host profile
   (`Microsoft.PowerShell_profile.ps1`) untouched — that's where host-specific
@@ -69,8 +70,6 @@ Notes:
   specific lines in `~/.localprofile.ps1` (the profile sources it) — conda now
   loads automatically via the `miniconda/` topic, so you usually won't need to.
 - Only **PowerShell 7** is wired; Windows PowerShell 5.1 is left alone.
-- Git config isn't set up on Windows by this script (the profile still
-  *displays* git state, it just doesn't manage that tool).
 - base16 **theme scripts** are installed, so `base16 <name>` and
   tab-completion work; but auto-applying a theme on startup only happens when
   the shared enable flag exists (normally toggled from zsh), so on a
@@ -115,6 +114,32 @@ Get-Base16Theme                     # list available themes
 
 Set `$env:BASE16_SHELL_SET_BACKGROUND = 'false'` before load to keep your
 terminal's own background (matches base16-shell's option of the same name).
+
+## Windows git config
+
+On Windows, `~/.gitconfig` stays a regular file. `script/bootstrap.ps1` prepends the shared baseline:
+
+```ini
+[include]
+	path = ~/.dotfiles/git/gitconfig.symlink
+```
+
+and symlinks `~/.gitignore` for `core.excludesfile`. Re-running is a no-op.
+
+The include comes first so machine-specific settings below it win.
+Keeping the file a regular one stops `git config --global` writes from reaching the checkout.
+
+Shared settings belong in `git/gitconfig.symlink`, private ones in
+`~/.gitconfig` or `~/.gitconfig.local`, which the shared config includes last.
+`core.symlinks` is set there because the Git for Windows installer leaves
+symlink support off by default.
+
+Git Credential Manager answers for every host except GitHub, which `gh`
+handles. See the `gh/` topic.
+
+`core.autocrlf = input` keeps files LF in the working tree, overriding the
+installer default of `true`, so a checkout stays consistent when shared with
+WSL.
 
 ## git aliases
 

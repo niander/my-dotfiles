@@ -10,6 +10,13 @@ DOTFILES_ROOT=$(pwd -P)
 
 set -e
 
+# MSYS deep-copies on `ln -s`, leaving snapshots that stop following the
+# checkout. nativestrict fails instead of copying when links are unavailable.
+case "$(uname -s)" in
+  MINGW*|MSYS*) export MSYS="${MSYS:+$MSYS }winsymlinks:nativestrict" ;;
+  CYGWIN*) export CYGWIN="${CYGWIN:+$CYGWIN }winsymlinks:nativestrict" ;;
+esac
+
 echo ''
 
 info () {

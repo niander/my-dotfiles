@@ -17,6 +17,10 @@
         excludesfile = ~/.gitignore
         editor = vim
         autocrlf = input
+        # Windows-only knobs, ignored elsewhere
+        symlinks = true
+        longpaths = true
+        fscache = true
 [apply]
         whitespace = nowarn
 [mergetool]
@@ -40,8 +44,6 @@
 	gitHubAccountFiltering = false
 [credential "https://dev.azure.com"]
 	useHttpPath = true
-# Helpers are consulted in file order, so gh answers for these hosts and the
-# helper from the include below only runs when gh is missing or signed out.
 [credential "https://github.com"]
 	helper = !gh auth git-credential
 [credential "https://gist.github.com"]

@@ -39,7 +39,7 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `topic/install.sh` | Run **once** by `script/install`; named `.sh` (not `.zsh`) precisely so it is *not* auto-sourced every shell |
 | `topic/path.ps1` | Dot-sourced into the PowerShell profile **first** — PATH setup, before other `*.ps1` |
 | `topic/*.ps1` | Dot-sourced into the PowerShell profile every shell, except `path.ps1` and `install.ps1` |
-| `topic/install.ps1` | Run **once** by `script/install.ps1` (cross-platform: WSL2/Windows/macOS) |
+| `topic/install.ps1` | Run **once** by `script/install.ps1` (cross-platform: WSL2/Linux/Windows) |
 
 ### Shell load order (`zsh/zshrc.symlink`)
 
@@ -71,9 +71,9 @@ Non-obvious consequences:
 
 - **Cross-platform:** branch on OS via `uname -s` and `grep -qi microsoft /proc/version` (WSL detection). Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
 - **Register hooks additively** — use `add-zsh-hook` / `add-zle-hook-widget`. Defining a `precmd`/`preexec` function, or binding a widget with `zle -N`, overwrites any handler oh-my-zsh or a plugin already installed under that name.
-- **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git). `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
+- **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git), plus `~/.gitconfig` itself on Windows. `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
 - Match the surrounding style of each topic when editing.
-- **Comments are brief** — usually 1–3 lines. Cut rationale a competent reader can infer; a 6-line explanation almost always wants to be 2. Describe the code, not the change or the machine. Write for someone reading the file cold, with no knowledge of this machine or how the code was written. Explain non-obvious *why* tersely. Do **not** put in a comment:
+- **Comments are brief** — usually 1-3 lines. Cut rationale a competent reader can infer; a 6-line explanation almost always wants to be 2. Describe the code, not the change or the machine. Write for someone reading the file cold, with no knowledge of this machine or how the code was written. Explain non-obvious *why* tersely. Do **not** put in a comment:
   - references to a specific machine/user, their installed tools, or a product/app name (e.g. a hardcoded path, a username, a specific editor/app);
   - references to a parallel implementation ("mirror of the zsh side", "same as X");
   - meta-narration of the edit or session ("as decided", "see above", "now we...");
@@ -86,4 +86,7 @@ Non-obvious consequences:
 
 ## Gotchas
 
-- **`~/.dotfiles` must be the symlink that bootstrap creates.** `script/install` and `oh-my-zsh/install.sh` refuse to run unless `~/.dotfiles` (and `~/.zshrc`) are already symlinks — this guard prevents the upstream oh-my-zsh installer from clobbering a real `~/.zshrc`. **Never clone directly into `~/.dotfiles`**; keep the checkout elsewhere and let bootstrap create the link. `script/install` also verifies `~/.dotfiles` resolves to the checkout it is run from.
+- On Linux and WSL, `~/.gitconfig` is a symlink, so `git config --global` writes machine-specific settings to the tracked `git/gitconfig.symlink`. On Windows, `~/.gitconfig` is a regular file; `script/bootstrap.ps1` prepends an include for `~/.dotfiles/git/gitconfig.symlink` so later settings override it.
+- In Git Bash, `ln -s` deep-copies by default. `script/bootstrap` exports `MSYS=winsymlinks:nativestrict` to create native links, which also require Developer Mode.
+- Git for Windows rewrites path-like arguments. Passing `~/.dotfiles/...` to `git config` stores a native path that no longer matches the expected value.
+- Let bootstrap create `~/.dotfiles` as a symlink. `script/install` and `oh-my-zsh/install.sh` require both it and `~/.zshrc` to be symlinks, preventing the upstream installer from replacing a real `~/.zshrc`. Do not clone directly into `~/.dotfiles`; `script/install` also checks that the link resolves to its checkout.
