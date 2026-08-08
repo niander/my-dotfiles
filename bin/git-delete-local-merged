@@ -6,4 +6,4 @@
 #   https://plus.google.com/115587336092124934674/posts/dXsagsvLakJ
 
 read -p "This will delete all local branches that have been merged int HEAD. Continue? (y/N)? " confirm
-[[ $confirm == "y" ]] && git branch -d `git branch --merged | grep -v '^*' | grep -v 'master' | tr -d '\n'`
+[[ $confirm == "y" ]] && git branch -d `git branch --merged | grep -v '^*' | grep -vE 'master|main' | tr -d '\n'`
