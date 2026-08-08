@@ -2,6 +2,9 @@
 *~
 *.swp
 
+Thumbs.db
+desktop.ini
+
 .claude/worktrees/
 **/.claude/settings.local.json
 **/.github/copilot/settings.local.json
