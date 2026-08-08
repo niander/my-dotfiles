@@ -33,6 +33,14 @@ bind -T copy-mode-vi MouseDown1Pane select-pane \; send-keys -X cancel
 bind -T copy-mode-vi DoubleClick1Pane select-pane \; send-keys -X select-word \; send-keys -X stop-selection
 bind -T copy-mode-vi TripleClick1Pane select-pane \; send-keys -X select-line \; send-keys -X stop-selection
 
+# vi mode binds Escape to clear-selection only, so it never leaves copy mode.
+# Keep that while a selection is live; otherwise Escape exits like `q`.
+bind -T copy-mode-vi Escape if -F '#{selection_present}' {
+    send-keys -X clear-selection
+} {
+    send-keys -X cancel
+}
+
 # Clicks that land outside copy mode enter it first. `send-keys -M` hands the
 # click to the application instead whenever it has taken over the mouse.
 bind -n DoubleClick1Pane select-pane -t = \; if -F '#{||:#{pane_in_mode},#{mouse_any_flag}}' {
