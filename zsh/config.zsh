@@ -1,8 +1,3 @@
-## Colors
-# ls colors on mac
-[[ -z "$LSCOLORS" ]] && export LSCOLORS="exfxcxdxbxegedabagacad"
-[[ -z "$CLICOLOR" ]] && export CLICOLOR=true
-
 ## Functions
 fpath=($DOTFILES/functions $fpath)
 autoload -U $DOTFILES/functions/*(:t)

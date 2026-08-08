@@ -33,8 +33,6 @@ Notable scripts in `bin/`:
 | `git-amend`, `git-credit`, `git-edit-new`, `git-copy-branch-name`, `git-up`, `git-undo`, `git-nuke`, `git-track`, ... | Git workflow helpers |
 | `dns-flush` | OS-aware DNS cache flush |
 | `yt` | yt-dlp wrapper |
-| `search` | `ack`/`ack-grep` shortcut |
-| `todo` | Quick todo |
 
 ## Install
 

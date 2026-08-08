@@ -55,7 +55,7 @@ Non-obvious consequences:
 - `zsh/fpath.zsh` adds every top-level topic folder to `$fpath`, which is how autoloaded functions/completions in `functions/` (e.g. `_boom`, `_brew`, `#compdef` scripts) become available.
 
 ### bin/ and functions/
-- `bin/` is prepended to `$PATH` (`system/_path.zsh`); small executables like `e`/`ee`, the `git-*` helpers, `yt`, `search`.
+- `bin/` is prepended to `$PATH` (`system/_path.zsh`); small executables like `e`/`ee`, the `git-*` helpers, `yt`.
 - `functions/` holds autoloaded zsh functions and `#compdef` completion definitions (reachable via `fpath`).
 
 ## Applying changes while developing
