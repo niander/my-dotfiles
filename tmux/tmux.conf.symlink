@@ -1,6 +1,8 @@
 
 # set default-shell to zsh
-if-shell '[[ -a /bin/zsh ]]' 'set-option -g default-shell /bin/zsh'
+# if-shell runs the test through /bin/sh, so it must stay POSIX — `[[` is a
+# bash/zsh keyword and fails on dash.
+if-shell '[ -x /bin/zsh ]' 'set-option -g default-shell /bin/zsh'
 
 # Automatically set window title
 set-window-option -g automatic-rename on
