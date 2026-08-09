@@ -11,6 +11,7 @@
 [core]
         excludesfile = ~/.gitignore
         editor = vim
+        pager = delta
         autocrlf = input
         # Windows-only knobs, ignored elsewhere
         symlinks = true
@@ -18,10 +19,19 @@
         fscache = true
 [apply]
         whitespace = nowarn
+[diff]
+        # colour relocated blocks apart from real additions and deletions
+        colorMoved = default
+[merge]
+        # conflict markers include the common ancestor
+        conflictstyle = zdiff3
 [mergetool]
         keepBackup = false
 [difftool]
         prompt = false
+[delta]
+        navigate = true
+        line-numbers = true
 [init]
         defaultBranch = main
 [help]
