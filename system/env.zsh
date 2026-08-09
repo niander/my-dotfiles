@@ -1,14 +1,20 @@
-export EDITOR=code
+if (( $+commands[code] ))
+then
+    export EDITOR=code
+else
+    export EDITOR=vim
+fi
 
 if [[ -n "${WT_SESSION:-}" ]]
 then
     export COLORTERM=truecolor
 fi
 
-if [[ -a $(which less) ]]
+if (( $+commands[less] ))
 then
-    ver=$(less -V | grep -Eo 'less [0-9]+' | grep -Eo '[0-9]+')
-    [[ ver -ge 551 ]] && export LESS="--mouse -R"
+    less_version=$(less -V | grep -Eo 'less [0-9]+' | grep -Eo '[0-9]+')
+    [[ $less_version -ge 551 ]] && export LESS="--mouse -R"
+    unset less_version
 fi
 
 # Enables opening host browser when running in WSL
