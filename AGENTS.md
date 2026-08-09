@@ -65,7 +65,7 @@ Non-obvious consequences:
 - **new/changed `*.symlink`** → re-run `./script/bootstrap` (only it creates symlinks).
 - **`install.sh` change** → re-run `./script/install`.
 
-`script/install` runs every `install.sh` (`find -maxdepth 2`). These are idempotent — they check-then-clone-or-`git pull` vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, ...), which is why those directories are committed in-tree rather than as submodules (there is no `.gitmodules`).
+`script/install` runs every `install.sh` (`find -maxdepth 2`). These are idempotent — they check-then-clone-or-`git pull` vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, ...). Those clones land in dot-directories that `.gitignore` excludes, so they are neither committed nor submodules (there is no `.gitmodules`).
 
 ## Code Style / Conventions
 
