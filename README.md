@@ -8,7 +8,7 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 
 - `*.zsh` → auto-sourced into your shell
 - `path.zsh` → sourced first (set `$PATH` etc.)
-- `completion.zsh` → sourced last (zsh completion setup)
+- `completion.zsh` → sourced last, after oh-my-zsh has run `compinit`
 - `*.symlink` → symlinked (without the extension) into `$HOME` by `script/bootstrap`
 - `install.sh` → executed by `script/install` (not auto-sourced)
 

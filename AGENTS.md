@@ -43,14 +43,16 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 
 ### Shell load order (`zsh/zshrc.symlink`)
 
-`zshrc.symlink` → `~/.zshrc` is the entrypoint. It sources `~/.localrc` first (per-machine secrets), then globs `$DOTFILES/*/*.zsh` (**exactly two levels deep**) and sources in three passes:
+`zshrc.symlink` → `~/.zshrc` is the entrypoint. It sources `~/.localrc` first (per-machine secrets), then globs `$DOTFILES/*/*.zsh` (**exactly two levels deep**) and sources in four passes:
 1. `*/path.zsh` files
-2. everything except `path.zsh` and `completion.zsh`
-3. `autoload compinit && compinit`, then `*/completion.zsh` files
+2. everything except `path.zsh`, `completion.zsh` and the oh-my-zsh loader
+3. `oh-my-zsh/omz.zsh`, sourced by its exact path rather than by pattern — this is where `compinit` runs
+4. `*/completion.zsh` files
 
 Non-obvious consequences:
-- The glob is only two levels deep, so `oh-my-zsh/custom/*.zsh` files are **not** picked up here. They load via oh-my-zsh's own `ZSH_CUSTOM` mechanism when `oh-my-zsh/completion.zsh` runs `source $ZSH/oh-my-zsh.sh` — i.e. **oh-my-zsh (plugins, theme, custom aliases) initializes in the last/completion pass.**
-- Inside that pass omz loads `lib/*.zsh` → plugins → `$ZSH_CUSTOM/*.zsh` → theme. Anything that must override or survive omz — an option it sets, a `zle` widget hook — belongs in `oh-my-zsh/custom/`, not `topic/*.zsh`.
+- The glob is only two levels deep, so `oh-my-zsh/custom/*.zsh` files are **not** picked up here. They load via oh-my-zsh's own `ZSH_CUSTOM` mechanism when `oh-my-zsh/omz.zsh` runs `source $ZSH/oh-my-zsh.sh` — i.e. **oh-my-zsh (plugins, theme, custom aliases) initializes in pass 3, before any completion file.**
+- omz owns the only `compinit`; don't add another to `zshrc.symlink`.
+- Inside pass 3 omz loads `lib/*.zsh` → plugins → `$ZSH_CUSTOM/*.zsh` → theme. Anything that must override or survive omz — an option it sets, a `zle` widget hook, an alias a plugin also defines — belongs in `oh-my-zsh/custom/`, not `topic/*.zsh`.
 - Only a file named exactly `path.zsh` sources first. `system/_path.zsh` (underscore) loads in the general pass, not the path pass.
 - `zsh/fpath.zsh` adds every top-level topic folder to `$fpath`, which is how autoloaded functions/completions in `functions/` (e.g. `_boom`, `_brew`, `#compdef` scripts) become available.
 
