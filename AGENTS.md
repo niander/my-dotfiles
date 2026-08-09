@@ -27,7 +27,7 @@ chsh -s "$(command -v zsh)"
 
 ## Architecture
 
-Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `node/`, `uv/`, ...). A file's **extension/name determines its behavior**:
+Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `node/`, `uv/`, `wsl/`, ...). A file's **extension/name determines its behavior**:
 
 | Pattern | Behavior |
 | --- | --- |
@@ -37,6 +37,7 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `oh-my-zsh/custom/*.zsh` | Sourced by oh-my-zsh itself, after its `lib/` and plugins — the slot for code that must load *after* omz |
 | `topic/*.symlink` | Symlinked into `$HOME` as `.<name>` (extension stripped) by `script/bootstrap` |
 | `topic/install.sh` | Run **once** by `script/install`; named `.sh` (not `.zsh`) precisely so it is *not* auto-sourced every shell |
+| `topic/<other>.sh` | Run by hand only — `script/install` matches the name `install.sh` exactly |
 | `topic/path.ps1` | Dot-sourced into the PowerShell profile **first** — PATH setup, before other `*.ps1` |
 | `topic/*.ps1` | Dot-sourced into the PowerShell profile every shell, except `path.ps1` and `install.ps1` |
 | `topic/install.ps1` | Run **once** by `script/install.ps1` (cross-platform: WSL2/Linux/Windows) |
@@ -71,7 +72,7 @@ Non-obvious consequences:
 
 ## Code Style / Conventions
 
-- **Cross-platform:** branch on OS via `uname -s` and `grep -qi microsoft /proc/version` (WSL detection). Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
+- **Cross-platform:** branch on OS via `uname -s`. For WSL, shell config tests `$WSL_DISTRO_NAME`; `script/bootstrap` uses `grep -qi microsoft /proc/version` because it also runs pre-login. Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
 - **Register hooks additively** — use `add-zsh-hook` / `add-zle-hook-widget`. Defining a `precmd`/`preexec` function, or binding a widget with `zle -N`, overwrites any handler oh-my-zsh or a plugin already installed under that name.
 - **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git), plus `~/.gitconfig` itself on Windows. `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
 - Match the surrounding style of each topic when editing.
@@ -92,3 +93,5 @@ Non-obvious consequences:
 - In Git Bash, `ln -s` deep-copies by default. `script/bootstrap` exports `MSYS=winsymlinks:nativestrict` to create native links, which also require Developer Mode.
 - Git for Windows rewrites path-like arguments. Passing `~/.dotfiles/...` to `git config` stores a native path that no longer matches the expected value.
 - Let bootstrap create `~/.dotfiles` as a symlink. `script/install` and `oh-my-zsh/install.sh` require both it and `~/.zshrc` to be symlinks, preventing the upstream installer from replacing a real `~/.zshrc`. Do not clone directly into `~/.dotfiles`; `script/install` also checks that the link resolves to its checkout.
+- WSL does not inherit the Windows `PATH` — `wsl/disable-windows-path.sh` turns off `appendWindowsPath`, and `wsl/path.zsh` reads `%PATH%` back from `cmd.exe` on every shell (~50 ms) to re-add the keepers. What it restores is zsh-only: bash scripts, systemd user services and `wsl -e <cmd>` see no Windows `PATH` at all. Without a Win32 directory on `PATH` interop cannot resolve *any* `.exe` (`bin/git-copy-branch-name` needs `clip.exe`), which is why System32 is added unconditionally. `/etc/wsl.conf` must stay LF with no BOM or WSL ignores it silently.
+- `extendedglob` is **off** in this config, interactively included. `[[:space:]]#`, `(#i)`, `/##`, `^` and `~` are ordinary characters unless a file turns it on — use `setopt localoptions extendedglob` inside an anonymous function, as `wsl/path.zsh` does, rather than setting it globally.

@@ -1,0 +1,8 @@
+# Windows %PATH% entries to keep, one path tail per line.
+# Matched case-insensitively on segment boundaries.
+#
+# System32 and C:\Windows are restored unconditionally and must not be listed:
+# reading %PATH% at all means running cmd.exe out of System32 first.
+
+Microsoft VS Code/bin
+Microsoft VS Code Insiders/bin

@@ -55,6 +55,21 @@ After that, set zsh as your login shell (one time) and open a new shell so the c
 chsh -s "$(command -v zsh)"
 ```
 
+### WSL
+
+WSL copies the whole Windows `PATH` into every Linux shell — dozens of cross-filesystem lookups on every command,
+nearly all duplicating a Linux binary you already have.
+
+```sh
+./wsl/disable-windows-path.sh
+```
+
+It sets `appendWindowsPath = false` in `/etc/wsl.conf` (with `sudo`, after showing you the resulting file),
+then tells you how to apply and undo it.
+`wsl/path.zsh` restores `System32`, `C:\Windows`, and whichever `%PATH%` entries match `wsl/windows-path.keep`,
+appended so Linux binaries win. Everything else stays runnable by full path.
+Add a path tail to the keep list — `Git/cmd`, say — and the next shell picks it up.
+
 To update later:
 
 ```sh
