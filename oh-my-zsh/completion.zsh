@@ -65,12 +65,14 @@ ZSH_CUSTOM=$DOTFILES/oh-my-zsh/custom
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
+# fast-syntax-highlighting stays last: it wraps the widgets earlier plugins define.
 plugins=(git tmux globalias
          sudo dircycle wd
          pip common-aliases zsh-autosuggestions
          colorize z
          vagrant conda-zsh-completion
-         changes) #themes
+         changes
+         fast-syntax-highlighting) #themes
 
 source $ZSH/oh-my-zsh.sh
 

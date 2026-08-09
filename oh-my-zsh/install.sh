@@ -42,5 +42,15 @@ else
     git pull --rebase --stat origin HEAD
 fi
 
+# install fast-syntax-highlighting
+FAST_SYNTAX_HIGHLIGHTING=${ZSH_CUSTOM:-"$DOTFILES/oh-my-zsh/custom"}/plugins/fast-syntax-highlighting
+if ! test -d "$FAST_SYNTAX_HIGHLIGHTING"
+then
+    git clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$FAST_SYNTAX_HIGHLIGHTING"
+else
+    cd "$FAST_SYNTAX_HIGHLIGHTING"
+    git pull --rebase --stat origin HEAD
+fi
+
 echo '> You should install python package [pygments]'
 
