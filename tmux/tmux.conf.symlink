@@ -240,6 +240,9 @@ set -g @plugin 'tmux-plugins/tmux-sidebar'
 
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 
+# Periodic automatic saves for tmux-resurrect; without it saving is manual only.
+set -g @plugin 'tmux-plugins/tmux-continuum'
+
 # Other examples:
 # set -g @plugin 'github_username/plugin_name'
 # set -g @plugin 'git@github.com/user/plugin'
