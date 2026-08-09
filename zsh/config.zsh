@@ -30,7 +30,6 @@ setopt HIST_FIND_NO_DUPS
 # trim extra blanks
 setopt HIST_REDUCE_BLANKS
 
-setopt CORRECT
 setopt PROMPT_SUBST
 setopt COMPLETE_IN_WORD
 # don't expand aliases _before_ completion has finished
