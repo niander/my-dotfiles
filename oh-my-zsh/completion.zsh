@@ -66,7 +66,7 @@ ZSH_CUSTOM=$DOTFILES/oh-my-zsh/custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 # fast-syntax-highlighting stays last: it wraps the widgets earlier plugins define.
-plugins=(git tmux globalias
+plugins=(git tmux my-globalias
          sudo dircycle wd
          pip common-aliases zsh-autosuggestions
          colorize z
