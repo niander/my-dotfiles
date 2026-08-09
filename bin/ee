@@ -1,8 +1,13 @@
 #!/bin/sh
 #
-# Open files in $EDITOR and wait for the editor to exit.
+# Run a command with $EDITOR forced to block until the edit is finished.
 #
-# Useful when $EDITOR is a GUI editor (e.g. code, zed, windsurf) and you're
-# invoking it from a tool that needs to block until you're done editing.
+# Terminal editors already block. GUI ones fork unless asked not to, and they
+# reject the flag when they don't need it, so only add it for those.
 #
-EDITOR="$EDITOR --wait" "$@"
+case "${EDITOR##*/}" in
+    code|code-insiders|codium|zed|windsurf|subl) EDITOR="$EDITOR --wait" ;;
+esac
+
+export EDITOR
+exec "$@"
