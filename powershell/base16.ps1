@@ -109,6 +109,18 @@ function Set-Base16Theme {
         return
     }
 
+    if ($Name -eq 'repaint') {
+        # Not a real theme name: replay whatever's already persisted instead
+        # of resolving a base16-repaint.sh that doesn't exist.
+        if (Test-Path -LiteralPath $script:Base16ThemeLink) {
+            script:Invoke-Base16File -Path $script:Base16ThemeLink
+        }
+        else {
+            Write-Error 'base16: no theme set to repaint'
+        }
+        return
+    }
+
     $path = Join-Path $script:Base16ScriptsDir "base16-$Name.sh"
     if (-not (Test-Path -LiteralPath $path)) {
         Write-Error "base16: unknown theme '$Name'. Run Get-Base16Theme to list themes."
@@ -125,6 +137,8 @@ function Set-Base16Theme {
 }
 
 Set-Alias base16 Set-Base16Theme
+
+function repaint! { base16 repaint }
 
 function script:Test-Base16Capable {
     if ($env:TERM_PROGRAM -and $env:TERM_PROGRAM -ne 'tmux') { return $false }

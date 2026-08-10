@@ -40,13 +40,20 @@ function toggle_base16_shell() {
             [[ -f "$BASE16_256_FILE" ]] || _base16_reset_256colorspace
             return 0
             ;;
+        repaint)
+            # force_load bypasses set_theme's own "already applied" guard —
+            # useful when something outside the shell resets the palette.
+            [[ -n "$BASE16_THEME" ]] && type set_theme >/dev/null 2>&1 && set_theme "$BASE16_THEME" true
+            return 0
+            ;;
         *)
-            echo "usage: base16 {on|off|status|256 {on|off|status}}" >&2
+            echo "usage: base16 {on|off|status|repaint|256 {on|off|status}}" >&2
             return 1
             ;;
     esac
 }
 alias base16='toggle_base16_shell'
+alias repaint!='base16 repaint'
 
 # Skip GUI terminals that manage their own colors, but allow tmux.
 if [[ -f "$BASE16_ENABLED_FILE" && ( -z $TERM_PROGRAM || $TERM_PROGRAM == tmux ) && (! $TTY =~ "tty" || -n $WSL_DISTRO_NAME) ]]; then
