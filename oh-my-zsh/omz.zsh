@@ -70,7 +70,7 @@ plugins=(git tmux my-globalias
          sudo dircycle wd
          pip common-aliases zsh-autosuggestions
          colorize z
-         vagrant conda-zsh-completion
+         vagrant conda-zsh-completion rust
          changes
          fast-syntax-highlighting) #themes
 
