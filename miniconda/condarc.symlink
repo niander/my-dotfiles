@@ -447,3 +447,4 @@ changeps1: false
 # #   Sets output log level. 0 is warn. 1 is info. 2 is debug. 3 is trace.
 # #
 # verbosity: 0
+anaconda_anon_usage: false
