@@ -19,6 +19,10 @@ adding `~/.local/bin`), then dot-sources each topic's other `*.ps1` — e.g.
 `powershell/base16.ps1`, `git/aliases.ps1`, and `miniconda/conda.ps1`.
 Installers (`install.ps1`) and anything under `script/` are skipped.
 
+Reload the complete profile state in the current session with `reload!`. It is
+an `Invoke-Command -NoNewScope` alias configured through
+`$PSDefaultParameterValues`.
+
 When [eza](https://eza.rocks) is installed (via the `eza/` topic), `l`/`la`/`ll`/
 `lt`/`lr` route through it, plus `ltree` for a tree view; without eza they fall
 back to `Get-ChildItem` with the built-in coloring below (except `ltree`, which
@@ -101,14 +105,20 @@ On load the profile auto-applies a theme **when**:
 It follows `~/.base16_theme` (the pointer the zsh side maintains), so PowerShell
 shows whatever theme you last picked in zsh. Falls back to `eighties`.
 
-Palette slots 16–21 follow the shared `base16 256 on`/`off` toggle: off (the
+Palette slots 16-21 follow the shared `base16 256 on`/`off` toggle: off (the
 default) keeps index 16 black so TUIs stay readable; on emits the theme's base09
-orange there. Toggle it from zsh; PowerShell reads the same state.
+orange there. PowerShell and zsh read the same state.
 
 Switch live in a session:
 
 ```powershell
 Set-Base16Theme gruvbox-dark-hard   # alias: base16 gruvbox-dark-hard  (tab-completes)
+Set-Base16ColorSpace on             # use theme colors for slots 16-21
+Set-Base16ColorSpace off            # restore the xterm defaults
+Get-Base16ColorSpace
+base16 256 on                       # use theme colors for slots 16-21
+base16 256 off                      # restore the xterm defaults
+base16 256 status
 Get-Base16Theme                     # list available themes
 ```
 

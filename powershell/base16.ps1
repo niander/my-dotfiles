@@ -87,25 +87,90 @@ function script:Invoke-Base16File {
     if ($theme) { $env:BASE16_THEME = $theme }
 }
 
+function Get-Base16ColorSpace {
+    <#.SYNOPSIS Return whether Base16 remaps palette slots 16-21.#>
+    [CmdletBinding()]
+    param()
+
+    if (Test-Path -LiteralPath $script:Base16_256File) { 'on' } else { 'off' }
+}
+
+function Set-Base16ColorSpace {
+    <#
+    .SYNOPSIS Enable or disable Base16 palette slots 16-21.
+    .EXAMPLE Set-Base16ColorSpace on
+    .EXAMPLE Set-Base16ColorSpace off
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, Position = 0)]
+        [ValidateSet('on', 'off')]
+        [string]$State
+    )
+
+    if ($State -eq 'on') {
+        New-Item -ItemType File -Path $script:Base16_256File -Force | Out-Null
+        $env:BASE16_SHELL_SET_256COLORSPACE = '1'
+    }
+    else {
+        if (Test-Path -LiteralPath $script:Base16_256File) {
+            Remove-Item -LiteralPath $script:Base16_256File -Force
+        }
+        if (Test-Path Env:BASE16_SHELL_SET_256COLORSPACE) {
+            Remove-Item Env:BASE16_SHELL_SET_256COLORSPACE
+        }
+    }
+
+    if (Test-Path -LiteralPath $script:Base16ThemeLink) {
+        script:Invoke-Base16File -Path $script:Base16ThemeLink
+    }
+}
+
 function Set-Base16Theme {
     <#
     .SYNOPSIS Apply a base16 theme to the current terminal.
     .EXAMPLE Set-Base16Theme eighties
     .EXAMPLE base16 gruvbox-dark-hard
+    .EXAMPLE base16 256 on
     #>
     [CmdletBinding()]
     param(
         [Parameter(Position = 0)]
         [ArgumentCompleter({
             param($commandName, $parameterName, $wordToComplete)
-            Get-Base16Theme | Where-Object { $_ -like "$wordToComplete*" }
+            @('256', 'repaint') + @(Get-Base16Theme) |
+                Where-Object { $_ -like "$wordToComplete*" }
         })]
-        [string]$Name
+        [string]$Name,
+
+        [Parameter(Position = 1)]
+        [ArgumentCompleter({
+            param($commandName, $parameterName, $wordToComplete)
+            'on', 'off', 'status' | Where-Object { $_ -like "$wordToComplete*" }
+        })]
+        [string]$State
     )
 
     if (-not $Name) {
         Write-Host 'usage: Set-Base16Theme <name>   (tab-completes)'
+        Write-Host '       base16 256 {on|off|status}'
         Write-Host "current: $($env:BASE16_THEME)"
+        return
+    }
+
+    if ($Name -eq '256') {
+        switch ($State) {
+            'on' { Set-Base16ColorSpace -State on }
+            'off' { Set-Base16ColorSpace -State off }
+            'status' {
+                Write-Host "base16 256 colorspace is $(Get-Base16ColorSpace)"
+                return
+            }
+            default {
+                Write-Error 'usage: base16 256 {on|off|status}'
+                return
+            }
+        }
         return
     }
 

@@ -11,12 +11,18 @@ $DotfilesRoot = if (Test-Path "$HOME/.dotfiles") { "$HOME/.dotfiles" } else { $n
 if ($DotfilesRoot) { $env:DOTFILES = $DotfilesRoot }
 $PSTopic = if ($DotfilesRoot) { Join-Path $DotfilesRoot 'powershell' } else { $PSScriptRoot }
 
-# Re-source both startup profiles (this dotfiles one + the host $PROFILE).
-function reload! {
-    foreach ($p in $PROFILE.CurrentUserAllHosts, $PROFILE.CurrentUserCurrentHost) {
-        if (Test-Path $p) { . $p }
-    }
+# Invoke-Command -NoNewScope lets the alias reload into the interactive scope.
+if (-not $PSDefaultParameterValues) {
+    $global:PSDefaultParameterValues = @{}
 }
+$PSDefaultParameterValues['reload!:ScriptBlock'] = { {
+    foreach ($reloadProfile in $PROFILE.CurrentUserAllHosts, $PROFILE.CurrentUserCurrentHost) {
+        if (Test-Path $reloadProfile) { . $reloadProfile }
+    }
+    Remove-Variable reloadProfile -ErrorAction SilentlyContinue
+} }
+$PSDefaultParameterValues['reload!:NoNewScope'] = $true
+Set-Alias reload! Invoke-Command
 
 # --- Topical PATH setup ----------------------------------------------------
 # Each topic's path.ps1 runs first, so later fragments and prompt tools (fzf,
