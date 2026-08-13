@@ -27,15 +27,60 @@ Set-Alias reload! Invoke-Command
 # --- Topical PATH setup ----------------------------------------------------
 # Each topic's path.ps1 runs first, so later fragments and prompt tools (fzf,
 # oh-my-posh) see the finished PATH. A failing one is warned about, not fatal.
-if ($DotfilesRoot) {
-    foreach ($topic in Get-ChildItem -LiteralPath $DotfilesRoot -Directory) {
-        if ($topic.Name -eq 'script') { continue }
-        $pathFragment = Join-Path $topic.FullName 'path.ps1'
-        if (Test-Path $pathFragment) {
-            try { . $pathFragment }
-            catch { Write-Warning "profile path fragment $($topic.Name): $($_.Exception.Message)" }
+& {
+    $declaredPaths = [Collections.Generic.List[string]]::new()
+
+    function Add-DotfilesPath {
+        param([Parameter(Mandatory)][string] $Path)
+
+        $declaredPaths.Add($Path)
+    }
+
+    function ConvertTo-DotfilesPath {
+        param([Parameter(Mandatory)][string] $Path)
+
+        try {
+            $expandedPath = [Environment]::ExpandEnvironmentVariables($Path)
+            [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($expandedPath))
+        }
+        catch {
+            $null
         }
     }
+
+    if ($DotfilesRoot) {
+        $pathPattern = Join-Path (Join-Path $DotfilesRoot '*') 'path.ps1'
+        foreach ($pathFragment in @(Get-ChildItem -Path $pathPattern -File | Sort-Object FullName)) {
+            try { . $pathFragment.FullName }
+            catch { Write-Warning "profile path fragment $($pathFragment.Directory.Name): $($_.Exception.Message)" }
+        }
+    }
+
+    $pathComparer = if ($IsWindows) {
+        [StringComparer]::OrdinalIgnoreCase
+    }
+    else {
+        [StringComparer]::Ordinal
+    }
+    $seenPaths = [Collections.Generic.HashSet[string]]::new($pathComparer)
+    $preferredPaths = [Collections.Generic.List[string]]::new()
+
+    for ($i = $declaredPaths.Count - 1; $i -ge 0; $i--) {
+        $candidate = ConvertTo-DotfilesPath $declaredPaths[$i]
+        if ($candidate -and [IO.Directory]::Exists($candidate) -and $seenPaths.Add($candidate)) {
+            $preferredPaths.Add($candidate)
+        }
+    }
+
+    $remainingPaths = foreach ($entry in $env:PATH -split [IO.Path]::PathSeparator) {
+        if (-not $entry) { continue }
+        $normalizedEntry = ConvertTo-DotfilesPath $entry
+        if (-not $normalizedEntry -or -not $seenPaths.Contains($normalizedEntry)) {
+            $entry
+        }
+    }
+
+    $env:PATH = @($preferredPaths; $remainingPaths) -join [IO.Path]::PathSeparator
 }
 
 # --- Modules ---------------------------------------------------------------

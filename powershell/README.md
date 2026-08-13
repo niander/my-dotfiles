@@ -14,10 +14,17 @@ side selects**.
 | `niander.omp.json` | oh-my-posh theme (uses ANSI color names so it recolors with base16). |
 | `install.ps1` | Installs oh-my-posh + fzf + modules (cross-platform, idempotent; run by `script/install.ps1`). |
 
-The profile runs each topic's `path.ps1` first (PATH setup, like `system/path.ps1`
-adding `~/.local/bin`), then dot-sources each topic's other `*.ps1` — e.g.
-`powershell/base16.ps1`, `git/aliases.ps1`, and `miniconda/conda.ps1`.
+The profile runs each topic's `path.ps1` first, then dot-sources each topic's
+other `*.ps1` — e.g. `powershell/base16.ps1`, `git/aliases.ps1`, and
+`miniconda/conda.ps1`. Path fragments declare entries through a private profile
+helper; the profile normalizes and deduplicates all declarations in one pass
+before prepending them. This mirrors zsh's topic-owned `path.zsh` files and
+unique `$path` array.
 Installers (`install.ps1`) and anything under `script/` are skipped.
+
+Path fragments affect only the current PowerShell process. Installers remain
+responsible for persistent User or Machine PATH changes; the profile declarations
+guarantee interactive shell behavior across Windows, Linux, and WSL.
 
 Reload the complete profile state in the current session with `reload!`. It is
 an `Invoke-Command -NoNewScope` alias configured through
