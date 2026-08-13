@@ -52,9 +52,6 @@
 	helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = !gh auth git-credential
-[user]
-        name = niander
-        email = 4544122+niander@users.noreply.github.com
 [include]
         path = ~/.gitconfig.local
 [user]
