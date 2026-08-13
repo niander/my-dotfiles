@@ -19,6 +19,7 @@ A few representative topics (folders):
 - `zsh/` — shell config, history, options
 - `oh-my-zsh/` — oh-my-zsh setup, plugins, custom overrides
 - `powershell/` — PowerShell profile: oh-my-posh prompt, module starter pack, base16 theming ([details](powershell/README.md))
+- `node/` — Node.js/npm and pnpm setup, plus nvm integration on Linux/WSL
 - `git/` — gitconfig, aliases, ignore rules, helpers
 - `vim/` — vimrc + plugin setup
 - `tmux/` — tmux.conf and tpm

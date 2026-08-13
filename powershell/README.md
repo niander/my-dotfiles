@@ -54,8 +54,8 @@ cd my-dotfiles
 It symlinks `~/.dotfiles` to the checkout, symlinks your **all-hosts**
 `profile.ps1` to this repo's profile (same as WSL; any existing `profile.ps1` is
 backed up), wires up the git config (see below), and runs `script\install.ps1`
-(oh-my-posh + fzf via winget, plus the module starter pack). Open a new
-PowerShell 7 window afterward.
+(Node.js LTS with npm, standalone pnpm, shell tools and the module starter
+pack). Open a new PowerShell 7 window afterward.
 
 Notes:
 - PowerShell modules are installed under `~/PowerShell/Modules`, outside a

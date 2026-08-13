@@ -17,7 +17,7 @@ It:
      existing profile.ps1 is backed up)
   3. adds an include of this repo's gitconfig to ~/.gitconfig, and symlinks
      ~/.gitignore
-  4. runs install.ps1 (oh-my-posh + fzf via winget, PS module starter pack)
+  4. runs install.ps1 (Node.js/npm, pnpm, shell tools and PS modules)
 #>
 
 $ErrorActionPreference = 'Stop'
