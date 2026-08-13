@@ -116,15 +116,6 @@ if (Get-Module PSReadLine) {
     }
 }
 
-# --- PSFzf (Ctrl+T files, Ctrl+R history) ----------------------------------
-# PSFzf's chord setup throws when the fzf binary isn't on PATH, so gate on it.
-if (Get-Command fzf -ErrorAction SilentlyContinue) {
-    Import-Module PSFzf -ErrorAction SilentlyContinue
-    if (Get-Module PSFzf) {
-        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
-    }
-}
-
 # --- Topical fragments -----------------------------------------------------
 # Dot-source each topic's *.ps1. Loaded before oh-my-posh so its prompt wins
 # over anything a fragment sets (e.g. conda). path.ps1 (ran earlier), install.ps1

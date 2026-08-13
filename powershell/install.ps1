@@ -25,7 +25,7 @@ else {
 }
 
 # fzf: winget on Windows. On other platforms install it with the system package
-# manager (it's usually already present); PSFzf below no-ops without it.
+# manager (it's usually already present); the fzf topic no-ops without it.
 if ($IsWindows) {
     Install-WingetPackage -Id 'junegunn.fzf' -Command 'fzf'
 }
