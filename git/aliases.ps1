@@ -1,3 +1,6 @@
+# Git modules load together so their functions and aliases have one owner.
+Import-Module posh-git -ErrorAction SilentlyContinue
+
 # git-aliases replaces several built-in aliases with git functions.
 # Import it first, preserve selected git shortcuts under new names, then
 # restore the built-in aliases.

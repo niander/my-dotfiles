@@ -12,7 +12,7 @@ side selects**.
 | `config/powershell/profile.ps1.symlink` | The profile. Symlinked in as `profile.ps1` (the all-hosts profile) on both WSL and Windows. |
 | `base16.ps1` | base16 loader, auto-loaded as a topical fragment. Re-emits the shared `base16-shell/` themes as OSC sequences. |
 | `niander.omp.json` | oh-my-posh theme (uses ANSI color names so it recolors with base16). |
-| `install.ps1` | Installs oh-my-posh + fzf + modules (cross-platform, idempotent; run by `script/install.ps1`). |
+| `install.ps1` | Installs oh-my-posh + modules (cross-platform, idempotent; run by `script/install.ps1`). |
 
 The profile runs each topic's `path.ps1` first, then dot-sources each topic's
 other `*.ps1` — e.g. `powershell/base16.ps1`, `git/aliases.ps1`, and
@@ -36,9 +36,10 @@ back to `Get-ChildItem` with the built-in coloring below (except `ltree`, which
 is eza-only). Bare `ls` stays native either way.
 
 The starter pack: `posh-git`, `git-aliases`, `PSFzf`, `CompletionPredictor`
-(+ built-in `PSReadLine`). Each is imported only if installed, so the profile
-works before `install.ps1` has run. File listings stay colored without an extra
-module via PowerShell's built-in `$PSStyle.FileInfo`.
+(+ built-in `PSReadLine`). Git and fzf import their own modules through topical
+fragments; the profile imports `CompletionPredictor` before configuring
+PSReadLine. Each no-ops when absent. File listings stay colored without an
+extra module via PowerShell's built-in `$PSStyle.FileInfo`.
 
 ## Linux / WSL (PowerShell 7)
 

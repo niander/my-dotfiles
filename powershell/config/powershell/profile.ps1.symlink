@@ -83,13 +83,9 @@ Set-Alias reload! Invoke-Command
     $env:PATH = @($preferredPaths; $remainingPaths) -join [IO.Path]::PathSeparator
 }
 
-# --- Modules ---------------------------------------------------------------
-# Optional starter pack; each imports only if installed (see install.ps1).
-# Import-Module -EA SilentlyContinue already no-ops on a missing module, so we
-# skip the slow `Get-Module -ListAvailable` disk scan that would run per module.
-foreach ($m in 'posh-git', 'CompletionPredictor') {
-    Import-Module $m -ErrorAction SilentlyContinue
-}
+# --- Prediction plugin -----------------------------------------------------
+# Import-Module no-ops when the optional module is absent.
+Import-Module CompletionPredictor -ErrorAction SilentlyContinue
 
 # --- PSReadLine ------------------------------------------------------------
 # Gate on the in-memory module (fast); PSReadLine auto-loads in interactive pwsh.
@@ -149,4 +145,4 @@ if (Test-Path $localProfile) { . $localProfile }
 
 # This profile runs in the global scope, so its top-level variables would
 # linger in the session; drop the startup scratch ones.
-Remove-Variable DotfilesRoot, PSTopic, ompTheme, localProfile, m, topic, pathFragment, fragment -ErrorAction SilentlyContinue
+Remove-Variable DotfilesRoot, PSTopic, ompTheme, localProfile, topic, pathFragment, fragment -ErrorAction SilentlyContinue
