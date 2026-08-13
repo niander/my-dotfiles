@@ -5,17 +5,13 @@
 
 $ErrorActionPreference = 'Continue'
 
-if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
-    if ($IsWindows -and (Get-Command winget -ErrorAction SilentlyContinue)) {
-        Write-Host "install  gh (winget) ..."
-        winget install --id GitHub.cli --source winget --accept-source-agreements --accept-package-agreements
-    }
-    elseif ($IsWindows) {
-        Write-Warning "winget not found; install gh manually"
-    }
-    else {
-        Write-Warning "gh not found; on Linux/WSL run script/install (bash) to install it"
-    }
+. (Join-Path $PSScriptRoot '..' 'powershell' 'lib' 'winget.ps1')
+
+if ($IsWindows) {
+    Install-WingetPackage -Id 'GitHub.cli' -Command 'gh'
+}
+elseif (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+    Write-Warning "gh not found; on Linux/WSL run script/install (bash) to install it"
 }
 
 $gh = Get-Command gh -ErrorAction SilentlyContinue

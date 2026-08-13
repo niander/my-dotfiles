@@ -6,20 +6,7 @@
 
 $ErrorActionPreference = 'Continue'
 
-function Install-WingetPackage {
-    param([string]$Id, [string]$Command)
-
-    if (Get-Command $Command -ErrorAction SilentlyContinue) {
-        Write-Host "ok       $Command already installed"
-        return
-    }
-    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-        Write-Warning "winget not found; install $Id manually"
-        return
-    }
-    Write-Host "install  $Id (winget) ..."
-    winget install --id $Id --source winget --accept-source-agreements --accept-package-agreements
-}
+. (Join-Path $PSScriptRoot 'lib' 'winget.ps1')
 
 # oh-my-posh: winget on Windows, the official install script elsewhere.
 if ($IsWindows) {
