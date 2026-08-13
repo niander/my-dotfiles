@@ -19,6 +19,12 @@ function Install-WingetPackage {
         return
     }
 
+    & $wingetCommand.Source list --id $Id --exact --source winget --accept-source-agreements --disable-interactivity *> $null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "ok       $Name already installed (not on current PATH)"
+        return
+    }
+
     $wingetArguments = @(
         'install'
         '--id', $Id
