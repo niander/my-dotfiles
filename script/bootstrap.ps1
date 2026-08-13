@@ -29,7 +29,17 @@ if (-not $IsWindows) {
     throw 'script/bootstrap.ps1 is for Windows hosts. On Linux/WSL run script/bootstrap (bash).'
 }
 
-$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$git = Get-Command git -ErrorAction SilentlyContinue
+if (-not $git) {
+    throw 'git not found; install Git for Windows before running bootstrap.'
+}
+
+$scriptRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$RepoRoot = & $git.Source -C $scriptRoot rev-parse --show-toplevel 2>$null
+if ($LASTEXITCODE -ne 0 -or -not $RepoRoot) {
+    throw "Could not resolve the Git worktree containing '$scriptRoot'."
+}
+$RepoRoot = [IO.Path]::GetFullPath($RepoRoot.Trim())
 
 function Get-BackupPath {
     param([Parameter(Mandatory)][string] $Path)
