@@ -2,8 +2,7 @@
 
 # Ctrl+T picks files; Ctrl+R searches command history.
 if (Get-Command fzf -ErrorAction SilentlyContinue) {
-    Import-Module PSFzf -ErrorAction SilentlyContinue
-    if (Get-Module PSFzf) {
+    if (Import-Module PSFzf -PassThru -ErrorAction SilentlyContinue) {
         Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
     }
 }

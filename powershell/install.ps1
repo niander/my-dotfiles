@@ -24,12 +24,6 @@ else {
     Write-Warning "curl not found; install oh-my-posh manually: https://ohmyposh.dev"
 }
 
-# fzf: winget on Windows. On other platforms install it with the system package
-# manager (it's usually already present); the fzf topic no-ops without it.
-if ($IsWindows) {
-    Install-WingetPackage -Id 'junegunn.fzf' -Command 'fzf'
-}
-
 $moduleRoot = if ($IsWindows) {
     Join-Path $HOME 'PowerShell/Modules'
 }
