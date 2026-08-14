@@ -46,6 +46,9 @@
         ff = only
 [credential]
 	gitHubAccountFiltering = false
+	azreposCredentialType = oauth
+	msauthUseBroker = true
+	msauthUseDefaultAccount = true
 [credential "https://dev.azure.com"]
 	useHttpPath = true
 [credential "https://github.com"]
