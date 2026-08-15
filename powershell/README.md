@@ -14,13 +14,17 @@ side selects**.
 | `niander.omp.json` | oh-my-posh theme (uses ANSI color names so it recolors with base16). |
 | `install.ps1` | Installs oh-my-posh + modules (cross-platform, idempotent; run by `script/install.ps1`). |
 
-The profile runs each topic's `path.ps1` first, then dot-sources each topic's
-other `*.ps1` — e.g. `powershell/base16.ps1`, `git/aliases.ps1`, and
-`miniconda/conda.ps1`. Path fragments declare entries through a private profile
-helper; the profile normalizes and deduplicates all declarations in one pass
-before prepending them. This mirrors zsh's topic-owned `path.zsh` files and
-unique `$path` array.
-Installers (`install.ps1`) and anything under `script/` are skipped.
+## Profile behavior
+
+`config/powershell/profile.ps1.symlink` owns the shell-wide load order:
+
+1. Run each topic's `path.ps1`.
+2. Normalize, deduplicate, and prepend the declared paths.
+3. Import `CompletionPredictor` and configure PSReadLine.
+4. Dot-source the other top-level `topic/*.ps1` fragments.
+5. Initialize oh-my-posh and source `~/.localprofile.ps1`.
+
+The profile skips `install.ps1` files and everything under `script/`.
 
 Path fragments affect only the current PowerShell process. Installers remain
 responsible for persistent User or Machine PATH changes; the profile declarations
@@ -30,16 +34,21 @@ Reload the complete profile state in the current session with `reload!`. It is
 an `Invoke-Command -NoNewScope` alias configured through
 `$PSDefaultParameterValues`.
 
-When [eza](https://eza.rocks) is installed (via the `eza/` topic), `l`/`la`/`ll`/
-`lt`/`lr` route through it, plus `ltree` for a tree view; without eza they fall
-back to `Get-ChildItem` with the built-in coloring below (except `ltree`, which
-is eza-only). Bare `ls` stays native either way.
+## Topic-owned PowerShell configuration
 
-The starter pack: `posh-git`, `git-aliases`, `PSFzf`, `CompletionPredictor`
-(+ built-in `PSReadLine`). Git and fzf import their own modules through topical
-fragments; the profile imports `CompletionPredictor` before configuring
-PSReadLine. Each no-ops when absent. File listings stay colored without an
-extra module via PowerShell's built-in `$PSStyle.FileInfo`.
+The profile discovers these runtime fragments from their topic folders. Add
+new topic behavior to this table instead of extending the profile description.
+
+| Topic | Runtime fragments | Behavior |
+| --- | --- | --- |
+| `powershell/` | `base16.ps1` | Defines the base16 commands and applies the shared theme. See [Topic details: base16 theming](#topic-details-base16-theming). |
+| `system/` | `path.ps1`, `aliases.ps1` | Adds `~/.local/bin`; defines `l`/`la`/`ll`/`lt`/`lr` fallbacks with `Get-ChildItem` and `$PSStyle.FileInfo` colors. |
+| `rust/` | `path.ps1` | Adds `~/.cargo/bin`. |
+| `eza/` | `_eza.ps1`, `aliases.ps1` | Registers eza completion and replaces the listing helpers when eza is installed; adds `ltree`. Bare `ls` stays native. |
+| `gh/` | `_gh.ps1` | Registers GitHub CLI completion. |
+| `git/` | `aliases.ps1` | Loads `git-aliases`, restores PowerShell's built-ins, and loads `posh-git` on the first Git completion request. See [Topic details: git aliases](#topic-details-git-aliases). |
+| `fzf/` | `config.ps1` | Loads `PSFzf` on the first `Ctrl+T` or `Ctrl+R`. |
+| `miniconda/` | `conda.ps1` | Initializes the conda shell hook when conda is installed. |
 
 ## Linux / WSL (PowerShell 7)
 
@@ -93,7 +102,7 @@ Notes:
 > `niander.omp.json` uses the oh-my-posh v3 config schema, so a current
 > oh-my-posh is required; `winget install` provides one.
 
-## base16 theming
+## Topic details: base16 theming
 
 base16 themes recolor the terminal by emitting OSC escape sequences at runtime,
 not by editing terminal config. `base16.ps1` reuses the exact `base16-*.sh`
@@ -159,7 +168,7 @@ handles. See the `gh/` topic.
 installer default of `true`, so a checkout stays consistent when shared with
 WSL.
 
-## git aliases
+## Topic details: git aliases
 
 The `git-aliases` module ports oh-my-zsh-style git shortcuts (`gst`, `gco`,
 `gaa`, ...) to PowerShell. It also **strips several built-in aliases** — `gc`,
@@ -167,9 +176,9 @@ The `git-aliases` module ports oh-my-zsh-style git shortcuts (`gst`, `gco`,
 and it does so whenever it auto-loads (on first use of any of its commands), so a
 one-off `Set-Alias` won't hold.
 
-`git/aliases.ps1` handles this deterministically: it imports the module up front,
-then puts the built-ins back (`gc` → `Get-Content`, `gl` → `Get-Location`, ...).
-The three most useful displaced shortcuts are kept under non-colliding names:
+`git/aliases.ps1` imports the module, keeps selected git functions under new
+names, and restores the built-ins (`gc` → `Get-Content`, `gl` →
+`Get-Location`, ...). The three most useful displaced shortcuts are:
 
 | Shortcut | Runs |
 | --- | --- |
