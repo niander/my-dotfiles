@@ -4,4 +4,5 @@ alias la='ls -laFh'
 alias ll='ls -lFh'
 unalias mv
 unalias cp
+unalias rm
 
