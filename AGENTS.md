@@ -95,3 +95,22 @@ Non-obvious consequences:
 - Let bootstrap create `~/.dotfiles` as a symlink. `script/install` and `oh-my-zsh/install.sh` require both it and `~/.zshrc` to be symlinks, preventing the upstream installer from replacing a real `~/.zshrc`. Do not clone directly into `~/.dotfiles`; `script/install` also checks that the link resolves to its checkout.
 - WSL does not inherit the Windows `PATH` — `wsl/disable-windows-path.sh` turns off `appendWindowsPath`, and `wsl/path.zsh` reads `%PATH%` back from `cmd.exe` on every shell (~50 ms) to re-add the keepers. What it restores is zsh-only: bash scripts, systemd user services and `wsl -e <cmd>` see no Windows `PATH` at all. Without a Win32 directory on `PATH` interop cannot resolve *any* `.exe` (`bin/git-copy-branch-name` needs `clip.exe`), which is why System32 is added unconditionally. `/etc/wsl.conf` must stay LF with no BOM or WSL ignores it silently.
 - `extendedglob` is **off** in this config, interactively included. `[[:space:]]#`, `(#i)`, `/##`, `^` and `~` are ordinary characters unless a file turns it on — use `setopt localoptions extendedglob` inside an anonymous function, as `wsl/path.zsh` does, rather than setting it globally.
+
+
+<!-- github-knowledge-base-start -->
+## Knowledge Base
+
+### Purpose
+
+This repository uses the Knowledge Base at [https://github.com/niander/my-dotfiles](https://github.com/niander/my-dotfiles) on branch `main`.
+
+### Required behavior
+
+1. Before changing code, read `docs/index.md` from that branch.
+2. Use the index to open only the knowledge files relevant to the task.
+3. If the index is unavailable, stop and report that the Knowledge Base could not be loaded.
+
+### Source of truth
+
+Generated knowledge tracks the code. When the knowledge and code disagree, trust the code.
+<!-- github-knowledge-base-end -->
