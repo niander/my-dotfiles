@@ -16,7 +16,7 @@ It:
   2. symlinks this repo's profile in as your all-hosts profile.ps1 (any
      existing profile.ps1 is backed up)
   3. adds an include of this repo's gitconfig to ~/.gitconfig, and symlinks
-     ~/.gitignore
+     ~/.gitconfig.dotfiles and ~/.gitignore
   4. runs install.ps1 (Node.js/npm, pnpm, shell tools and PS modules)
 #>
 
@@ -58,16 +58,22 @@ function Get-BackupPath {
     return $candidate
 }
 
+# Resolves a link's target. -AllowMissing accepts one whose target no longer exists.
 function Resolve-LinkTarget {
-    param([Parameter(Mandatory)] $Item)
+    param(
+        [Parameter(Mandatory)] $Item,
+        [switch] $AllowMissing
+    )
 
     if (-not $Item.Target) { return $null }
 
     $target = @($Item.Target)[0]
+    $parent = Split-Path -Parent $Item.FullName
     if (-not [System.IO.Path]::IsPathRooted($target)) {
-        $target = Join-Path (Split-Path -Parent $Item.FullName) $target
+        $target = Join-Path $parent $target
     }
 
+    if ($AllowMissing) { return [IO.Path]::GetFullPath($target, $parent) }
     return (Resolve-Path -LiteralPath $target -ErrorAction SilentlyContinue).Path
 }
 
@@ -120,85 +126,68 @@ function Add-GitInclude {
     param(
         [Parameter(Mandatory)][string] $Path,
         [Parameter(Mandatory)][string] $IncludePath,
-        [Parameter(Mandatory)][string] $LinkTarget
+        [Parameter(Mandatory)][string] $LegacyIncludePath,
+        [Parameter(Mandatory)][string] $BaselineDir
     )
 
     $label = Split-Path -Leaf $Path
-    $body = ''
-    $encoding = [System.Text.UTF8Encoding]::new($false)
     $existing = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
-    $symlinkBackup = $null
 
     if ($existing -and $existing.LinkType) {
-        $target = Resolve-LinkTarget $existing
-        $expectedTarget = (Resolve-Path -LiteralPath $LinkTarget).Path
-        if ($target -ne $expectedTarget) {
-            throw "$label links to '$($existing.Target)', not '$expectedTarget'. Remove it or migrate its settings, then re-run."
+        # AllowMissing: after a pull the old baseline is gone and the link dangles.
+        $target = Resolve-LinkTarget $existing -AllowMissing
+        if ((Split-Path -Parent $target) -ne $BaselineDir) {
+            throw "$label links to '$target', not a config in $BaselineDir. Remove it or migrate its settings, then re-run."
         }
-        $symlinkBackup = Get-BackupPath $Path
-        Move-Item -LiteralPath $Path -Destination $symlinkBackup -Force
+        Remove-Item -LiteralPath $Path -Force
+        Write-Host "rm    $label symlink into the checkout"
+        $existing = $null
     }
-    elseif ($existing) {
-        $reader = [System.IO.StreamReader]::new($Path, $encoding, $true)
-        try {
-            $body = $reader.ReadToEnd()
-            $encoding = $reader.CurrentEncoding
+
+    if ($existing) {
+        # Refuse a file git cannot parse rather than editing it.
+        & git config --file $Path --list *> $null
+        if ($LASTEXITCODE -ne 0) {
+            throw "git cannot parse $label. Fix it, then re-run."
         }
-        finally {
-            $reader.Dispose()
+
+        if (Test-GitIncludeFirst -Path $Path -IncludePath $IncludePath) {
+            Write-Host "ok    $label already includes the baseline"
+            return
+        }
+
+        $entries = @(& git config --file $Path --get-all include.path 2>$null)
+        if ($entries -ccontains $IncludePath) {
+            throw "$label includes $IncludePath below the top, where the baseline overrides machine settings. Move it to the first line and re-run."
+        }
+        if ($entries -ccontains $LegacyIncludePath) {
+            throw "$label includes $LegacyIncludePath, replaced by $IncludePath. Drop that include and re-run."
         }
     }
 
-    $eol = if ($body -match "`r`n") { "`r`n" } elseif ($body -match "`n") { "`n" } else { [Environment]::NewLine }
-    $block = "[include]$eol`tpath = $IncludePath$eol"
-    $escapedPath = [regex]::Escape($IncludePath)
-    # Drop the whole section only when our path is its sole entry, otherwise
-    # just the one line; removing a header would reassign its other entries.
-    $sectionPattern = "(?im)^\[include\][ \t]*\r?\n[ \t]*path[ \t]*=[ \t]*$escapedPath[ \t]*(?:\r?\n|\z)(?=[ \t]*\[|\z)"
-    $linePattern = "(?im)^[ \t]*path[ \t]*=[ \t]*$escapedPath[ \t]*(?:\r?\n|\z)"
-    $withoutBlock = [regex]::Replace($body, $sectionPattern, '')
-    $withoutBlock = [regex]::Replace($withoutBlock, $linePattern, '')
-    $newBody = "$block$withoutBlock"
-
-    if ($newBody -eq $body) {
-        Write-Host "ok    $label already includes the repo config"
-        return
-    }
-
-    # Two includes would apply the baseline twice, doubling multi-valued
-    # settings such as credential helpers.
-    if ($withoutBlock.Contains($IncludePath)) {
-        Write-Warning "$label includes $IncludePath in another form; move it to the top by hand."
-        return
-    }
-
-    $parent = Split-Path -Parent $Path
-    if ($parent -and -not (Test-Path -LiteralPath $parent)) {
-        New-Item -ItemType Directory -Path $parent -Force | Out-Null
-    }
-
-    try {
-        $writer = [System.IO.StreamWriter]::new($Path, $false, $encoding)
-        try {
-            $writer.Write($newBody)
-        }
-        finally {
-            $writer.Dispose()
-        }
-    }
-    catch {
-        if ($symlinkBackup) {
-            Remove-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
-            Move-Item -LiteralPath $symlinkBackup -Destination $Path -Force
-        }
-        throw
-    }
-
-    if ($symlinkBackup) {
-        Remove-Item -LiteralPath $symlinkBackup -Force
-        Write-Warning "$label was a symlink; replaced it with a file that includes the repo config."
-    }
+    $body = if ($existing) { Get-Content -LiteralPath $Path -Raw } else { '' }
+    $eol = if ($body -match "`r`n") { "`r`n" } else { "`n" }
+    Set-Content -LiteralPath $Path -NoNewline -Encoding utf8NoBOM `
+        -Value "[include]$eol`tpath = $IncludePath$eol$body"
     Write-Host "add   $label -> include $IncludePath"
+}
+
+# True when $Path opens with an [include] of $IncludePath. Tolerates CRLF and
+# spacing: the file may have been written on another host.
+function Test-GitIncludeFirst {
+    param(
+        [Parameter(Mandatory)][string] $Path,
+        [Parameter(Mandatory)][string] $IncludePath
+    )
+
+    $lines = @(Get-Content -LiteralPath $Path -TotalCount 2)
+    if ($lines.Count -lt 2) { return $false }
+
+    $escaped = [regex]::Escape($IncludePath)
+    # Git matches section and key names case-insensitively, values exactly.
+    return ($lines[0] -match '^[ \t]*\[include\][ \t]*$') -and
+           ($lines[1] -match '^[ \t]*path[ \t]*=') -and
+           ($lines[1] -cmatch "=[ \t]*$escaped[ \t]*$")
 }
 
 # --- ~/.dotfiles symlink ---------------------------------------------------
@@ -236,9 +225,13 @@ if ($profileBackedUp) {
 }
 
 # --- git config ------------------------------------------------------------
-$gitConfig = Join-Path $RepoRoot 'git/gitconfig.symlink'
-Add-GitInclude -Path (Join-Path $HOME '.gitconfig') -IncludePath '~/.dotfiles/git/gitconfig.symlink' -LinkTarget $gitConfig
+$baseline = Join-Path $RepoRoot 'git/gitconfig.dotfiles.symlink'
+Set-Symlink -Path (Join-Path $HOME '.gitconfig.dotfiles') -Target $baseline -Label '.gitconfig.dotfiles' | Out-Null
 Set-Symlink -Path (Join-Path $HOME '.gitignore') -Target (Join-Path $RepoRoot 'git/gitignore.symlink') -Label '.gitignore' | Out-Null
+Add-GitInclude -Path (Join-Path $HOME '.gitconfig') `
+    -IncludePath '~/.gitconfig.dotfiles' `
+    -LegacyIncludePath '~/.dotfiles/git/gitconfig.symlink' `
+    -BaselineDir (Split-Path -Parent $baseline)
 
 # --- install tooling -------------------------------------------------------
 & (Join-Path $PSScriptRoot 'install.ps1')

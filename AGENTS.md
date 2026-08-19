@@ -18,7 +18,7 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 `script/bootstrap` (interactive) does, in order:
 1. `setup_gitconfig` generates `git/gitconfig.local.symlink` from `git/gitconfig.local.symlink.example`, prompting only for a credential helper and picking a default by OS (WSL -> Windows `git-credential-manager.exe`; native Linux -> `cache`; MinGW/MSYS -> `manager`). The generated file is gitignored.
 2. Symlinks every `*.symlink` into `$HOME` as `.<name>` (interactive skip/overwrite/backup prompts).
-3. Creates the **`~/.dotfiles` symlink** to the checkout, then runs `script/install`.
+3. Creates the **`~/.dotfiles` symlink** to the checkout, prepends an `[include]` of `~/.gitconfig.dotfiles` to `~/.gitconfig` (a regular file), then runs `script/install`.
 
 After install, set zsh as the login shell once and open a new shell:
 ```bash
@@ -74,7 +74,7 @@ Non-obvious consequences:
 
 - **Cross-platform:** branch on OS via `uname -s`. For WSL, shell config tests `$WSL_DISTRO_NAME`; `script/bootstrap` uses `grep -qi microsoft /proc/version` because it also runs pre-login. Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
 - **Register hooks additively** — use `add-zsh-hook` / `add-zle-hook-widget`. Defining a `precmd`/`preexec` function, or binding a widget with `zle -N`, overwrites any handler oh-my-zsh or a plugin already installed under that name.
-- **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`) and `~/.gitconfig.local` (auto-included by git), plus `~/.gitconfig` itself on Windows. `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
+- **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`), `~/.gitconfig` (git's global config, which includes the repo baseline) and `~/.gitconfig.local` (auto-included by that baseline). `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
 - Match the surrounding style of each topic when editing.
 - **Comments are brief** — usually 1-3 lines. Cut rationale a competent reader can infer; a 6-line explanation almost always wants to be 2. Describe the code, not the change or the machine. Write for someone reading the file cold, with no knowledge of this machine or how the code was written. Explain non-obvious *why* tersely. Do **not** put in a comment:
   - references to a specific machine/user, their installed tools, or a product/app name (e.g. a hardcoded path, a username, a specific editor/app);
@@ -89,7 +89,7 @@ Non-obvious consequences:
 
 ## Gotchas
 
-- On Linux and WSL, `~/.gitconfig` is a symlink, so `git config --global` writes machine-specific settings to the tracked `git/gitconfig.symlink`. On Windows, `~/.gitconfig` is a regular file; `script/bootstrap.ps1` prepends an include for `~/.dotfiles/git/gitconfig.symlink` so later settings override it.
+- On every platform `~/.gitconfig` is a regular file whose first two lines include `~/.gitconfig.dotfiles` (the linked baseline, `git/gitconfig.dotfiles.symlink`); `git config --global` writes land on the machine and override it. `script/bootstrap` and `script/bootstrap.ps1` share one contract: the include must be the first entry, so both decide by reading the opening two lines directly (`gitconfig_include_first` / `Test-GitIncludeFirst`) — `git config --file` only guards against an unparsable file and answers "is it present elsewhere". Neither rewrites an existing entry.
 - In Git Bash, `ln -s` deep-copies by default. `script/bootstrap` exports `MSYS=winsymlinks:nativestrict` to create native links, which also require Developer Mode.
 - Git for Windows rewrites path-like arguments. Passing `~/.dotfiles/...` to `git config` stores a native path that no longer matches the expected value.
 - Let bootstrap create `~/.dotfiles` as a symlink. `script/install` and `oh-my-zsh/install.sh` require both it and `~/.zshrc` to be symlinks, preventing the upstream installer from replacing a real `~/.zshrc`. Do not clone directly into `~/.dotfiles`; `script/install` also checks that the link resolves to its checkout.

@@ -1,4 +1,5 @@
-# Local/private config goes in the include
+# Shared baseline, linked to ~/.gitconfig.dotfiles and included from ~/.gitconfig.
+# Machine-specific settings go in ~/.gitconfig below the include, or in ~/.gitconfig.local.
 [alias]
         co = checkout
         count   = !git shortlog -sn

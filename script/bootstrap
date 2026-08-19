@@ -34,7 +34,7 @@ success () {
 fail () {
   printf "\r\033[2K  [\033[0;31mFAIL\033[0m] $1\n"
   echo ''
-  exit
+  exit 1
 }
 
 setup_gitconfig () {
@@ -65,6 +65,88 @@ setup_gitconfig () {
 
     success 'gitconfig'
   fi
+}
+
+# True when $1 opens with an [include] of $2. Tolerates CRLF, a BOM and spacing:
+# the file may have been written on another host.
+gitconfig_include_first () {
+  local first second
+  { IFS= read -r first; IFS= read -r second; } < "$1" || true
+  first="${first%$'\r'}"; first="${first#$'\xef\xbb\xbf'}"
+  second="${second%$'\r'}"
+
+  # Git matches section and key names case-insensitively, values exactly.
+  [[ "${first,,}" =~ ^[[:space:]]*\[include\][[:space:]]*$ ]] &&
+  [[ "${second,,}" =~ ^[[:space:]]*path[[:space:]]*= ]] &&
+  [[ "$second" =~ =[[:space:]]*"$2"[[:space:]]*$ ]]
+}
+
+gitconfig_includes () {
+  git config --file "$1" --get-all include.path 2>/dev/null | grep -qxF "$2"
+}
+
+# `git config --global` writes follow a symlink into the checkout, so ~/.gitconfig
+# stays a regular file; the include goes first so machine settings below it win.
+setup_gitconfig_include () {
+  local dst="$HOME/.gitconfig"
+  local include='~/.gitconfig.dotfiles'
+  local legacy='~/.dotfiles/git/gitconfig.symlink'
+  local baseline="${include/#\~/$HOME}"
+
+  # Git ignores an include it cannot open, so a skipped or failed link would
+  # cost every baseline setting with no error.
+  if [ ! -e "$baseline" ]
+  then
+    fail "$include is missing. Re-run and let bootstrap link it, then re-run."
+  fi
+
+  if [ -L "$dst" ]
+  then
+    # After a pull the old baseline is gone, so the link dangles.
+    local target
+    target="$(readlink -m "$dst")"
+    case "$target" in
+      "$DOTFILES_ROOT"/git/*) ;;
+      *) fail "~/.gitconfig links to $target, not a config in $DOTFILES_ROOT/git. Remove it or migrate its settings, then re-run." ;;
+    esac
+    rm "$dst"
+    success 'removed the ~/.gitconfig symlink into the checkout'
+  fi
+
+  if [ -f "$dst" ]
+  then
+    # Refuse a file git cannot parse rather than editing it.
+    if ! git config --file "$dst" --list > /dev/null 2>&1
+    then
+      fail "git cannot parse ~/.gitconfig. Fix it, then re-run."
+    fi
+
+    if gitconfig_include_first "$dst" "$include"
+    then
+      success '~/.gitconfig already includes the baseline'
+      return
+    fi
+
+    if gitconfig_includes "$dst" "$include"
+    then
+      fail "~/.gitconfig includes $include below the top, where the baseline overrides machine settings. Move it to the first line and re-run."
+    fi
+
+    if gitconfig_includes "$dst" "$legacy"
+    then
+      fail "~/.gitconfig includes $legacy, replaced by $include. Drop that include and re-run."
+    fi
+  fi
+
+  local tmp="$dst.dotfiles.$$"
+  {
+    printf '[include]\n\tpath = %s\n' "$include"
+    if [ -f "$dst" ]; then cat "$dst"; fi
+  } > "$tmp"
+  # Copy over the original rather than mv, which would drop its mode and owner.
+  cat "$tmp" > "$dst"
+  rm -f "$tmp"
+  success 'added the baseline include to ~/.gitconfig'
 }
 
 
@@ -182,6 +264,10 @@ fi
 if [ ! -L "$HOME/.dotfiles" ]; then
   fail "~/.dotfiles exists but is not a symlink (cloned directly into ~/.dotfiles?). Move the clone to another path (e.g. ~/code/dotfiles) and rerun script/bootstrap."
 fi
+
+# Runs under the guard above, so a bad ~/.dotfiles fails before ~/.gitconfig is
+# touched, and after install_dotfiles has created the ~/.gitconfig.dotfiles link.
+setup_gitconfig_include
 
 # Run topical install scripts.
 info 'running script/install'

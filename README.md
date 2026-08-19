@@ -49,7 +49,9 @@ cd my-dotfiles
 1. Prompt for the Git credential helper, choosing an OS-specific default.
 2. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
 3. Create the `~/.dotfiles` symlink pointing at the repo.
-4. Run `script/install`, which executes every topic's `install.sh`.
+4. Prepend an include of `~/.gitconfig.dotfiles` (the symlinked baseline) to `~/.gitconfig`.
+   It stops rather than guessing if `~/.gitconfig` is a symlink to somewhere outside this checkout, or already carries the include below the top — move those settings aside first.
+5. Run `script/install`, which executes every topic's `install.sh`.
 
 After that, set zsh as your login shell (one time) and open a new shell so the config loads:
 
@@ -83,6 +85,16 @@ git pull --ff-only
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and
 `~/.gitconfig.local` (auto-included by git). Bootstrap configures only the Git
 credential helper, not `user.name` or `user.email`.
+
+`~/.gitconfig` is the one file bootstrap does not symlink.
+It stays a regular file with the repo baseline included on top:
+
+```ini
+[include]
+	path = ~/.gitconfig.dotfiles
+```
+
+so `git config --global` writes stay on the machine and override the baseline.
 
 ## Credits
 

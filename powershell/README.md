@@ -145,20 +145,13 @@ terminal's own background (matches base16-shell's option of the same name).
 
 ## Windows git config
 
-On Windows, `~/.gitconfig` stays a regular file. `script/bootstrap.ps1` prepends the shared baseline:
+`script/bootstrap.ps1` writes the same `~/.gitconfig` include the bash bootstrap does
+(see the root `README.md`), and symlinks `~/.gitconfig.dotfiles` plus `~/.gitignore`
+for `core.excludesfile`. Re-running is a no-op.
 
-```ini
-[include]
-	path = ~/.dotfiles/git/gitconfig.symlink
-```
-
-and symlinks `~/.gitignore` for `core.excludesfile`. Re-running is a no-op.
-
-The include comes first so machine-specific settings below it win.
-Keeping the file a regular one stops `git config --global` writes from reaching the checkout.
-
-Shared settings belong in `git/gitconfig.symlink`, private ones in
-`~/.gitconfig` or `~/.gitconfig.local`, which the shared config includes last.
+Shared settings belong in `git/gitconfig.dotfiles.symlink`.
+Private ones go in `~/.gitconfig`, which includes that baseline on its first two lines and overrides everything below.
+`~/.gitconfig.local` is included by the baseline, so the baseline's own `[user]` section still wins over it.
 `core.symlinks` is set there because the Git for Windows installer leaves
 symlink support off by default.
 
