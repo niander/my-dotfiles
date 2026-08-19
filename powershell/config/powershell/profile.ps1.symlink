@@ -99,6 +99,29 @@ if (Get-Module PSReadLine) {
     Set-PSReadLineKeyHandler -Key UpArrow         -Function HistorySearchBackward
     Set-PSReadLineKeyHandler -Key DownArrow       -Function HistorySearchForward
 
+    # Syntax colors for the input buffer. ANSI color names, rather than fixed RGB
+    # values, let the buffer follow the active base16 theme. $PSStyle needs 7.2+.
+    if ($PSStyle) {
+        $fg = $PSStyle.Foreground
+
+        Set-PSReadLineOption -Colors @{
+            Command   = $fg.Green
+            Keyword   = $fg.Yellow
+            String    = $fg.Yellow
+            Parameter = $fg.Cyan
+            Number    = $fg.Magenta
+            Comment   = $fg.BrightBlack
+            Operator  = $fg.White
+            Variable  = $fg.BrightCyan
+            Type      = $fg.Blue
+            Member    = $fg.White
+            Error     = $PSStyle.Bold + $fg.Red
+            Emphasis  = $fg.BrightYellow
+        }
+
+        Remove-Variable fg -ErrorAction SilentlyContinue
+    }
+
     # Predictions need PSReadLine >= 2.2; degrade gracefully on older builds
     # (e.g. the 2.0 that ships with Windows PowerShell 5.1). Inline is the
     # everyday view; F2 toggles to the ListView dropdown.

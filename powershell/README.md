@@ -2,8 +2,8 @@
 
 PowerShell profile for this dotfiles repo: an [oh-my-posh](https://ohmyposh.dev)
 prompt that mirrors the zsh theme, a small module starter pack, PSReadLine
-inline predictions, and **base16 theming that follows the same theme the zsh
-side selects**.
+syntax colors and inline predictions, and **base16 theming that follows the same
+theme the zsh side selects**.
 
 ## What's here
 
@@ -20,7 +20,8 @@ side selects**.
 
 1. Run each topic's `path.ps1`.
 2. Normalize, deduplicate, and prepend the declared paths.
-3. Import `CompletionPredictor` and configure PSReadLine.
+3. Import `CompletionPredictor` and configure PSReadLine (keys, predictions, and
+   syntax colors).
 4. Dot-source the other top-level `topic/*.ps1` fragments.
 5. Initialize oh-my-posh and source `~/.localprofile.ps1`.
 
