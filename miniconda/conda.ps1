@@ -3,7 +3,6 @@
 #
 # First, look for conda in PATH. If it is not found, check common install
 # locations. Use conda's hook script when available because it starts faster.
-# Otherwise, run `conda shell.powershell hook` as a fallback.
 #
 # oh-my-posh loads later and displays the active environment in the prompt.
 
@@ -27,9 +26,6 @@ if ($condaExe) {
     $condaHook = Join-Path $condaRoot 'shell/condabin/conda-hook.ps1'
     if (Test-Path -LiteralPath $condaHook) {
         . $condaHook
-    }
-    else {
-        (& $condaExe 'shell.powershell' 'hook') | Out-String | Invoke-Expression
     }
 }
 
