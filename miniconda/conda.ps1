@@ -23,7 +23,7 @@ if ($condaExe) {
     # The conda executable sits two levels below the install root (e.g.
     # <root>/Scripts/conda.exe, <root>/condabin/conda.bat, <root>/bin/conda).
     $condaRoot = Split-Path -Parent (Split-Path -Parent $condaExe)
-    $condaHook = Join-Path $condaRoot 'condabin/conda-hook.ps1'
+    $condaHook = Join-Path $condaRoot 'shell/condabin/conda-hook.ps1'
     if (Test-Path -LiteralPath $condaHook) {
         . $condaHook
     }
