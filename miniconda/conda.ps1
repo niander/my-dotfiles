@@ -2,7 +2,8 @@
 # Set up conda for PowerShell.
 #
 # First, look for conda in PATH. If it is not found, check common install
-# locations. Use conda's hook script when available because it starts faster.
+# locations. `conda shell.powershell hook` emits the environment variables that
+# conda's own hook script depends on, so the script cannot be sourced directly.
 #
 # oh-my-posh loads later and displays the active environment in the prompt.
 
@@ -20,13 +21,7 @@ if (-not $condaExe) {
 }
 
 if ($condaExe) {
-    # The conda executable sits two levels below the install root (e.g.
-    # <root>/Scripts/conda.exe, <root>/condabin/conda.bat, <root>/bin/conda).
-    $condaRoot = Split-Path -Parent (Split-Path -Parent $condaExe)
-    $condaHook = Join-Path $condaRoot 'shell/condabin/conda-hook.ps1'
-    if (Test-Path -LiteralPath $condaHook) {
-        . $condaHook
-    }
+    (& $condaExe 'shell.powershell' 'hook') | Out-String | Invoke-Expression
 }
 
-Remove-Variable condaExe, roots, root, exe, condaRoot, condaHook -ErrorAction SilentlyContinue
+Remove-Variable condaExe, roots, root, exe -ErrorAction SilentlyContinue
