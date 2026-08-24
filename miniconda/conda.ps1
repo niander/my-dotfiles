@@ -25,7 +25,7 @@ if ($condaExe) {
     $condaRoot = Split-Path -Parent (Split-Path -Parent $condaExe)
     $condaHook = Join-Path $condaRoot 'condabin/conda-hook.ps1'
     if (Test-Path -LiteralPath $condaHook) {
-        & $condaHook
+        . $condaHook
     }
 }
 
