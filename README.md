@@ -61,9 +61,6 @@ chsh -s "$(command -v zsh)"
 
 ### WSL
 
-WSL copies the whole Windows `PATH` into every Linux shell — dozens of cross-filesystem lookups on every command,
-nearly all duplicating a Linux binary you already have.
-
 ```sh
 ./wsl/disable-windows-path.sh
 ```
