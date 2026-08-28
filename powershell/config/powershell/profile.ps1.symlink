@@ -88,7 +88,9 @@ Set-Alias reload! Invoke-Command
 Import-Module CompletionPredictor -ErrorAction SilentlyContinue
 
 # --- PSReadLine ------------------------------------------------------------
-# Gate on the in-memory module (fast); PSReadLine auto-loads in interactive pwsh.
+# Import explicitly so hosts cannot defer PSReadLine until after profile processing.
+Import-Module PSReadLine -ErrorAction SilentlyContinue
+
 if (Get-Module PSReadLine) {
     Set-PSReadLineOption -EditMode Windows
     Set-PSReadLineOption -HistoryNoDuplicates
