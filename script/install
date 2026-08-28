@@ -9,6 +9,9 @@ if [ -z "$DOTFILES" ]; then
   export DOTFILES
 fi
 
+DOTFILES_LOCAL="${DOTFILES_LOCAL:-$HOME/.dotfiles.local}"
+export DOTFILES_LOCAL
+
 # Require bootstrap to have run first. bootstrap creates ~/.dotfiles as a
 # symlink to the actual repo location. Without this guard, oh-my-zsh's
 # upstream installer can clobber ~/.zshrc on a virgin machine.
@@ -34,3 +37,12 @@ find . -maxdepth 2 -name install.sh -print0 | while IFS= read -r -d '' installer
 done
 
 popd > /dev/null
+
+if [ -d "$DOTFILES_LOCAL" ]; then
+  find -H "$DOTFILES_LOCAL" -maxdepth 2 -name install.sh -print0 |
+    while IFS= read -r -d '' installer; do
+      if ! bash "$installer"; then
+        echo "script/install: local installer '$installer' failed; continuing" >&2
+      fi
+    done
+fi

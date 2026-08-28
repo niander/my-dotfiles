@@ -12,6 +12,11 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 - `*.symlink` → symlinked (without the extension) into `$HOME` by `script/bootstrap`
 - `install.sh` → executed by `script/install` (not auto-sourced)
 
+An optional second topic root can live at `~/.dotfiles.local`, or at the path set
+in `DOTFILES_LOCAL` by `~/.localrc`. Its zsh and PowerShell files load after the
+public topics, and its install scripts run after the public installers. If the
+root is absent, setup and shell startup are unchanged.
+
 ## What's inside
 
 A few representative topics (folders):
@@ -82,6 +87,10 @@ git pull --ff-only
 Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and
 `~/.gitconfig.local` (auto-included by git). Bootstrap configures only the Git
 credential helper, not `user.name` or `user.email`.
+
+For larger untracked extensions, create a directory or symlink at
+`~/.dotfiles.local` using the same topical layout. Set `DOTFILES_LOCAL` in
+`~/.localrc` first if it lives elsewhere.
 
 `~/.gitconfig` is the one file bootstrap does not symlink.
 It stays a regular file with the repo baseline included on top:

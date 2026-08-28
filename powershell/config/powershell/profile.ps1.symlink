@@ -9,6 +9,15 @@
 # Resolve the checkout via the ~/.dotfiles symlink script/bootstrap creates.
 $DotfilesRoot = if (Test-Path "$HOME/.dotfiles") { "$HOME/.dotfiles" } else { $null }
 if ($DotfilesRoot) { $env:DOTFILES = $DotfilesRoot }
+$LocalDotfilesRoot = if ($env:DOTFILES_LOCAL) {
+    $env:DOTFILES_LOCAL
+}
+else {
+    Join-Path $HOME '.dotfiles.local'
+}
+$env:DOTFILES_LOCAL = $LocalDotfilesRoot
+$DotfilesRoots = @($DotfilesRoot, $LocalDotfilesRoot) |
+    Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Container) }
 $PSTopic = if ($DotfilesRoot) { Join-Path $DotfilesRoot 'powershell' } else { $PSScriptRoot }
 
 # Invoke-Command -NoNewScope lets the alias reload into the interactive scope.
@@ -48,8 +57,8 @@ Set-Alias reload! Invoke-Command
         }
     }
 
-    if ($DotfilesRoot) {
-        $pathPattern = Join-Path (Join-Path $DotfilesRoot '*') 'path.ps1'
+    foreach ($root in $DotfilesRoots) {
+        $pathPattern = Join-Path (Join-Path $root '*') 'path.ps1'
         foreach ($pathFragment in @(Get-ChildItem -Path $pathPattern -File | Sort-Object FullName)) {
             try { . $pathFragment.FullName }
             catch { Write-Warning "profile path fragment $($pathFragment.Directory.Name): $($_.Exception.Message)" }
@@ -143,8 +152,8 @@ if (Get-Module PSReadLine) {
 # (installer), and the script/ dir are not fragments, so they are skipped. A
 # failing fragment is warned about, not fatal, so one bad file can't leave you
 # with no prompt.
-if ($DotfilesRoot) {
-    foreach ($topic in Get-ChildItem -LiteralPath $DotfilesRoot -Directory) {
+foreach ($root in $DotfilesRoots) {
+    foreach ($topic in Get-ChildItem -LiteralPath $root -Directory) {
         if ($topic.Name -eq 'script') { continue }
         foreach ($fragment in @(Get-ChildItem -LiteralPath $topic.FullName -File | Where-Object { $_.Extension -eq '.ps1' -and $_.Name -notin 'install.ps1', 'path.ps1' })) {
             try { . $fragment.FullName }
@@ -170,4 +179,5 @@ if (Test-Path $localProfile) { . $localProfile }
 
 # This profile runs in the global scope, so its top-level variables would
 # linger in the session; drop the startup scratch ones.
-Remove-Variable DotfilesRoot, PSTopic, ompTheme, localProfile, topic, pathFragment, fragment -ErrorAction SilentlyContinue
+Remove-Variable DotfilesRoot, LocalDotfilesRoot, DotfilesRoots, PSTopic, ompTheme,
+    localProfile, root, topic, pathPattern, pathFragment, fragment -ErrorAction SilentlyContinue

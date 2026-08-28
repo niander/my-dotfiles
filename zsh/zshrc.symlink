@@ -16,9 +16,16 @@ then
   source ~/.localrc
 fi
 
+: ${DOTFILES_LOCAL:=$HOME/.dotfiles.local}
+export DOTFILES_LOCAL
+
 # all of our zsh files
 typeset -U config_files_
 config_files_=($DOTFILES/*/*.zsh)
+if [[ -d $DOTFILES_LOCAL ]]
+then
+  config_files_+=($DOTFILES_LOCAL/*/*.zsh(N))
+fi
 omz_file_=$DOTFILES/oh-my-zsh/omz.zsh
 
 # load the path files
