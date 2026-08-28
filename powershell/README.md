@@ -42,7 +42,7 @@ new topic behavior to this table instead of extending the profile description.
 
 | Topic | Runtime fragments | Behavior |
 | --- | --- | --- |
-| `powershell/` | `base16.ps1` | Defines the base16 commands and applies the shared theme. See [Topic details: base16 theming](#topic-details-base16-theming). |
+| `powershell/` | `base16.ps1`, `devdrive.ps1` | Defines the base16 commands, applies the shared theme, and maps `devfs:` to a ReFS `D:\` volume on Windows. The prompt displays that volume as `devfs:`. See [Topic details: base16 theming](#topic-details-base16-theming). |
 | `system/` | `path.ps1`, `aliases.ps1` | Adds `~/.local/bin`; defines `l`/`la`/`ll`/`lt`/`lr` fallbacks with `Get-ChildItem` and `$PSStyle.FileInfo` colors. |
 | `rust/` | `path.ps1` | Adds `~/.cargo/bin`. |
 | `eza/` | `_eza.ps1`, `aliases.ps1` | Registers eza completion and replaces the listing helpers when eza is installed; adds `ltree`. Bare `ls` stays native. |
