@@ -149,86 +149,88 @@ setup_gitconfig_include () {
   success 'added the baseline include to ~/.gitconfig'
 }
 
+get_backup_path () {
+  local path=$1
+  local candidate="${path}.backup"
+  local stamp sequence=0
+
+  if [ ! -e "$candidate" ] && [ ! -L "$candidate" ]; then
+    printf '%s\n' "$candidate"
+    return
+  fi
+
+  stamp=$(date +%Y%m%d%H%M%S)
+  while :; do
+    candidate="${path}.backup-${stamp}"
+    if [ "$sequence" -gt 0 ]; then
+      candidate="${candidate}-${sequence}"
+    fi
+    if [ ! -e "$candidate" ] && [ ! -L "$candidate" ]; then
+      printf '%s\n' "$candidate"
+      return
+    fi
+    sequence=$((sequence + 1))
+  done
+}
 
 link_file () {
   local src=$1 dst=$2
 
-  local overwrite= backup= skip=
-  local action=
+  local action=${all_action:-}
+  local backup_path
 
   if [ -f "$dst" -o -d "$dst" -o -L "$dst" ]
   then
-
-    if [ "$overwrite_all" == "false" ] && [ "$backup_all" == "false" ] && [ "$skip_all" == "false" ]
+    if [ -L "$dst" ] && [ "$dst" -ef "$src" ]
     then
+      success "already linked $src"
+      return
+    fi
 
-      local currentSrc="$(readlink $dst)"
-
-      if [ "$currentSrc" == "$src" ]
-      then
-
-        skip=true;
-
-      else
-
-        user "File already exists: $dst ($(basename "$src")), what do you want to do?\n\
+    if [ -z "$action" ]
+    then
+      user "File already exists: $dst ($(basename "$src")), what do you want to do?\n\
         [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
-        read -n 1 action
-
-        case "$action" in
-          o )
-            overwrite=true;;
-          O )
-            overwrite_all=true;;
-          b )
-            backup=true;;
-          B )
-            backup_all=true;;
-          s )
-            skip=true;;
-          S )
-            skip_all=true;;
-          * )
-            ;;
-        esac
-
+      if ! read -r -n 1 action; then
+        action=s
       fi
+      printf '\n'
 
+      case "$action" in
+        o) action=overwrite ;;
+        O) action=overwrite; all_action=$action ;;
+        b) action=backup ;;
+        B) action=backup; all_action=$action ;;
+        S) action=skip; all_action=$action ;;
+        *) action=skip ;;
+      esac
     fi
 
-    overwrite=${overwrite:-$overwrite_all}
-    backup=${backup:-$backup_all}
-    skip=${skip:-$skip_all}
-
-    if [ "$overwrite" == "true" ]
-    then
-      rm -rf "$dst"
-      success "removed $dst"
-    fi
-
-    if [ "$backup" == "true" ]
-    then
-      mv "$dst" "${dst}.backup"
-      success "moved $dst to ${dst}.backup"
-    fi
-
-    if [ "$skip" == "true" ]
-    then
-      success "skipped $src"
-    fi
+    case "$action" in
+      overwrite)
+        rm -rf "$dst"
+        success "removed $dst"
+        ;;
+      backup)
+        backup_path=$(get_backup_path "$dst")
+        mv "$dst" "$backup_path"
+        success "moved $dst to $backup_path"
+        ;;
+      skip)
+        success "skipped $src"
+        return
+        ;;
+    esac
   fi
 
-  if [ "$skip" != "true" ]  # "false" or empty
-  then
-    ln -s "$1" "$2"
-    success "linked $1 to $2"
-  fi
+  ln -s "$src" "$dst"
+  success "linked $src to $dst"
 }
 
 install_dotfiles () {
   info 'installing dotfiles'
 
-  local overwrite_all=false backup_all=false skip_all=false
+  local all_action=
 
   for src in $(find -H "$DOTFILES_ROOT" -mindepth 1 -name '.*' -type d -prune -o -name '*.symlink' -print)
   do

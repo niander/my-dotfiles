@@ -70,8 +70,7 @@ cd my-dotfiles
 ```
 
 It symlinks `~/.dotfiles` to the checkout, symlinks your **all-hosts**
-`profile.ps1` to this repo's profile (same as WSL; any existing `profile.ps1` is
-backed up), wires up the git config (see below), and runs `script\install.ps1`
+`profile.ps1` to this repo's profile, wires up the git config (see below), and runs `script\install.ps1`
 (Node.js LTS with npm, standalone pnpm, shell tools and the module starter
 pack). Open a new PowerShell 7 window afterward.
 
@@ -88,9 +87,10 @@ Notes:
   so it loads in every host (console, VS Code, ...) and leaves the host profile
   (`Microsoft.PowerShell_profile.ps1`) untouched — that's where host-specific
   completers and tools live.
-- Any existing `profile.ps1` is moved to `profile.ps1.backup`. Put machine-
-  specific lines in `~/.localprofile.ps1` (the profile sources it) — conda now
-  loads automatically via the `miniconda/` topic, so you usually won't need to.
+- Existing profile and Git link destinations prompt for skip, overwrite or
+  backup. Uppercase choices apply to every remaining collision in that run.
+  Put machine-specific profile lines in `~/.localprofile.ps1` (the profile
+  sources it) — conda loads automatically via the `miniconda/` topic.
 - Only **PowerShell 7** is wired; Windows PowerShell 5.1 is left alone.
 - base16 **theme scripts** are installed, so `base16 <name>` and
   tab-completion work; but auto-applying a theme on startup only happens when
