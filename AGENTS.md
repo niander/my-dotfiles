@@ -10,15 +10,14 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 ## Setup Commands
 
 ```bash
-./script/bootstrap   # one-time: prompts for git credential helper, symlinks *.symlink into $HOME,
-                     # creates the ~/.dotfiles symlink, then runs script/install
+./script/bootstrap   # one-time: symlinks *.symlink into $HOME, creates the ~/.dotfiles symlink,
+                     # then runs script/install
 ./script/install     # re-runnable: runs every topic install.sh (requires ~/.dotfiles symlink)
 ```
 
 `script/bootstrap` (interactive) does, in order:
-1. `setup_gitconfig` generates `git/gitconfig.local.symlink` from `git/gitconfig.local.symlink.example`, prompting only for a credential helper and picking a default by OS (WSL -> Windows `git-credential-manager.exe`; native Linux -> `cache`; MinGW/MSYS -> `manager`). The generated file is gitignored.
-2. Symlinks every `*.symlink` into `$HOME` as `.<name>` (interactive skip/overwrite/backup prompts).
-3. Creates the **`~/.dotfiles` symlink** to the checkout, prepends an `[include]` of `~/.gitconfig.dotfiles` to `~/.gitconfig` (a regular file), then runs `script/install`.
+1. Symlinks every `*.symlink` into `$HOME` as `.<name>` (interactive skip/overwrite/backup prompts).
+2. Creates the **`~/.dotfiles` symlink** to the checkout, prepends an `[include]` of `~/.gitconfig.dotfiles` to `~/.gitconfig` (a regular file), then runs `script/install`.
 
 After install, set zsh as the login shell once and open a new shell:
 ```bash
@@ -41,6 +40,9 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `topic/path.ps1` | Dot-sourced into the PowerShell profile **first** — PATH setup, before other `*.ps1` |
 | `topic/*.ps1` | Dot-sourced into the PowerShell profile every shell, except `path.ps1` and `install.ps1` |
 | `topic/install.ps1` | Run **once** by `script/install.ps1` (cross-platform: WSL2/Linux/Windows) |
+
+`script/lib/sudo.sh` exposes `dotfiles_sudo <reason> <command...>` for installers that need root.
+Call it only after confirming privileged work is required; it reuses sudo's credential cache and never starts a keepalive.
 
 An optional second topic root lives at `~/.dotfiles.local`, or at `$DOTFILES_LOCAL` when set by `~/.localrc`.
 Its zsh and PowerShell files load after the public topics, and its installers run after the public installers.
@@ -83,7 +85,8 @@ Those clones land in dot-directories that `.gitignore` excludes, so they are nei
 
 - **Cross-platform:** branch on OS via `uname -s`. For WSL, shell config tests `$WSL_DISTRO_NAME`; `script/bootstrap` uses `grep -qi microsoft /proc/version` because it also runs pre-login. Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
 - **Register hooks additively** — use `add-zsh-hook` / `add-zle-hook-widget`. Defining a `precmd`/`preexec` function, or binding a widget with `zle -N`, overwrites any handler oh-my-zsh or a plugin already installed under that name.
-- **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`), `~/.gitconfig` (git's global config, which includes the repo baseline) and `~/.gitconfig.local` (auto-included by that baseline). `.gitignore` excludes all dotfiles (`.*`) and `git/gitconfig.local.symlink`.
+- **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`), `~/.gitconfig` (git's global config, which includes the repo baseline) and `~/.gitconfig.local` (auto-included by that baseline). `.gitignore` excludes all dotfiles (`.*`).
+- **Privileged installers** source `script/lib/sudo.sh` and call `dotfiles_sudo` only after their unprivileged installed-state check fails.
 - Match the surrounding style of each topic when editing.
 - **Comments are brief** — usually 1-3 lines. Cut rationale a competent reader can infer; a 6-line explanation almost always wants to be 2. Describe the code, not the change or the machine. Write for someone reading the file cold, with no knowledge of this machine or how the code was written. Explain non-obvious *why* tersely. Do **not** put in a comment:
   - references to a specific machine/user, their installed tools, or a product/app name (e.g. a hardcoded path, a username, a specific editor/app);

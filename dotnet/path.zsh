@@ -1,5 +1,6 @@
-if [[ -d $HOME/.dotnet ]]
+if [[ -x $HOME/.dotnet/dotnet ]]
 then
+  export DOTNET_ROOT=$HOME/.dotnet
   export PATH="$HOME/.dotnet:$PATH"
 fi
 

@@ -23,6 +23,7 @@ A few representative topics (folders):
 - `zsh/` — shell config, history, options
 - `oh-my-zsh/` — oh-my-zsh setup, plugins, custom overrides
 - `powershell/` — PowerShell profile: oh-my-posh prompt, module starter pack, base16 theming ([details](powershell/README.md))
+- `dotnet/` — .NET SDK 10 on Ubuntu/WSL and .NET global-tool PATH setup
 - `node/` — Node.js/npm and pnpm setup, plus nvm integration on Linux/WSL
 - `rust/` — rustup toolchain installation and Cargo PATH setup
 - `git/` — gitconfig, aliases, ignore rules, helpers
@@ -50,12 +51,11 @@ cd my-dotfiles
 
 `script/bootstrap` will:
 
-1. Prompt for the Git credential helper, choosing an OS-specific default.
-2. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
-3. Create the `~/.dotfiles` symlink pointing at the repo.
-4. Prepend an include of `~/.gitconfig.dotfiles` (the symlinked baseline) to `~/.gitconfig`.
+1. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
+2. Create the `~/.dotfiles` symlink pointing at the repo.
+3. Prepend an include of `~/.gitconfig.dotfiles` (the symlinked baseline) to `~/.gitconfig`.
    It stops rather than guessing if `~/.gitconfig` is a symlink to somewhere outside this checkout, or already carries the include below the top — move those settings aside first.
-5. Run `script/install`, which executes every topic's `install.sh`.
+4. Run `script/install`, which executes every topic's `install.sh`.
 
 After that, set zsh as your login shell (one time) and open a new shell so the config loads:
 
@@ -83,9 +83,7 @@ git pull --ff-only
 ./script/install
 ```
 
-Per-machine secrets/overrides go in `~/.localrc` (auto-sourced) and
-`~/.gitconfig.local` (auto-included by git). Bootstrap configures only the Git
-credential helper, not `user.name` or `user.email`.
+Per-machine secrets and overrides go in `~/.localrc` (auto-sourced) and `~/.gitconfig.local` (auto-included by Git).
 
 For larger untracked extensions, create a directory or symlink at `~/.dotfiles.local` using the same topical layout.
 Set `DOTFILES_LOCAL` in `~/.localrc` first if it lives elsewhere.

@@ -37,36 +37,6 @@ fail () {
   exit 1
 }
 
-setup_gitconfig () {
-  if ! [ -f git/gitconfig.local.symlink ]
-  then
-    info 'setup gitconfig'
-
-    # Pick a sensible default credential helper for the current OS.
-    git_credential='cache'
-    uname_s="$(uname -s)"
-    case "$uname_s" in
-      Linux*)
-        if grep -qi microsoft /proc/version 2>/dev/null; then
-          # WSL - reuse the Windows credential manager.
-          git_credential='/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe'
-        fi
-        ;;
-      MINGW*|MSYS*|CYGWIN*)
-        git_credential='manager'
-        ;;
-    esac
-
-    user " - What is your git credential provider? [$git_credential]"
-    read -r -e -i "$git_credential" git_credential
-
-    git_credential_escaped=$(printf '%s\n' "$git_credential" | sed 's/[&/\\]/\\&/g')
-    sed -e "s/GIT_CREDENTIAL_HELPER/$git_credential_escaped/g" git/gitconfig.local.symlink.example > git/gitconfig.local.symlink
-
-    success 'gitconfig'
-  fi
-}
-
 # True when $1 opens with an [include] of $2. Tolerates CRLF, a BOM and spacing:
 # the file may have been written on another host.
 gitconfig_include_first () {
@@ -248,7 +218,6 @@ install_dotfiles () {
   done
 }
 
-setup_gitconfig
 install_dotfiles
 
 # Add ~/.dotfiles link if not yet
