@@ -42,9 +42,8 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `topic/*.ps1` | Dot-sourced into the PowerShell profile every shell, except `path.ps1` and `install.ps1` |
 | `topic/install.ps1` | Run **once** by `script/install.ps1` (cross-platform: WSL2/Linux/Windows) |
 
-An optional second topic root lives at `~/.dotfiles.local`, or at
-`$DOTFILES_LOCAL` when set by `~/.localrc`. Its zsh and PowerShell files load
-after the public topics, and its installers run after the public installers.
+An optional second topic root lives at `~/.dotfiles.local`, or at `$DOTFILES_LOCAL` when set by `~/.localrc`.
+Its zsh and PowerShell files load after the public topics, and its installers run after the public installers.
 Every entry point treats an absent local root as a no-op.
 
 ### Shell load order (`zsh/zshrc.symlink`)
@@ -55,8 +54,8 @@ Every entry point treats an absent local root as a no-op.
 3. `oh-my-zsh/omz.zsh`, sourced by its exact path rather than by pattern — this is where `compinit` runs
 4. `*/completion.zsh` files
 
-When the local topic root exists, its matching files are appended to the same
-four passes. Public files therefore load before local files in each pass.
+When the local topic root exists, its matching files are appended to the same four passes.
+Public files therefore load before local files in each pass.
 
 Non-obvious consequences:
 - The glob is only two levels deep, so `oh-my-zsh/custom/*.zsh` files are **not** picked up here. They load via oh-my-zsh's own `ZSH_CUSTOM` mechanism when `oh-my-zsh/omz.zsh` runs `source $ZSH/oh-my-zsh.sh` — i.e. **oh-my-zsh (plugins, theme, custom aliases) initializes in pass 3, before any completion file.**
@@ -76,12 +75,9 @@ Non-obvious consequences:
 - **new/changed `*.symlink`** → re-run `./script/bootstrap` (only it creates symlinks).
 - **`install.sh` change** → re-run `./script/install`.
 
-`script/install` runs every public `install.sh` (`find -maxdepth 2`), then every
-local-root `install.sh` when that root exists. `script/install.ps1` uses the same
-public-then-local order. These are idempotent — they check-then-clone-or-`git pull`
-vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, ...). Those
-clones land in dot-directories that `.gitignore` excludes, so they are neither
-committed nor submodules (there is no `.gitmodules`).
+`script/install` runs every public `install.sh` (`find -maxdepth 2`), then every local-root `install.sh` when that root exists. `script/install.ps1` uses the same public-then-local order.
+These are idempotent — they check-then-clone-or-`git pull` vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, ...).
+Those clones land in dot-directories that `.gitignore` excludes, so they are neither committed nor submodules (there is no `.gitmodules`).
 
 ## Code Style / Conventions
 

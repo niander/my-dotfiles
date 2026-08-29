@@ -21,11 +21,7 @@ export DOTFILES_LOCAL
 
 # all of our zsh files
 typeset -U config_files_
-config_files_=($DOTFILES/*/*.zsh)
-if [[ -d $DOTFILES_LOCAL ]]
-then
-  config_files_+=($DOTFILES_LOCAL/*/*.zsh(N))
-fi
+config_files_=($DOTFILES/*/*.zsh $DOTFILES_LOCAL/*/*.zsh(N))
 omz_file_=$DOTFILES/oh-my-zsh/omz.zsh
 
 # load the path files
