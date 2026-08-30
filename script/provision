@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+
+if [[ -z ${WSL_DISTRO_NAME:-} ]]; then
+  printf 'script/provision: this provisioner requires WSL\n' >&2
+  exit 1
+fi
+
+if [[ ! -r /etc/os-release ]]; then
+  printf 'script/provision: cannot identify the WSL distribution\n' >&2
+  exit 1
+fi
+
+. /etc/os-release
+if [[ ${ID:-} != ubuntu ]]; then
+  printf 'script/provision: Ubuntu under WSL is required (found %s)\n' "${ID:-unknown}" >&2
+  exit 1
+fi
+
+if ! command -v apt-get > /dev/null; then
+  printf 'script/provision: apt-get is required\n' >&2
+  exit 1
+fi
+
+export DOTFILES_SUDO_ENTRYPOINT=script/provision
+source "$repo_root/script/lib/sudo.sh"
+
+apt_install() {
+  dotfiles_sudo 'install WSL development packages' \
+    apt-get install "$@"
+}
+
+printf 'update   apt package metadata\n'
+dotfiles_sudo 'refresh apt package metadata' apt-get update
+
+apt_install \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  gnupg \
+  lsb-release \
+  software-properties-common
+
+dotfiles_sudo 'configure the Git stable PPA' \
+  add-apt-repository --no-update ppa:git-core/ppa
+
+azure_cli_missing=false
+if command -v az > /dev/null; then
+  printf 'ok       Azure CLI already installed\n'
+else
+  azure_cli_missing=true
+  azure_suite=${VERSION_CODENAME:-}
+  if [[ -z $azure_suite ]]; then
+    azure_suite=$(lsb_release -cs)
+  fi
+  case "$azure_suite" in
+    jammy|noble) ;;
+    *)
+      printf 'note     Azure CLI: using noble packages for Ubuntu %s\n' "$azure_suite"
+      azure_suite=noble
+      ;;
+  esac
+
+  azure_tmp=$(mktemp -d)
+  cleanup() {
+    rm -rf -- "$azure_tmp"
+  }
+  trap cleanup EXIT
+
+  curl --fail --silent --show-error --location \
+    --output "$azure_tmp/microsoft.asc" \
+    https://packages.microsoft.com/keys/microsoft.asc
+  gpg --batch --yes --dearmor \
+    --output "$azure_tmp/microsoft.gpg" \
+    "$azure_tmp/microsoft.asc"
+
+  dotfiles_sudo 'configure the Azure CLI signing key' \
+    install -d -m 0755 /etc/apt/keyrings
+  if [[ ! -f /etc/apt/keyrings/microsoft.gpg ]] ||
+     ! cmp -s "$azure_tmp/microsoft.gpg" /etc/apt/keyrings/microsoft.gpg; then
+    dotfiles_sudo 'configure the Azure CLI signing key' \
+      install -m 0644 "$azure_tmp/microsoft.gpg" /etc/apt/keyrings/microsoft.gpg
+    printf 'config   Azure CLI signing key\n'
+  else
+    printf 'ok       Azure CLI signing key already configured\n'
+  fi
+
+  cat > "$azure_tmp/azure-cli.sources" <<EOF
+Types: deb
+URIs: https://packages.microsoft.com/repos/azure-cli/
+Suites: $azure_suite
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/microsoft.gpg
+EOF
+
+  azure_sources=/etc/apt/sources.list.d/azure-cli.sources
+  if [[ ! -f $azure_sources ]] ||
+     ! cmp -s "$azure_tmp/azure-cli.sources" "$azure_sources"; then
+    dotfiles_sudo 'configure the Azure CLI apt source' \
+      install -m 0644 "$azure_tmp/azure-cli.sources" "$azure_sources"
+    printf 'config   Azure CLI apt source (%s)\n' "$azure_suite"
+  else
+    printf 'ok       Azure CLI apt source already configured\n'
+  fi
+
+  legacy_azure_sources=/etc/apt/sources.list.d/azure-cli.list
+  if [[ -f $legacy_azure_sources ]]; then
+    dotfiles_sudo 'remove the legacy Azure CLI apt source' \
+      rm -f "$legacy_azure_sources"
+    printf 'remove   legacy Azure CLI apt source\n'
+  fi
+fi
+
+printf 'upgrade  installed WSL packages\n'
+dotfiles_sudo 'refresh configured apt sources' apt-get update
+dotfiles_sudo 'upgrade installed WSL packages' \
+  apt-get upgrade
+
+apt_install \
+  build-essential \
+  git \
+  gnome-keyring \
+  htop \
+  jq \
+  libsecret-tools \
+  seahorse \
+  xdg-utils \
+  zip
+
+if $azure_cli_missing; then
+  dotfiles_sudo 'install the Azure CLI' apt-get install azure-cli
+fi
+
+DOTFILES_LOCAL=${DOTFILES_LOCAL:-$HOME/.dotfiles.local}
+export DOTFILES_LOCAL
+private_provisioner="$DOTFILES_LOCAL/script/provision"
+if [[ -f $private_provisioner ]]; then
+  printf '== private/provision\n'
+  bash "$private_provisioner"
+else
+  printf 'skip     private provisioner not found\n'
+fi
+
+printf 'todo     open Seahorse and create a password keyring\n'

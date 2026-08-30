@@ -10,10 +10,19 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 ## Setup Commands
 
 ```bash
+./script/provision   # explicit Ubuntu-on-WSL system provisioning; never runs bootstrap
 ./script/bootstrap   # one-time: symlinks *.symlink into $HOME, creates the ~/.dotfiles symlink,
                      # then runs script/install
 ./script/install     # re-runnable: runs every topic install.sh (requires ~/.dotfiles symlink)
 ```
+
+```powershell
+.\script\provision.ps1   # Windows entry point for optional private provisioning
+.\script\bootstrap.ps1   # Windows profile, git config and topic installers
+```
+
+Provisioning and bootstrap are separate entry points. The WSL provisioner performs the requested package upgrade and system package setup.
+The Windows provisioner delegates to the optional private root. Neither invokes bootstrap.
 
 `script/bootstrap` (interactive) does, in order:
 1. Symlinks every `*.symlink` into `$HOME` as `.<name>` (interactive skip/overwrite/backup prompts).
@@ -47,11 +56,12 @@ Call it only after confirming privileged work is required; it reuses sudo's cred
 An optional second topic root lives at `~/.dotfiles.local`, or at `$DOTFILES_LOCAL` when set by `~/.localrc`.
 Its zsh and PowerShell files load after the public topics, and its installers run after the public installers.
 The public bootstraps run the local root's `script/configure` or `script/configure.ps1` when present, before installers.
+The public provisioners run the local root's matching `script/provision` when present.
 Every entry point treats an absent local root as a no-op.
 
 ### Shell load order (`zsh/zshrc.symlink`)
 
-`zshrc.symlink` → `~/.zshrc` is the entrypoint. It sources `~/.localrc` first (per-machine secrets), then globs `$DOTFILES/*/*.zsh` (**exactly two levels deep**) and sources in four passes:
+`zshrc.symlink` -> `~/.zshrc` is the entrypoint. It sources `~/.localrc` first (per-machine secrets), then globs `$DOTFILES/*/*.zsh` (**exactly two levels deep**) and sources in four passes:
 1. `*/path.zsh` files
 2. everything except `path.zsh`, `completion.zsh` and the oh-my-zsh loader
 3. `oh-my-zsh/omz.zsh`, sourced by its exact path rather than by pattern — this is where `compinit` runs
@@ -63,7 +73,7 @@ Public files therefore load before local files in each pass.
 Non-obvious consequences:
 - The glob is only two levels deep, so `oh-my-zsh/custom/*.zsh` files are **not** picked up here. They load via oh-my-zsh's own `ZSH_CUSTOM` mechanism when `oh-my-zsh/omz.zsh` runs `source $ZSH/oh-my-zsh.sh` — i.e. **oh-my-zsh (plugins, theme, custom aliases) initializes in pass 3, before any completion file.**
 - omz owns the only `compinit`; don't add another to `zshrc.symlink`.
-- Inside pass 3 omz loads `lib/*.zsh` → plugins → `$ZSH_CUSTOM/*.zsh` → theme. Anything that must override or survive omz — an option it sets, a `zle` widget hook, an alias a plugin also defines — belongs in `oh-my-zsh/custom/`, not `topic/*.zsh`.
+- Inside pass 3 omz loads `lib/*.zsh` -> plugins -> `$ZSH_CUSTOM/*.zsh` -> theme. Anything that must override or survive omz — an option it sets, a `zle` widget hook, an alias a plugin also defines — belongs in `oh-my-zsh/custom/`, not `topic/*.zsh`.
 - Only a file named exactly `path.zsh` sources first. `system/_path.zsh` (underscore) loads in the general pass, not the path pass.
 - `zsh/fpath.zsh` adds every top-level topic folder to `$fpath`, which is how autoloaded functions/completions in `functions/` (e.g. `_boom`, `_brew`, `#compdef` scripts) become available.
 
@@ -73,10 +83,11 @@ Non-obvious consequences:
 
 ## Applying changes while developing
 
-- **`*.zsh` change** → open a new shell (files are symlinked live via `~/.zshrc` sourcing `$DOTFILES`).
-- **prompt / `zle` change** → verify in a real interactive shell; `zsh -f` loads no plugins, so load-order and widget conflicts don't appear there.
-- **new/changed `*.symlink`** → re-run `./script/bootstrap` (only it creates symlinks).
-- **`install.sh` change** → re-run `./script/install`.
+- **`*.zsh` change** -> open a new shell (files are symlinked live via `~/.zshrc` sourcing `$DOTFILES`).
+- **prompt / `zle` change** -> verify in a real interactive shell; `zsh -f` loads no plugins, so load-order and widget conflicts don't appear there.
+- **new/changed `*.symlink`** -> re-run `./script/bootstrap` (only it creates symlinks).
+- **`install.sh` change** -> re-run `./script/install`.
+- **`script/provision` change** -> run it explicitly on an Ubuntu WSL host; it upgrades system packages.
 
 `script/install` runs every public `install.sh` (`find -maxdepth 2`), then every local-root `install.sh` when that root exists. `script/install.ps1` uses the same public-then-local order.
 These are idempotent — they check-then-clone-or-`git pull` vendored tools (oh-my-zsh, its plugins, tpm, powerline, base16-shell, ...).

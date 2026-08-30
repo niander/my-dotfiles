@@ -6,11 +6,11 @@ My personal dotfiles. Forked from [holman/dotfiles](https://github.com/holman/do
 
 Everything is grouped by topic. To add a new area — say, `rust` — make a `rust/` directory and drop files in it:
 
-- `*.zsh` → auto-sourced into your shell
-- `path.zsh` → sourced first (set `$PATH` etc.)
-- `completion.zsh` → sourced last, after oh-my-zsh has run `compinit`
-- `*.symlink` → symlinked (without the extension) into `$HOME` by `script/bootstrap`
-- `install.sh` → executed by `script/install` (not auto-sourced)
+- `*.zsh` -> auto-sourced into your shell
+- `path.zsh` -> sourced first (set `$PATH` etc.)
+- `completion.zsh` -> sourced last, after oh-my-zsh has run `compinit`
+- `*.symlink` -> symlinked (without the extension) into `$HOME` by `script/bootstrap`
+- `install.sh` -> executed by `script/install` (not auto-sourced)
 
 ### Local overrides (private)
 
@@ -44,6 +44,37 @@ Notable scripts in `bin/`:
 | `dns-flush` | OS-aware DNS cache flush |
 | `yt` | yt-dlp wrapper |
 
+## Provision a new dev box
+
+Provisioning is explicit and separate from bootstrap. Neither provisioner runs a bootstrap script.
+
+If you use a private topic root, clone it and run its bootstrap first so `~/.dotfiles.local` exists. The public provisioners delegate to its matching `script/provision` or `script/provision.ps1` when present.
+
+### WSL
+
+From an Ubuntu WSL checkout:
+
+```sh
+./script/provision
+./script/bootstrap
+```
+
+The provisioner adds the Git stable PPA, updates and upgrades installed packages, installs the base development and keyring packages, and installs Azure CLI through its apt repository. Ubuntu releases other than 22.04 and 24.04 use the 24.04 (`noble`) Azure CLI repository.
+
+After provisioning, open Seahorse through WSLg and create a password keyring. Unlock it before using `secret-tool`; installing the packages alone does not start or initialize a keyring.
+
+### Windows
+
+From PowerShell 7:
+
+```powershell
+.\script\provision.ps1
+.\script\bootstrap.ps1
+```
+
+The Windows entry point installs no public packages. It only delegates machine-private setup to `~/.dotfiles.local` when its provisioner is present.
+Close the terminal application completely and open it again after provisioning so it inherits the updated user environment.
+
 ## Install
 
 ```sh
@@ -66,7 +97,7 @@ After that, set zsh as your login shell (one time) and open a new shell so the c
 chsh -s "$(command -v zsh)"
 ```
 
-### WSL
+### WSL PATH isolation
 
 ```sh
 ./wsl/disable-windows-path.sh

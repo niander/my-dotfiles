@@ -17,7 +17,8 @@ dotfiles_sudo() {
   if [[ ${DOTFILES_SUDO_VALIDATED:-} != true ]]; then
     if ! sudo -n true 2>/dev/null; then
       if [[ ! -t 2 ]]; then
-        printf 'sudo is required to %s; rerun script/install from an interactive terminal\n' "$reason" >&2
+        printf 'sudo is required to %s; rerun %s from an interactive terminal\n' \
+          "$reason" "${DOTFILES_SUDO_ENTRYPOINT:-script/install}" >&2
         return 1
       fi
 

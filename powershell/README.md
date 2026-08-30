@@ -172,7 +172,7 @@ and it does so whenever it auto-loads (on first use of any of its commands), so 
 one-off `Set-Alias` won't hold.
 
 `git/aliases.ps1` imports the module, keeps selected git functions under new
-names, and restores the built-ins (`gc` → `Get-Content`, `gl` →
+names, and restores the built-ins (`gc` -> `Get-Content`, `gl` ->
 `Get-Location`, ...). The three most useful displaced shortcuts are:
 
 | Shortcut | Runs |
