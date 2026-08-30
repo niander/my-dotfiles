@@ -46,6 +46,7 @@ Call it only after confirming privileged work is required; it reuses sudo's cred
 
 An optional second topic root lives at `~/.dotfiles.local`, or at `$DOTFILES_LOCAL` when set by `~/.localrc`.
 Its zsh and PowerShell files load after the public topics, and its installers run after the public installers.
+The public bootstraps run the local root's `script/configure` or `script/configure.ps1` when present, before installers.
 Every entry point treats an absent local root as a no-op.
 
 ### Shell load order (`zsh/zshrc.symlink`)

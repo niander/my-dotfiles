@@ -240,9 +240,17 @@ fi
 # touched, and after install_dotfiles has created the ~/.gitconfig.dotfiles link.
 setup_gitconfig_include
 
+# Apply optional local configuration before running installers.
+DOTFILES_LOCAL="${DOTFILES_LOCAL:-$HOME/.dotfiles.local}"
+local_configurator="$DOTFILES_LOCAL/script/configure"
+if [ -f "$local_configurator" ]; then
+  info 'running local configuration'
+  DOTFILES_LOCAL="$DOTFILES_LOCAL" bash "$local_configurator"
+fi
+
 # Run topical install scripts.
 info 'running script/install'
-DOTFILES="$DOTFILES_ROOT" "$DOTFILES_ROOT/script/install"
+DOTFILES="$DOTFILES_ROOT" DOTFILES_LOCAL="$DOTFILES_LOCAL" "$DOTFILES_ROOT/script/install"
 
 echo ''
 echo '  All installed!'

@@ -70,7 +70,8 @@ cd my-dotfiles
 ```
 
 It symlinks `~/.dotfiles` to the checkout, symlinks your **all-hosts**
-`profile.ps1` to this repo's profile, wires up the git config (see below), and runs `script\install.ps1`
+`profile.ps1` to this repo's profile, wires up the git config (see below), runs
+an optional local root's `script\configure.ps1`, and then runs `script\install.ps1`
 (Node.js LTS with npm, standalone pnpm, shell tools and the module starter
 pack). Open a new PowerShell 7 window afterward.
 

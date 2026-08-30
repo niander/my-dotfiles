@@ -12,8 +12,11 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 - `*.symlink` → symlinked (without the extension) into `$HOME` by `script/bootstrap`
 - `install.sh` → executed by `script/install` (not auto-sourced)
 
-An optional second topic root can live at `~/.dotfiles.local`, or at the path set in `DOTFILES_LOCAL` by `~/.localrc`.
+### Local overrides (private)
+
+An optional second topic root can live at `~/.dotfiles.local`, or at `$DOTFILES_LOCAL` (can be set by `~/.localrc`).
 Its zsh and PowerShell files load after the public topics, and its install scripts run after the public installers.
+Bootstrap also runs `script/configure` or `script/configure.ps1` from that root when present.
 If the root is absent, setup and shell startup are unchanged.
 
 ## What's inside

@@ -16,7 +16,8 @@ It:
   2. symlinks this repo's profile in as your all-hosts profile.ps1
   3. adds an include of this repo's gitconfig to ~/.gitconfig, and symlinks
      ~/.gitconfig.dotfiles and ~/.gitignore
-  4. runs install.ps1 (Node.js/npm, pnpm, shell tools and PS modules)
+  4. runs an optional local root's script/configure.ps1
+  5. runs install.ps1 (Node.js/npm, pnpm, shell tools and PS modules)
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -39,6 +40,13 @@ if ($LASTEXITCODE -ne 0 -or -not $RepoRoot) {
     throw "Could not resolve the Git worktree containing '$scriptRoot'."
 }
 $RepoRoot = [IO.Path]::GetFullPath($RepoRoot.Trim())
+$LocalRoot = if ($env:DOTFILES_LOCAL) {
+    $env:DOTFILES_LOCAL
+}
+else {
+    Join-Path $HOME '.dotfiles.local'
+}
+$env:DOTFILES_LOCAL = $LocalRoot
 
 function Get-BackupPath {
     param([Parameter(Mandatory)][string] $Path)
@@ -273,6 +281,13 @@ Add-GitInclude -Path (Join-Path $HOME '.gitconfig') `
     -IncludePath '~/.gitconfig.dotfiles' `
     -LegacyIncludePath '~/.dotfiles/git/gitconfig.symlink' `
     -BaselineDir (Split-Path -Parent $baseline)
+
+# --- optional local configuration ------------------------------------------
+$localConfigurator = Join-Path $LocalRoot 'script/configure.ps1'
+if (Test-Path -LiteralPath $localConfigurator -PathType Leaf) {
+    Write-Host '== local/configure'
+    & $localConfigurator
+}
 
 # --- install tooling -------------------------------------------------------
 & (Join-Path $PSScriptRoot 'install.ps1')
