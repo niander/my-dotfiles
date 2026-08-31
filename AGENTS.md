@@ -11,8 +11,8 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 
 ```bash
 ./script/provision   # explicit Ubuntu-on-WSL system provisioning; never runs bootstrap
-./script/bootstrap   # one-time: symlinks *.symlink into $HOME, creates the ~/.dotfiles symlink,
-                     # then runs script/install
+./script/bootstrap   # one-time: symlinks *.symlink, sources topic bootstrap.sh files,
+                     # creates the ~/.dotfiles symlink, then runs script/install
 ./script/install     # re-runnable: runs every topic install.sh (requires ~/.dotfiles symlink)
 ```
 
@@ -44,6 +44,7 @@ Everything is grouped into **topic folders** (`git/`, `vim/`, `tmux/`, `zsh/`, `
 | `topic/completion.zsh` | Sourced **last**, after `compinit` — completion setup |
 | `oh-my-zsh/custom/*.zsh` | Sourced by oh-my-zsh itself, after its `lib/` and plugins — the slot for code that must load *after* omz |
 | `topic/*.symlink` | Symlinked into `$HOME` as `.<name>` (extension stripped) by `script/bootstrap` |
+| `topic/bootstrap.sh` | Sourced by `script/bootstrap` after generic symlinks for topic-owned bootstrap setup |
 | `topic/install.sh` | Run **once** by `script/install`; named `.sh` (not `.zsh`) precisely so it is *not* auto-sourced every shell |
 | `topic/<other>.sh` | Run by hand only — `script/install` matches the name `install.sh` exactly |
 | `topic/path.ps1` | Dot-sourced into the PowerShell profile **first** — PATH setup, before other `*.ps1` |

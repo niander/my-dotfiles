@@ -1,13 +1,20 @@
 # PowerShell profile -- niander/my-dotfiles
 # ---------------------------------------------------------------------------
-# Canonical profile. Both hosts symlink it in as profile.ps1
-# ($PROFILE.CurrentUserAllHosts): script/bootstrap (Linux/WSL) links it to
-# ~/.config/powershell/profile.ps1; script/bootstrap.ps1 (Windows) links the
-# Documents one. The host profile (Microsoft.PowerShell_profile.ps1) is left
-# alone. See powershell/README.md.
+# Canonical profile. script/bootstrap links it to the Linux/WSL all-hosts
+# profile. On Windows, script/bootstrap.ps1 adds a source call to the regular
+# all-hosts profile, which may live under OneDrive. The host profile
+# (Microsoft.PowerShell_profile.ps1) is left alone. See powershell/README.md.
 
-# Resolve the checkout via the ~/.dotfiles symlink script/bootstrap creates.
-$DotfilesRoot = if (Test-Path "$HOME/.dotfiles") { "$HOME/.dotfiles" } else { $null }
+# Prefer the exported root used by the Windows profile source.
+$DotfilesRoot = if ($env:DOTFILES -and (Test-Path -LiteralPath $env:DOTFILES -PathType Container)) {
+    $env:DOTFILES
+}
+elseif (Test-Path "$HOME/.dotfiles") {
+    "$HOME/.dotfiles"
+}
+else {
+    $null
+}
 if ($DotfilesRoot) { $env:DOTFILES = $DotfilesRoot }
 $LocalDotfilesRoot = if ($env:DOTFILES_LOCAL) {
     $env:DOTFILES_LOCAL

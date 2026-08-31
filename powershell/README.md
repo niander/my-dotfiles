@@ -9,14 +9,15 @@ theme the zsh side selects**.
 
 | File | Purpose |
 | --- | --- |
-| `config/powershell/profile.ps1.symlink` | The profile. Symlinked in as `profile.ps1` (the all-hosts profile) on both WSL and Windows. |
+| `bootstrap.sh` | Links the shared profile into the Linux/WSL all-hosts profile path. |
+| `config/powershell/profile.ps1` | The shared profile. Symlinked in as the all-hosts profile on WSL and dot-sourced by the regular all-hosts profile on Windows. |
 | `base16.ps1` | base16 loader, auto-loaded as a topical fragment. Re-emits the shared `base16-shell/` themes as OSC sequences. |
 | `niander.omp.json` | oh-my-posh theme (uses ANSI color names so it recolors with base16). |
 | `install.ps1` | Installs oh-my-posh + modules (cross-platform, idempotent; run by `script/install.ps1`). |
 
 ## Profile behavior
 
-`config/powershell/profile.ps1.symlink` owns the shell-wide load order:
+`config/powershell/profile.ps1` owns the shell-wide load order:
 
 1. Run each topic's `path.ps1`.
 2. Normalize, deduplicate, and prepend the declared paths.
@@ -70,11 +71,12 @@ cd my-dotfiles
 .\script\bootstrap.ps1
 ```
 
-It symlinks `~/.dotfiles` to the checkout, symlinks your **all-hosts**
-`profile.ps1` to this repo's profile, wires up the git config (see below), runs
-an optional local root's `script\configure.ps1`, and then runs `script\install.ps1`
-(Node.js LTS with npm, standalone pnpm, shell tools and the module starter
-pack). Open a new PowerShell 7 window afterward.
+It symlinks `~/.dotfiles` to the checkout, exports that path as the user
+`DOTFILES` environment variable, writes your regular **all-hosts** `profile.ps1`
+with a dot-source call for this repo's profile, wires up the git config (see
+below), runs an optional local root's `script\configure.ps1`, and then runs
+`script\install.ps1` (Node.js LTS with npm, standalone pnpm, shell tools and the
+module starter pack). Close the terminal application and open it again afterward.
 
 Notes:
 - PowerShell modules are installed under `~/PowerShell/Modules`, outside a
@@ -82,16 +84,17 @@ Notes:
   the current-user `PSModulePath` in `powershell.config.json` when the setting
   is absent. If that file already defines a different `PSModulePath`, module
   installation stops rather than overwriting the machine's configuration.
-- The links (`~/.dotfiles`, `profile.ps1` and `~/.gitignore`) are real
-  **symbolic links**; if Windows can't create one (no Developer Mode and not
-  elevated), bootstrap fails with the exception rather than falling back.
-- It links the **all-hosts** profile (`profile.ps1` = `$PROFILE.CurrentUserAllHosts`),
-  so it loads in every host (console, VS Code, ...) and leaves the host profile
-  (`Microsoft.PowerShell_profile.ps1`) untouched — that's where host-specific
-  completers and tools live.
-- Existing profile and Git link destinations prompt for skip, overwrite or
-  backup. Uppercase choices apply to every remaining collision in that run.
-  Put machine-specific profile lines in `~/.localprofile.ps1` (the profile
+- The `~/.dotfiles` and `~/.gitignore` links are real **symbolic links**; if
+  Windows can't create one (no Developer Mode and not elevated), bootstrap
+  fails with the exception rather than falling back.
+- The **all-hosts** profile (`profile.ps1` =
+  `$PROFILE.CurrentUserAllHosts`) stays a regular file, including when
+  Documents is redirected into OneDrive. Bootstrap writes only the repo
+  profile source call, resolved through `$env:DOTFILES`, to this file and
+  leaves the host profile (`Microsoft.PowerShell_profile.ps1`) untouched.
+- Existing Git link destinations prompt for skip, overwrite or backup.
+  Uppercase choices apply to every remaining collision in that run. Put
+  machine-specific profile lines in `~/.localprofile.ps1` (the repo profile
   sources it) — conda loads automatically via the `miniconda/` topic.
 - Only **PowerShell 7** is wired; Windows PowerShell 5.1 is left alone.
 - base16 **theme scripts** are installed, so `base16 <name>` and

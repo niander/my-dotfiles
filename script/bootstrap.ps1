@@ -13,7 +13,7 @@ On WSL/Linux use script/bootstrap (bash) instead, which also covers zsh and tmux
 
 It:
   1. links ~/.dotfiles to this checkout (a symbolic link; fails if it can't)
-  2. symlinks this repo's profile in as your all-hosts profile.ps1
+  2. adds a source call for this repo's profile to your all-hosts profile.ps1
   3. adds an include of this repo's gitconfig to ~/.gitconfig, and symlinks
      ~/.gitconfig.dotfiles and ~/.gitignore
   4. runs an optional local root's script/configure.ps1
@@ -69,6 +69,54 @@ function New-LinkState {
     return @{
         AllAction = $null
     }
+}
+
+# Writes the regular all-hosts profile as a source for the shared profile.
+function Set-ProfileSource {
+    param(
+        [Parameter(Mandatory)][string] $Path,
+        [Parameter(Mandatory)][string] $Target
+    )
+
+    $label = Split-Path -Leaf $Path
+    $resolvedTarget = (Resolve-Path -LiteralPath $Target).Path
+    $existing = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+
+    if ($existing -and $existing.LinkType) {
+        $current = Resolve-LinkTarget $existing -AllowMissing
+        if ($current -ne $resolvedTarget) {
+            throw "$label links to '$current', not '$resolvedTarget'. Replace it with a regular file, then re-run."
+        }
+
+        Remove-Item -LiteralPath $Path -Force
+        Write-Host "rm    $label symlink into the checkout"
+        $existing = $null
+    }
+
+    if ($existing -and $existing.PSIsContainer) {
+        throw "$Path is a directory. Replace it with a regular file, then re-run."
+    }
+
+    $sourceLine = ". (Join-Path `$env:DOTFILES 'powershell\config\powershell\profile.ps1')"
+    $body = if ($existing) {
+        $rawBody = Get-Content -LiteralPath $Path -Raw
+        if ($null -eq $rawBody) { '' } else { $rawBody.TrimEnd([char[]]"`r`n") }
+    }
+    else {
+        ''
+    }
+    if ($body -ceq $sourceLine) {
+        Write-Host "ok    $label already sources the repo profile"
+        return
+    }
+
+    $parent = Split-Path -Parent $Path
+    if ($parent -and -not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    Set-Content -LiteralPath $Path -Encoding utf8NoBOM -Value $sourceLine
+    Write-Host "write $label -> source repo profile"
 }
 
 # Resolves a link's target. -AllowMissing accepts one whose target no longer exists.
@@ -260,17 +308,23 @@ else {
     }
 }
 
-# --- profile.ps1 symlink ---------------------------------------------------
-# CurrentUserAllHosts is profile.ps1
-$linkState = New-LinkState
-$profileTarget = Join-Path $RepoRoot 'powershell/config/powershell/profile.ps1.symlink'
-$profileBackedUp = Set-Symlink -Path $PROFILE.CurrentUserAllHosts -Target $profileTarget `
-    -Label 'profile.ps1' -State $linkState
-if ($profileBackedUp) {
-    Write-Warning "Move machine-specific lines (e.g. conda init) into ~/.localprofile.ps1; conda now loads via the miniconda/ topic."
+$env:DOTFILES = $dotfilesLink
+$userDotfiles = [Environment]::GetEnvironmentVariable('DOTFILES', 'User')
+if ($userDotfiles -eq $dotfilesLink) {
+    Write-Host 'ok    user DOTFILES already points to ~/.dotfiles'
+}
+else {
+    [Environment]::SetEnvironmentVariable('DOTFILES', $dotfilesLink, 'User')
+    Write-Host 'set   user DOTFILES -> ~/.dotfiles'
 }
 
+# --- profile.ps1 source ----------------------------------------------------
+# CurrentUserAllHosts is profile.ps1
+$profileTarget = Join-Path $RepoRoot 'powershell/config/powershell/profile.ps1'
+Set-ProfileSource -Path $PROFILE.CurrentUserAllHosts -Target $profileTarget
+
 # --- git config ------------------------------------------------------------
+$linkState = New-LinkState
 $baseline = Join-Path $RepoRoot 'git/gitconfig.dotfiles.symlink'
 Set-Symlink -Path (Join-Path $HOME '.gitconfig.dotfiles') -Target $baseline `
     -Label '.gitconfig.dotfiles' -State $linkState | Out-Null

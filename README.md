@@ -10,6 +10,7 @@ Everything is grouped by topic. To add a new area — say, `rust` — make a `ru
 - `path.zsh` -> sourced first (set `$PATH` etc.)
 - `completion.zsh` -> sourced last, after oh-my-zsh has run `compinit`
 - `*.symlink` -> symlinked (without the extension) into `$HOME` by `script/bootstrap`
+- `bootstrap.sh` -> sourced by `script/bootstrap` for topic-owned setup that cannot use the `*.symlink` convention
 - `install.sh` -> executed by `script/install` (not auto-sourced)
 
 ### Local overrides (private)
@@ -85,7 +86,7 @@ cd my-dotfiles
 
 `script/bootstrap` will:
 
-1. Symlink every `*.symlink` file into `$HOME` (with interactive overwrite/backup/skip prompts).
+1. Symlink every `*.symlink` file into `$HOME`, then source each topic's `bootstrap.sh` (with interactive overwrite/backup/skip prompts for links).
 2. Create the `~/.dotfiles` symlink pointing at the repo.
 3. Prepend an include of `~/.gitconfig.dotfiles` (the symlinked baseline) to `~/.gitconfig`.
    It stops rather than guessing if `~/.gitconfig` is a symlink to somewhere outside this checkout, or already carries the include below the top — move those settings aside first.

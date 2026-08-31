@@ -216,6 +216,15 @@ install_dotfiles () {
     #dst="$HOME/.$(basename "${src%.*}")"
     link_file "$src" "$dst"
   done
+
+  # Topic bootstraps own setup that cannot use the *.symlink convention.
+  # Source them so they share link_file and this run's collision choice.
+  local topic_bootstrap
+  for topic_bootstrap in "$DOTFILES_ROOT"/*/bootstrap.sh
+  do
+    [ -f "$topic_bootstrap" ] || continue
+    . "$topic_bootstrap"
+  done
 }
 
 install_dotfiles
