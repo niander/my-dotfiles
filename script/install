@@ -32,9 +32,13 @@ fi
 
 pushd "$DOTFILES" > /dev/null
 
-find . -maxdepth 2 -name install.sh -print0 | while IFS= read -r -d '' installer; do
-  bash "$installer"
-done
+failed_installers=()
+while IFS= read -r -d '' installer; do
+  if ! bash "$installer"; then
+    echo "script/install: installer '$installer' failed; continuing" >&2
+    failed_installers+=("$installer")
+  fi
+done < <(find . -maxdepth 2 -name install.sh -print0)
 
 popd > /dev/null
 
@@ -45,4 +49,11 @@ if [ -d "$DOTFILES_LOCAL" ]; then
         echo "script/install: local installer '$installer' failed; continuing" >&2
       fi
     done
+fi
+
+if (( ${#failed_installers[@]} > 0 )); then
+  printf 'script/install: failed installers:' >&2
+  printf ' %s' "${failed_installers[@]}" >&2
+  printf '\n' >&2
+  exit 1
 fi

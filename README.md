@@ -59,7 +59,7 @@ From an Ubuntu WSL checkout:
 ./script/bootstrap
 ```
 
-The provisioner adds the Git stable PPA, updates and upgrades installed packages, installs the base development and keyring packages, and installs Azure CLI through its apt repository. Ubuntu releases other than 22.04 and 24.04 use the 24.04 (`noble`) Azure CLI repository.
+The provisioner adds the Git stable PPA and Microsoft's Ubuntu package repository, updates and upgrades installed packages, installs the base development and keyring packages, and installs Azure CLI through its apt repository. Ubuntu releases other than 22.04 and 24.04 use the 24.04 (`noble`) Azure CLI repository.
 
 After provisioning, open Seahorse through WSLg and create a password keyring. Unlock it before using `secret-tool`; installing the packages alone does not start or initialize a keyring.
 

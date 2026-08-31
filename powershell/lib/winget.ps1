@@ -15,7 +15,7 @@ function Install-WingetPackage {
         return
     }
     if (-not $wingetCommand) {
-        Write-Warning "winget not found; install $Name manually"
+        Write-Warning "winget.exe not found; $Name is NOT going to be installed"
         return
     }
 

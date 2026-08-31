@@ -14,7 +14,7 @@ if [[ ! -r /etc/os-release ]]; then
   exit 1
 fi
 
-. /etc/os-release
+source /etc/os-release
 if [[ ${ID:-} != ubuntu ]]; then
   printf 'script/provision: Ubuntu under WSL is required (found %s)\n' "${ID:-unknown}" >&2
   exit 1
@@ -44,6 +44,43 @@ apt_install \
   lsb-release \
   software-properties-common
 
+if [[ -z ${VERSION_ID:-} ]]; then
+  printf 'script/provision: Ubuntu VERSION_ID is required\n' >&2
+  exit 1
+fi
+
+provision_tmp=$(mktemp -d)
+cleanup() {
+  rm -rf -- "$provision_tmp"
+}
+trap cleanup EXIT
+
+microsoft_prod_version=$(
+  dpkg-query -W -f='${Version}' packages-microsoft-prod 2>/dev/null || true
+)
+microsoft_prod_source=/etc/apt/sources.list.d/microsoft-prod.list
+microsoft_prod_key=/usr/share/keyrings/microsoft-prod.gpg
+
+if [[ $microsoft_prod_version == *-ubuntu"$VERSION_ID" ]] &&
+   [[ -f $microsoft_prod_source ]] &&
+   [[ -f $microsoft_prod_key ]]; then
+  printf 'ok       Microsoft package repository already configured\n'
+else
+  microsoft_prod_deb="$provision_tmp/packages-microsoft-prod.deb"
+  curl --fail --silent --show-error --location \
+    --output "$microsoft_prod_deb" \
+    "https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb"
+  dotfiles_sudo 'configure the Microsoft package repository' \
+    dpkg -i "$microsoft_prod_deb"
+
+  if [[ ! -f $microsoft_prod_source ]] || [[ ! -f $microsoft_prod_key ]]; then
+    printf 'script/provision: Microsoft package repository was not configured\n' >&2
+    exit 1
+  fi
+
+  printf 'config   Microsoft package repository (%s)\n' "$VERSION_ID"
+fi
+
 dotfiles_sudo 'configure the Git stable PPA' \
   add-apt-repository --no-update ppa:git-core/ppa
 
@@ -64,31 +101,25 @@ else
       ;;
   esac
 
-  azure_tmp=$(mktemp -d)
-  cleanup() {
-    rm -rf -- "$azure_tmp"
-  }
-  trap cleanup EXIT
-
   curl --fail --silent --show-error --location \
-    --output "$azure_tmp/microsoft.asc" \
+    --output "$provision_tmp/microsoft.asc" \
     https://packages.microsoft.com/keys/microsoft.asc
   gpg --batch --yes --dearmor \
-    --output "$azure_tmp/microsoft.gpg" \
-    "$azure_tmp/microsoft.asc"
+    --output "$provision_tmp/microsoft.gpg" \
+    "$provision_tmp/microsoft.asc"
 
   dotfiles_sudo 'configure the Azure CLI signing key' \
     install -d -m 0755 /etc/apt/keyrings
   if [[ ! -f /etc/apt/keyrings/microsoft.gpg ]] ||
-     ! cmp -s "$azure_tmp/microsoft.gpg" /etc/apt/keyrings/microsoft.gpg; then
+     ! cmp -s "$provision_tmp/microsoft.gpg" /etc/apt/keyrings/microsoft.gpg; then
     dotfiles_sudo 'configure the Azure CLI signing key' \
-      install -m 0644 "$azure_tmp/microsoft.gpg" /etc/apt/keyrings/microsoft.gpg
+      install -m 0644 "$provision_tmp/microsoft.gpg" /etc/apt/keyrings/microsoft.gpg
     printf 'config   Azure CLI signing key\n'
   else
     printf 'ok       Azure CLI signing key already configured\n'
   fi
 
-  cat > "$azure_tmp/azure-cli.sources" <<EOF
+  cat > "$provision_tmp/azure-cli.sources" <<EOF
 Types: deb
 URIs: https://packages.microsoft.com/repos/azure-cli/
 Suites: $azure_suite
@@ -99,9 +130,9 @@ EOF
 
   azure_sources=/etc/apt/sources.list.d/azure-cli.sources
   if [[ ! -f $azure_sources ]] ||
-     ! cmp -s "$azure_tmp/azure-cli.sources" "$azure_sources"; then
+     ! cmp -s "$provision_tmp/azure-cli.sources" "$azure_sources"; then
     dotfiles_sudo 'configure the Azure CLI apt source' \
-      install -m 0644 "$azure_tmp/azure-cli.sources" "$azure_sources"
+      install -m 0644 "$provision_tmp/azure-cli.sources" "$azure_sources"
     printf 'config   Azure CLI apt source (%s)\n' "$azure_suite"
   else
     printf 'ok       Azure CLI apt source already configured\n'
@@ -125,7 +156,6 @@ apt_install \
   git \
   gnome-keyring \
   htop \
-  jq \
   libsecret-tools \
   seahorse \
   xdg-utils \

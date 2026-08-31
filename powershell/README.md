@@ -53,9 +53,10 @@ new topic behavior to this table instead of extending the profile description.
 
 ## Linux / WSL (PowerShell 7)
 
-`script/bootstrap` symlinks the profile in as `~/.config/powershell/profile.ps1`.
-Install the PowerShell tooling with `pwsh script/install.ps1` (cross-platform),
-then open a new `pwsh` session.
+On Ubuntu WSL, run `script/provision` to register Microsoft's package repository.
+`script/bootstrap` then installs PowerShell and symlinks the profile in as
+`~/.config/powershell/profile.ps1`. Install the PowerShell tooling with
+`pwsh script/install.ps1` (cross-platform), then open a new `pwsh` session.
 
 ## Windows
 
