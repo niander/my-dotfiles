@@ -30,6 +30,7 @@ A few representative topics (folders):
 - `dotnet/` — .NET SDK 10 on Ubuntu/WSL and .NET global-tool PATH setup
 - `node/` — Node.js/npm and pnpm setup, plus nvm integration on Linux/WSL
 - `rust/` — rustup toolchain installation and Cargo PATH setup
+- `uv/` — uv installation and zsh completion
 - `git/` — gitconfig, aliases, ignore rules, helpers
 - `vim/` — vimrc + plugin setup
 - `tmux/` — tmux.conf and tpm
