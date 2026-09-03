@@ -13,6 +13,21 @@ function _base16_reset_256colorspace() {
     print -rn -- "$osc" > "$tty"
 }
 
+function _base16_apply_selected_theme() {
+    local force_load=$1
+    local selected_theme=$BASE16_THEME
+
+    if [[ -n $BASE16_SHELL_THEME_NAME_PATH && -s $BASE16_SHELL_THEME_NAME_PATH ]]; then
+        IFS= read -r selected_theme < "$BASE16_SHELL_THEME_NAME_PATH"
+    fi
+
+    [[ -n $selected_theme ]] || return 0
+    type set_theme >/dev/null 2>&1 || return 0
+    [[ $selected_theme != $BASE16_THEME ]] && force_load=true
+    [[ -n $force_load ]] || return 0
+    set_theme "$selected_theme" "$force_load"
+}
+
 function toggle_base16_shell() {
     case "$1" in
         on)
@@ -36,14 +51,13 @@ function toggle_base16_shell() {
                 *)   echo "usage: base16 256 {on|off|status}" >&2; return 1 ;;
             esac
             # Repaint the theme, then restore defaults when the remap is off.
-            [[ -n "$BASE16_THEME" ]] && type set_theme >/dev/null 2>&1 && set_theme "$BASE16_THEME" true
+            _base16_apply_selected_theme true
             [[ -f "$BASE16_256_FILE" ]] || _base16_reset_256colorspace
             return 0
             ;;
         repaint)
-            # force_load bypasses set_theme's own "already applied" guard —
-            # useful when something outside the shell resets the palette.
-            [[ -n "$BASE16_THEME" ]] && type set_theme >/dev/null 2>&1 && set_theme "$BASE16_THEME" true
+            # force_load bypasses set_theme's own "already applied" guard.
+            _base16_apply_selected_theme true
             return 0
             ;;
         *)
@@ -64,6 +78,7 @@ if [[ -f "$BASE16_ENABLED_FILE" && ( -z $TERM_PROGRAM || $TERM_PROGRAM == tmux )
         export BASE16_THEME_DEFAULT=eighties
         [[ -f "$BASE16_256_FILE" ]] && export BASE16_SHELL_SET_256COLORSPACE=1 || unset BASE16_SHELL_SET_256COLORSPACE
         source "$BASE16_SHELL/profile_helper.sh"
+        _base16_apply_selected_theme
         [[ -z "$BASE16_THEME" ]] && base16_eighties
         [[ -f "$BASE16_256_FILE" ]] || _base16_reset_256colorspace
     fi
