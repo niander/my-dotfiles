@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "version": 3,
+  "pwd": "osc99",
   "final_space": true,
   "console_title_template": "{{ .UserName }}: {{ if eq .PWD \"D:\" }}devfs:\\\\{{ else if hasPrefix \"D:\\\\\" .PWD }}devfs:{{ trimPrefix \"D:\" .PWD }}{{ else }}{{ .PWD }}{{ end }}",
   "blocks": [
