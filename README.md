@@ -1,6 +1,6 @@
 # @niander does dotfiles
 
-My personal dotfiles. Forked from [holman/dotfiles](https://github.com/holman/dotfiles) and reshaped for **Linux, WSL, and Windows (Git Bash / MinGW)**. macOS-specific bits have been dropped.
+My personal dotfiles. Forked from [holman/dotfiles](https://github.com/holman/dotfiles) and reshaped for **Linux, WSL, Windows (Git Bash / MinGW), and macOS**.
 
 ## Topical layout
 
@@ -26,6 +26,7 @@ A few representative topics (folders):
 
 - `zsh/` — shell config, history, options
 - `oh-my-zsh/` — oh-my-zsh setup, plugins, custom overrides
+- `darwin/` — Homebrew PATH setup on macOS
 - `powershell/` — PowerShell profile: oh-my-posh prompt, module starter pack, base16 theming ([details](powershell/README.md))
 - `dotnet/` — .NET SDK 10 on Ubuntu/WSL and .NET global-tool PATH setup
 - `node/` — Node.js/npm and pnpm setup, plus nvm integration on Linux/WSL
@@ -65,6 +66,17 @@ The provisioner adds the Git stable PPA and Microsoft's Ubuntu package repositor
 
 After provisioning, open Seahorse through WSLg and create a password keyring. Unlock it before using `secret-tool`; installing the packages alone does not start or initialize a keyring.
 
+### macOS
+
+From a checkout:
+
+```sh
+./script/provision
+./script/bootstrap
+```
+
+The provisioner installs the Xcode Command Line Tools (and waits for the install dialog to finish), installs Homebrew, and applies the root `Brewfile`: the CLI tools the topics expect (tmux, git-delta, jq, ripgrep, gh, fzf, eza) plus iTerm2, Bitwarden, Spotify, and Git Credential Manager as casks.
+
 ### Windows
 
 From PowerShell 7:
@@ -93,7 +105,7 @@ cd my-dotfiles
    It stops rather than guessing if `~/.gitconfig` is a symlink to somewhere outside this checkout, or already carries the include below the top — move those settings aside first.
 4. Run `script/install`, which executes every topic's `install.sh`.
 
-After that, set zsh as your login shell (one time) and open a new shell so the config loads:
+After that, set zsh as your login shell (one time; macOS already defaults to zsh) and open a new shell so the config loads:
 
 ```sh
 chsh -s "$(command -v zsh)"

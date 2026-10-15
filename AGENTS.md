@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfiles) and reshaped for **Linux, WSL, and Windows (Git Bash / MinGW)** — macOS-specific bits were dropped. This is a configuration repo: there is **no build/test/lint suite**; "running" it means installing the config into `$HOME` via the scripts below.
+Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfiles) and reshaped for **Linux, WSL, Windows (Git Bash / MinGW), and macOS**. This is a configuration repo: there is **no build/test/lint suite**; "running" it means installing the config into `$HOME` via the scripts below.
 
 - `README.md` — user-facing install guide.
 - `upstream_readme.md` — verbatim snapshot of holman's README, kept only so upstream syncs can diff against it. **Do not follow its install steps** (they clone into `~/.dotfiles`, which breaks this fork's guards).
@@ -10,7 +10,7 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 ## Setup Commands
 
 ```bash
-./script/provision   # explicit Ubuntu-on-WSL system provisioning; never runs bootstrap
+./script/provision   # explicit system provisioning (Ubuntu-on-WSL or macOS); never runs bootstrap
 ./script/bootstrap   # one-time: symlinks *.symlink, sources topic bootstrap.sh files,
                      # creates the ~/.dotfiles symlink, then runs script/install
 ./script/install     # re-runnable: runs every topic install.sh (requires ~/.dotfiles symlink)
@@ -22,7 +22,8 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 ```
 
 Provisioning and bootstrap are separate entry points. The WSL provisioner performs the requested package upgrade and system package setup.
-The Windows provisioner delegates to the optional private root. Neither invokes bootstrap.
+On macOS, `script/provision` installs the Xcode Command Line Tools and Homebrew, then applies the root `Brewfile`.
+The Windows provisioner delegates to the optional private root. None of them invokes bootstrap.
 
 `script/bootstrap` (interactive) does, in order:
 1. Symlinks every `*.symlink` into `$HOME` as `.<name>` (interactive skip/overwrite/backup prompts).
@@ -96,7 +97,8 @@ Those clones land in dot-directories that `.gitignore` excludes, so they are nei
 
 ## Code Style / Conventions
 
-- **Cross-platform:** branch on OS via `uname -s`. For WSL, shell config tests `$WSL_DISTRO_NAME`; `script/bootstrap` uses `grep -qi microsoft /proc/version` because it also runs pre-login. Keep new shell code working across Linux / WSL / MinGW; don't reintroduce macOS-only assumptions.
+- **Cross-platform:** branch on OS via `uname -s`. For WSL, shell config tests `$WSL_DISTRO_NAME`; `script/bootstrap` uses `grep -qi microsoft /proc/version` because it also runs pre-login. Keep new shell code working across Linux / WSL / MinGW / macOS; platform-specific code belongs in guarded topic files (`wsl/`, `darwin/`) or behind an explicit OS check.
+- **Pre-Homebrew scripts:** `script/bootstrap` and `script/provision` run on a fresh Mac under Apple's bash 3.2 with BSD tools, before any Homebrew package exists. No bash-4 syntax (`${var,,}`, `mapfile`, associative arrays) and no GNU-only flags (`readlink -m`) in either file.
 - **Register hooks additively** — use `add-zsh-hook` / `add-zle-hook-widget`. Defining a `precmd`/`preexec` function, or binding a widget with `zle -N`, overwrites any handler oh-my-zsh or a plugin already installed under that name.
 - **Per-machine secrets/overrides** stay out of the repo: `~/.localrc` (auto-sourced early by `zshrc`), `~/.gitconfig` (git's global config, which includes the repo baseline) and `~/.gitconfig.local` (auto-included by that baseline). `.gitignore` excludes all dotfiles (`.*`).
 - **Privileged installers** source `script/lib/sudo.sh` and call `dotfiles_sudo` only after their unprivileged installed-state check fails.
