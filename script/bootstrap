@@ -40,14 +40,19 @@ fail () {
 # True when $1 opens with an [include] of $2. Tolerates CRLF, a BOM and spacing:
 # the file may have been written on another host.
 gitconfig_include_first () {
-  local first second
+  local first second first_lc second_lc
   { IFS= read -r first; IFS= read -r second; } < "$1" || true
   first="${first%$'\r'}"; first="${first#$'\xef\xbb\xbf'}"
   second="${second%$'\r'}"
 
+  # Lowercase with tr: ${var,,} needs bash 4, but a fresh Mac runs this
+  # script under Apple's bash 3.2, before any Homebrew bash exists.
+  first_lc=$(printf '%s' "$first" | tr '[:upper:]' '[:lower:]')
+  second_lc=$(printf '%s' "$second" | tr '[:upper:]' '[:lower:]')
+
   # Git matches section and key names case-insensitively, values exactly.
-  [[ "${first,,}" =~ ^[[:space:]]*\[include\][[:space:]]*$ ]] &&
-  [[ "${second,,}" =~ ^[[:space:]]*path[[:space:]]*= ]] &&
+  [[ "$first_lc" =~ ^[[:space:]]*\[include\][[:space:]]*$ ]] &&
+  [[ "$second_lc" =~ ^[[:space:]]*path[[:space:]]*= ]] &&
   [[ "$second" =~ =[[:space:]]*"$2"[[:space:]]*$ ]]
 }
 
@@ -73,8 +78,14 @@ setup_gitconfig_include () {
   if [ -L "$dst" ]
   then
     # After a pull the old baseline is gone, so the link dangles.
+    # readlink -m is GNU-only; plain readlink plus manual resolution of a
+    # relative target covers the absolute links bootstrap creates.
     local target
-    target="$(readlink -m "$dst")"
+    target="$(readlink "$dst")"
+    case "$target" in
+      /*) ;;
+      *) target="$HOME/$target" ;;
+    esac
     case "$target" in
       "$DOTFILES_ROOT"/git/*) ;;
       *) fail "~/.gitconfig links to $target, not a config in $DOTFILES_ROOT/git. Remove it or migrate its settings, then re-run." ;;
