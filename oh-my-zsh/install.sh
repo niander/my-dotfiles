@@ -14,10 +14,11 @@ then
   fi
   # Install non-destructively: keep our ~/.zshrc, don't change the login shell,
   # and don't launch zsh. Set zsh as the login shell manually once (see README).
-  # Download first so a failed fetch aborts under `set -e`; a piped `wget | sh`
-  # would mask wget's exit status (POSIX sh has no pipefail).
+  # Download first so a failed fetch aborts under `set -e`; a piped `curl | sh`
+  # would mask curl's exit status (POSIX sh has no pipefail). curl rather than
+  # wget because stock macOS ships curl only.
   omz_installer="$(mktemp)"
-  wget -O "$omz_installer" https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+  curl -fsSL -o "$omz_installer" https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
   sh "$omz_installer" --unattended --keep-zshrc
   rm -f "$omz_installer"
 fi
