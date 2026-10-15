@@ -2,6 +2,11 @@
 
 set -e
 
+if [ "$(uname -s)" = "Darwin" ]; then
+  echo "skip     powerline: fonts install to Linux paths and need wget/fc-cache; install the fonts manually on macOS" >&2
+  exit 0
+fi
+
 # Python powerline engine intentionally NOT installed: the tmux status bar is now native
 # (see tmux/tmux.conf.symlink) and vim uses airline. Only the fonts below are still needed.
 # Note: the fontconfig install below only affects Linux-native renderers (gvim, kitty,
