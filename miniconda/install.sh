@@ -2,11 +2,6 @@
 
 set -e
 
-if [[ $OSTYPE == darwin* ]]; then
-  printf 'skip     miniconda: the installer below is the Linux build; install miniconda manually on macOS\n' >&2
-  exit 0
-fi
-
 dirname="$(dirname "$0")"
 conda_root="$HOME/miniconda3"
 
@@ -17,10 +12,26 @@ then
   echo 'Current installation of miniconda 3 was found at ~/miniconda'
   echo ''
 else
-  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $dirname/miniconda-latest-linux-64.sh
-  chmod +x $dirname/miniconda-latest-linux-64.sh
-  bash $dirname/miniconda-latest-linux-64.sh -b
-  rm -f $dirname/miniconda-latest-linux-64.sh
+  # The installer build is per platform and architecture. macOS downloads
+  # with curl because stock macOS has no wget.
+  if [[ $OSTYPE == darwin* ]]; then
+    if [[ $(uname -m) == arm64 ]]; then
+      conda_build=MacOSX-arm64
+    else
+      conda_build=MacOSX-x86_64
+    fi
+  else
+    conda_build=Linux-x86_64
+  fi
+  installer="Miniconda3-latest-$conda_build.sh"
+  if [[ $OSTYPE == darwin* ]]; then
+    curl --fail --silent --show-error --location "https://repo.anaconda.com/miniconda/$installer" -o "$dirname/$installer"
+  else
+    wget "https://repo.anaconda.com/miniconda/$installer" -O "$dirname/$installer"
+  fi
+  chmod +x "$dirname/$installer"
+  bash "$dirname/$installer" -b
+  rm -f "$dirname/$installer"
 fi
 
 # PEP 668 marker keeping pip and uv out of base.
