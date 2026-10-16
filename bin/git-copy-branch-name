@@ -3,6 +3,7 @@
 # Copy the current branch name to the clipboard.
 #
 # Uses whichever clipboard tool is available:
+#   - pbcopy      (macOS)
 #   - xclip / xsel (Linux X11)
 #   - wl-copy     (Linux Wayland)
 #   - clip.exe    (WSL / Windows)
@@ -13,7 +14,9 @@ echo "$branch"
 
 trimmed=$(printf '%s' "$branch" | tr -d '\n' | tr -d ' ')
 
-if command -v xclip >/dev/null 2>&1; then
+if command -v pbcopy >/dev/null 2>&1; then
+  printf '%s' "$trimmed" | pbcopy
+elif command -v xclip >/dev/null 2>&1; then
   printf '%s' "$trimmed" | xclip -selection clipboard
 elif command -v xsel >/dev/null 2>&1; then
   printf '%s' "$trimmed" | xsel --clipboard --input
