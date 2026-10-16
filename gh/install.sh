@@ -6,7 +6,12 @@
 topic=$(CDPATH= cd "$(dirname "$0")" && pwd)
 
 case "$(uname -s)" in
-    Linux) ;;
+    Linux) download=1 ;;
+    Darwin)
+        # Homebrew owns the gh binary on macOS (darwin/Brewfile). Only the
+        # completion refresh below applies there; it works off whatever gh
+        # is on PATH.
+        download=0 ;;
     MINGW*|MSYS*|CYGWIN*)
         echo "skip     gh: on Windows install through script/install.ps1" >&2
         exit 0 ;;
@@ -15,7 +20,12 @@ case "$(uname -s)" in
         exit 0 ;;
 esac
 
-if ! command -v gh >/dev/null 2>&1; then
+if [ "$download" -eq 0 ] && ! command -v gh >/dev/null 2>&1; then
+    echo "note     gh: not installed; on macOS it comes from Homebrew (script/provision)" >&2
+    exit 0
+fi
+
+if [ "$download" -eq 1 ] && ! command -v gh >/dev/null 2>&1; then
     case "$(uname -m)" in
         x86_64) arch=amd64 ;;
         aarch64|arm64) arch=arm64 ;;
