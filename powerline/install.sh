@@ -14,7 +14,16 @@ if [ "$(uname -s)" = "Darwin" ]; then
   fi
   find "$DOTFILES/powerline/.powerline-fonts" -type f \( -name '*.ttf' -o -name '*.otf' \) -exec cp -n {} "$fonts_dir/" \;
   if ! test -e "$fonts_dir/PowerlineSymbols.otf"; then
-    curl --fail --silent --show-error --location https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf -o "$fonts_dir/PowerlineSymbols.otf"
+    # Via a temp file: a partial download at the final path would make
+    # later runs skip the download and report success with a corrupt font.
+    tmp_font=$(mktemp)
+    if curl --fail --silent --show-error --location https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf -o "$tmp_font"; then
+      mv "$tmp_font" "$fonts_dir/PowerlineSymbols.otf"
+    else
+      rm -f "$tmp_font"
+      echo "warn     powerline: PowerlineSymbols.otf download failed; rerun to retry" >&2
+      exit 1
+    fi
   fi
   echo "ok       powerline fonts -> $fonts_dir"
   exit 0
