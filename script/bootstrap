@@ -79,9 +79,13 @@ setup_gitconfig_include () {
   then
     # After a pull the old baseline is gone, so the link dangles.
     # readlink -m is GNU-only, so resolve the chain by hand: canonicalize
-    # each directory with cd + pwd -P, then keep following while the final
-    # component is itself a symlink. The hop cap stops a symlink cycle; a
-    # dangling target simply ends the chain and can still pass below.
+    # each directory physically (cd -P + pwd -P), then keep following while
+    # the final component is itself a symlink. Physical matters: a logical
+    # cd simplifies a symlinked component followed by .. textually, so
+    # git/dirlink/../x would resolve inside the checkout even when dirlink
+    # points outside it and the kernel resolves x outside. The hop cap
+    # stops a symlink cycle; a dangling target simply ends the chain and
+    # can still pass below.
     local target target_dir next hops=0
     target="$(readlink "$dst")"
     case "$target" in
@@ -90,7 +94,7 @@ setup_gitconfig_include () {
     esac
     while [ "$hops" -lt 40 ]; do
       hops=$((hops + 1))
-      target_dir="$(cd "${target%/*}" 2>/dev/null && pwd -P)" || target_dir=
+      target_dir="$(cd -P "${target%/*}" 2>/dev/null && pwd -P)" || target_dir=
       [ -n "$target_dir" ] || break
       target="$target_dir/${target##*/}"
       [ -L "$target" ] || break
