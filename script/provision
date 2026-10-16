@@ -28,11 +28,16 @@ if [[ $(uname -s) == Darwin ]]; then
 
   # Homebrew's installer asks for a sudo password and an Enter press, so its
   # output stays on this terminal rather than being captured or redirected.
+  # The download is a separate assignment: its exit status is the
+  # substitution's status, so a failed or partial fetch aborts under set -e
+  # before any installer code runs. Inside the bash -c argument instead,
+  # curl's status would be lost and a partial script could still execute.
   if [[ -x $homebrew_prefix/bin/brew ]]; then
     printf 'ok       Homebrew already installed\n'
   else
     printf 'install  Homebrew\n'
-    /bin/bash -c "$(curl --fail --silent --show-error --location https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    homebrew_installer=$(curl --fail --silent --show-error --location https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+    /bin/bash -c "$homebrew_installer"
   fi
   eval "$("$homebrew_prefix/bin/brew" shellenv)"
 
