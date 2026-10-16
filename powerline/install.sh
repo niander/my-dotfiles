@@ -3,7 +3,29 @@
 set -e
 
 if [ "$(uname -s)" = "Darwin" ]; then
-  echo "skip     powerline: fonts install to Linux paths and need wget/fc-cache; install the fonts manually on macOS" >&2
+  # Fonts only, same scope as the Linux path below. macOS registers fonts
+  # placed in ~/Library/Fonts automatically, so there is no fc-cache step
+  # and no fontconfig symbols file. The fonts repo's own install.sh targets
+  # Linux directories, so copy the font files directly instead.
+  fonts_dir="$HOME/Library/Fonts"
+  mkdir -p "$fonts_dir"
+  if ! test -d "$DOTFILES/powerline/.powerline-fonts"; then
+    git clone https://github.com/powerline/fonts.git "$DOTFILES/powerline/.powerline-fonts" --depth=1
+  fi
+  find "$DOTFILES/powerline/.powerline-fonts" -type f \( -name '*.ttf' -o -name '*.otf' \) -exec cp -n {} "$fonts_dir/" \;
+  if ! test -e "$fonts_dir/PowerlineSymbols.otf"; then
+    # Via a temp file: a partial download at the final path would make
+    # later runs skip the download and report success with a corrupt font.
+    tmp_font=$(mktemp)
+    if curl --fail --silent --show-error --location https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf -o "$tmp_font"; then
+      mv "$tmp_font" "$fonts_dir/PowerlineSymbols.otf"
+    else
+      rm -f "$tmp_font"
+      echo "warn     powerline: PowerlineSymbols.otf download failed; rerun to retry" >&2
+      exit 1
+    fi
+  fi
+  echo "ok       powerline fonts -> $fonts_dir"
   exit 0
 fi
 

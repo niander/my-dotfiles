@@ -20,6 +20,10 @@ case "$uname_s" in
       exit 1
     fi
     ;;
+  Darwin*)
+    sudo dscacheutil -flushcache
+    sudo killall -HUP mDNSResponder
+    ;;
   MINGW*|MSYS*|CYGWIN*)
     ipconfig.exe /flushdns
     ;;

@@ -8,27 +8,37 @@ raw="https://raw.githubusercontent.com/eza-community/eza/main/completions"
 
 # Install the release binary only when eza is not already on PATH. Because eza
 # is compiled, this script downloads a prebuilt release rather than a checkout.
+# The prebuilt binary is Linux-only; on macOS Homebrew owns eza
+# (darwin/Brewfile), so other systems skip the download and only the
+# completion refresh below applies.
 if ! command -v eza >/dev/null 2>&1; then
-    if [ "$(uname -m)" != "x86_64" ]; then
+    binary_ok=1
+    if [ "$(uname -s)" != "Linux" ]; then
+        echo "note     eza: not installed; outside Linux use a package manager (macOS: Homebrew via script/provision)" >&2
+        binary_ok=0
+    fi
+    if [ "$binary_ok" -eq 1 ] && [ "$(uname -m)" != "x86_64" ]; then
         echo "skip     eza: no prebuilt binary for $(uname -m); install eza yourself" >&2
         exit 0
     fi
-    if ! command -v curl >/dev/null 2>&1; then
+    if [ "$binary_ok" -eq 1 ] && ! command -v curl >/dev/null 2>&1; then
         echo "skip     eza: curl not found" >&2
         exit 0
     fi
-    echo "install  eza (release binary) ..."
-    tmp=$(mktemp -d)
-    url="https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
-    if curl -fsSL "$url" -o "$tmp/eza.tar.gz" && tar -xzf "$tmp/eza.tar.gz" -C "$tmp"; then
-        mkdir -p "$HOME/.local/bin"
-        mv "$tmp/eza" "$HOME/.local/bin/eza"
-        chmod +x "$HOME/.local/bin/eza"
-        echo "ok       eza -> $HOME/.local/bin/eza"
-    else
-        echo "warn     eza: binary download failed" >&2
+    if [ "$binary_ok" -eq 1 ]; then
+        echo "install  eza (release binary) ..."
+        tmp=$(mktemp -d)
+        url="https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
+        if curl -fsSL "$url" -o "$tmp/eza.tar.gz" && tar -xzf "$tmp/eza.tar.gz" -C "$tmp"; then
+            mkdir -p "$HOME/.local/bin"
+            mv "$tmp/eza" "$HOME/.local/bin/eza"
+            chmod +x "$HOME/.local/bin/eza"
+            echo "ok       eza -> $HOME/.local/bin/eza"
+        else
+            echo "warn     eza: binary download failed" >&2
+        fi
+        rm -rf "$tmp"
     fi
-    rm -rf "$tmp"
 fi
 
 # Download completions on every run so they remain current. Zsh autoloads _eza
