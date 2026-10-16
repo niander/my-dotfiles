@@ -78,14 +78,19 @@ setup_gitconfig_include () {
   if [ -L "$dst" ]
   then
     # After a pull the old baseline is gone, so the link dangles.
-    # readlink -m is GNU-only; plain readlink plus manual resolution of a
-    # relative target covers the absolute links bootstrap creates.
-    local target
+    # readlink -m is GNU-only. Canonicalize the target's directory instead:
+    # it exists even when the file dangles, and resolving it collapses dot
+    # segments and intermediate symlinks before the containment check.
+    local target target_dir
     target="$(readlink "$dst")"
     case "$target" in
       /*) ;;
       *) target="$HOME/$target" ;;
     esac
+    target_dir="$(cd "${target%/*}" 2>/dev/null && pwd -P)" || target_dir=
+    if [ -n "$target_dir" ]; then
+      target="$target_dir/${target##*/}"
+    fi
     case "$target" in
       "$DOTFILES_ROOT"/git/*) ;;
       *) fail "~/.gitconfig links to $target, not a config in $DOTFILES_ROOT/git. Remove it or migrate its settings, then re-run." ;;
