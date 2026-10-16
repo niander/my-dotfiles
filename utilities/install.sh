@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+if [[ $OSTYPE == darwin* ]]; then
+  printf 'skip     utilities: on macOS the packages come from darwin/Brewfile (script/provision)\n' >&2
+  exit 0
+fi
+
 if [[ $OSTYPE != linux* ]]; then
   printf 'skip     utilities: on Windows install through script/install.ps1\n' >&2
   exit 0
