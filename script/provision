@@ -11,7 +11,10 @@ if [[ $(uname -s) == Darwin ]]; then
     printf 'ok       Xcode Command Line Tools already installed\n'
   else
     printf 'install  Xcode Command Line Tools (finish the install dialog to continue)\n'
-    xcode-select --install > /dev/null 2>&1 || true
+    # No redirection and no || true: if the request itself fails, its
+    # diagnostic stays visible and set -e aborts instead of polling forever
+    # for an install that never started.
+    xcode-select --install
     until xcode-select -p > /dev/null 2>&1; do
       sleep 5
     done
