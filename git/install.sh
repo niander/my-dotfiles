@@ -2,6 +2,25 @@
 
 set -euo pipefail
 
+if [[ $OSTYPE == darwin* ]]; then
+  # On macOS both tools come from darwin/Brewfile (script/provision):
+  # git-delta is the pager gitconfig sets, and the Git Credential Manager
+  # cask is the credential helper. Nothing to install here; just verify,
+  # so a missing provision run is visible instead of a silent pager or
+  # credential failure later.
+  if command -v delta > /dev/null; then
+    printf 'ok       delta already installed\n'
+  else
+    printf 'note     delta not found; run script/provision (git-delta in darwin/Brewfile)\n' >&2
+  fi
+  if command -v git-credential-manager > /dev/null; then
+    printf 'ok       Git Credential Manager already installed\n'
+  else
+    printf 'note     Git Credential Manager not found; run script/provision (cask in darwin/Brewfile)\n' >&2
+  fi
+  exit 0
+fi
+
 [[ $OSTYPE == linux* ]] || exit 0
 
 export PATH="$HOME/.dotnet/tools:$PATH"
