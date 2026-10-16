@@ -70,7 +70,7 @@ alias base16='toggle_base16_shell'
 alias repaint!='base16 repaint'
 
 # Skip GUI terminals that manage their own colors, but allow tmux.
-if [[ -f "$BASE16_ENABLED_FILE" && ( -z $TERM_PROGRAM || $TERM_PROGRAM == tmux ) && (! $TTY =~ "tty" || -n $WSL_DISTRO_NAME) ]]; then
+if [[ -f "$BASE16_ENABLED_FILE" && ( -z $TERM_PROGRAM || $TERM_PROGRAM == tmux ) && (! $TTY = /dev/tty[0-9]* || -n $WSL_DISTRO_NAME) ]]; then
     if [[ -n "$PS1" && -s $BASE16_SHELL/profile_helper.sh ]]; then
         # Keep bundled hooks disabled and default to the eighties theme.
         export BASE16_SHELL_PATH="$BASE16_SHELL"
