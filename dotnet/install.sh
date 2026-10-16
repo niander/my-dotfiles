@@ -7,7 +7,12 @@ if command -v dotnet > /dev/null; then
   exit 0
 fi
 
-[[ $OSTYPE == linux* ]] || exit 0
+# Linux and macOS both proceed: the apt branch below keys off
+# /etc/os-release (absent on macOS), and every other system uses the
+# cross-platform dotnet-install script.
+if [[ $OSTYPE != linux* && $OSTYPE != darwin* ]]; then
+  exit 0
+fi
 
 if [[ -r /etc/os-release ]]; then
   . /etc/os-release
