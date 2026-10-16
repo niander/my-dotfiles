@@ -17,7 +17,7 @@ fi
 rustup_installer=$(mktemp)
 trap 'rm -f -- "$rustup_installer"' EXIT
 
-curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+curl --proto '=https' --fail --silent --show-error --location \
   --output "$rustup_installer" https://sh.rustup.rs
 # No PATH edits: rust/path.zsh already puts ~/.cargo/bin on PATH.
 sh "$rustup_installer" -y --no-modify-path
