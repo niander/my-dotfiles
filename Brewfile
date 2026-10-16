@@ -8,8 +8,7 @@ brew "gh"
 brew "fzf"
 brew "eza"
 
-# Apps, plus Git Credential Manager (the git credential helper on macOS):
+# The terminal app, plus Git Credential Manager (the git credential
+# helper on macOS):
 cask "iterm2"
-cask "bitwarden"
-cask "spotify"
 cask "git-credential-manager"
