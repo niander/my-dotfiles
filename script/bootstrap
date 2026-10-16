@@ -78,19 +78,28 @@ setup_gitconfig_include () {
   if [ -L "$dst" ]
   then
     # After a pull the old baseline is gone, so the link dangles.
-    # readlink -m is GNU-only. Canonicalize the target's directory instead:
-    # it exists even when the file dangles, and resolving it collapses dot
-    # segments and intermediate symlinks before the containment check.
-    local target target_dir
+    # readlink -m is GNU-only, so resolve the chain by hand: canonicalize
+    # each directory with cd + pwd -P, then keep following while the final
+    # component is itself a symlink. The hop cap stops a symlink cycle; a
+    # dangling target simply ends the chain and can still pass below.
+    local target target_dir next hops=0
     target="$(readlink "$dst")"
     case "$target" in
       /*) ;;
       *) target="$HOME/$target" ;;
     esac
-    target_dir="$(cd "${target%/*}" 2>/dev/null && pwd -P)" || target_dir=
-    if [ -n "$target_dir" ]; then
+    while [ "$hops" -lt 40 ]; do
+      hops=$((hops + 1))
+      target_dir="$(cd "${target%/*}" 2>/dev/null && pwd -P)" || target_dir=
+      [ -n "$target_dir" ] || break
       target="$target_dir/${target##*/}"
-    fi
+      [ -L "$target" ] || break
+      next="$(readlink "$target")"
+      case "$next" in
+        /*) target="$next" ;;
+        *) target="$target_dir/$next" ;;
+      esac
+    done
     case "$target" in
       "$DOTFILES_ROOT"/git/*) ;;
       *) fail "~/.gitconfig links to $target, not a config in $DOTFILES_ROOT/git. Remove it or migrate its settings, then re-run." ;;
