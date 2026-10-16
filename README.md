@@ -105,7 +105,7 @@ cd my-dotfiles
    It stops rather than guessing if `~/.gitconfig` is a symlink to somewhere outside this checkout, or already carries the include below the top — move those settings aside first.
 4. Run `script/install`, which executes every topic's `install.sh`.
 
-After that, set zsh as your login shell (one time; macOS already defaults to zsh) and open a new shell so the config loads:
+After that, set zsh as your login shell (one time) and open a new shell so the config loads:
 
 ```sh
 chsh -s "$(command -v zsh)"
