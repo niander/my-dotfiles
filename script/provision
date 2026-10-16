@@ -40,7 +40,7 @@ if [[ $(uname -s) == Darwin ]]; then
   brew update
 
   printf 'install  Brewfile packages\n'
-  brew bundle --file="$repo_root/Brewfile"
+  brew bundle --file="$repo_root/darwin/Brewfile"
 
   DOTFILES_LOCAL=${DOTFILES_LOCAL:-$HOME/.dotfiles.local}
   export DOTFILES_LOCAL

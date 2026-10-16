@@ -22,7 +22,7 @@ Personal dotfiles, forked from [holman/dotfiles](https://github.com/holman/dotfi
 ```
 
 Provisioning and bootstrap are separate entry points. The WSL provisioner performs the requested package upgrade and system package setup.
-On macOS, `script/provision` installs the Xcode Command Line Tools and Homebrew, then applies the root `Brewfile`.
+On macOS, `script/provision` installs the Xcode Command Line Tools and Homebrew, then applies `darwin/Brewfile`.
 The Windows provisioner delegates to the optional private root. None of them invokes bootstrap.
 
 `script/bootstrap` (interactive) does, in order:
