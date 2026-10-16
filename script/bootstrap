@@ -40,14 +40,19 @@ fail () {
 # True when $1 opens with an [include] of $2. Tolerates CRLF, a BOM and spacing:
 # the file may have been written on another host.
 gitconfig_include_first () {
-  local first second
+  local first second first_lc second_lc
   { IFS= read -r first; IFS= read -r second; } < "$1" || true
   first="${first%$'\r'}"; first="${first#$'\xef\xbb\xbf'}"
   second="${second%$'\r'}"
 
+  # Lowercase with tr: ${var,,} needs bash 4, but a fresh Mac runs this
+  # script under Apple's bash 3.2, before any Homebrew bash exists.
+  first_lc=$(printf '%s' "$first" | tr '[:upper:]' '[:lower:]')
+  second_lc=$(printf '%s' "$second" | tr '[:upper:]' '[:lower:]')
+
   # Git matches section and key names case-insensitively, values exactly.
-  [[ "${first,,}" =~ ^[[:space:]]*\[include\][[:space:]]*$ ]] &&
-  [[ "${second,,}" =~ ^[[:space:]]*path[[:space:]]*= ]] &&
+  [[ "$first_lc" =~ ^[[:space:]]*\[include\][[:space:]]*$ ]] &&
+  [[ "$second_lc" =~ ^[[:space:]]*path[[:space:]]*= ]] &&
   [[ "$second" =~ =[[:space:]]*"$2"[[:space:]]*$ ]]
 }
 
@@ -73,8 +78,32 @@ setup_gitconfig_include () {
   if [ -L "$dst" ]
   then
     # After a pull the old baseline is gone, so the link dangles.
-    local target
-    target="$(readlink -m "$dst")"
+    # readlink -m is GNU-only, so resolve the chain by hand: canonicalize
+    # each directory physically (cd -P + pwd -P), then keep following while
+    # the final component is itself a symlink. Physical matters: a logical
+    # cd simplifies a symlinked component followed by .. textually, so
+    # git/dirlink/../x would resolve inside the checkout even when dirlink
+    # points outside it and the kernel resolves x outside. The hop cap
+    # stops a symlink cycle; a dangling target simply ends the chain and
+    # can still pass below.
+    local target target_dir next hops=0
+    target="$(readlink "$dst")"
+    case "$target" in
+      /*) ;;
+      *) target="$HOME/$target" ;;
+    esac
+    while [ "$hops" -lt 40 ]; do
+      hops=$((hops + 1))
+      target_dir="$(cd -P "${target%/*}" 2>/dev/null && pwd -P)" || target_dir=
+      [ -n "$target_dir" ] || break
+      target="$target_dir/${target##*/}"
+      [ -L "$target" ] || break
+      next="$(readlink "$target")"
+      case "$next" in
+        /*) target="$next" ;;
+        *) target="$target_dir/$next" ;;
+      esac
+    done
     case "$target" in
       "$DOTFILES_ROOT"/git/*) ;;
       *) fail "~/.gitconfig links to $target, not a config in $DOTFILES_ROOT/git. Remove it or migrate its settings, then re-run." ;;

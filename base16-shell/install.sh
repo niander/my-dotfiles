@@ -20,6 +20,9 @@ git remote set-url origin "$BASE16_REMOTE"
 git fetch --quiet origin "$BASE16_BRANCH"
 git checkout --quiet -f -B "$BASE16_BRANCH" "origin/$BASE16_BRANCH"
 
-sed -i -E \
+# -i.bak with the suffix attached is the one in-place form both GNU and BSD
+# sed accept; a bare -i makes BSD sed swallow the next flag as the suffix.
+sed -i.bak -E \
   's/^([[:space:]]*)(put_template (1[6-9]|2[01]) .*)$/\1[ -n "${BASE16_SHELL_SET_256COLORSPACE}" ] \&\& \2/' \
   scripts/*.sh
+rm -f scripts/*.sh.bak

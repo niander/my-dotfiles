@@ -12,6 +12,21 @@ fi
 DOTFILES_LOCAL="${DOTFILES_LOCAL:-$HOME/.dotfiles.local}"
 export DOTFILES_LOCAL
 
+# On a fresh Mac the calling shell predates the dotfiles, so Homebrew's
+# prefix is not on PATH yet even right after provisioning; installers below
+# (tmux first of all) need the brewed tools. Load brew's env here so both
+# bootstrap-driven and standalone runs see it.
+if [ "$(uname -s)" = "Darwin" ] && ! command -v brew > /dev/null 2>&1; then
+  case "$(uname -m)" in
+    arm64) homebrew_prefix=/opt/homebrew ;;
+    *) homebrew_prefix=/usr/local ;;
+  esac
+  if [ -x "$homebrew_prefix/bin/brew" ]; then
+    eval "$("$homebrew_prefix/bin/brew" shellenv)"
+  fi
+  unset homebrew_prefix
+fi
+
 # Require bootstrap to have run first. bootstrap creates ~/.dotfiles as a
 # symlink to the actual repo location. Without this guard, oh-my-zsh's
 # upstream installer can clobber ~/.zshrc on a virgin machine.

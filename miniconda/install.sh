@@ -2,6 +2,11 @@
 
 set -e
 
+if [[ $OSTYPE == darwin* ]]; then
+  printf 'skip     miniconda: the installer below is the Linux build; install miniconda manually on macOS\n' >&2
+  exit 0
+fi
+
 dirname="$(dirname "$0")"
 conda_root="$HOME/miniconda3"
 

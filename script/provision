@@ -4,6 +4,62 @@ set -euo pipefail
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 
+if [[ $(uname -s) == Darwin ]]; then
+  # Xcode CLT first: git and the Homebrew installer both depend on it, and
+  # triggering it here beats the GUI dialog appearing mid-install.
+  if xcode-select -p > /dev/null 2>&1; then
+    printf 'ok       Xcode Command Line Tools already installed\n'
+  else
+    printf 'install  Xcode Command Line Tools (finish the install dialog to continue)\n'
+    # No redirection and no || true: if the request itself fails, its
+    # diagnostic stays visible and set -e aborts instead of polling forever
+    # for an install that never started.
+    xcode-select --install
+    until xcode-select -p > /dev/null 2>&1; do
+      sleep 5
+    done
+    printf 'ok       Xcode Command Line Tools installed\n'
+  fi
+
+  case $(uname -m) in
+    arm64) homebrew_prefix=/opt/homebrew ;;
+    *) homebrew_prefix=/usr/local ;;
+  esac
+
+  # Homebrew's installer asks for a sudo password and an Enter press, so its
+  # output stays on this terminal rather than being captured or redirected.
+  # The download is a separate assignment: its exit status is the
+  # substitution's status, so a failed or partial fetch aborts under set -e
+  # before any installer code runs. Inside the bash -c argument instead,
+  # curl's status would be lost and a partial script could still execute.
+  if [[ -x $homebrew_prefix/bin/brew ]]; then
+    printf 'ok       Homebrew already installed\n'
+  else
+    printf 'install  Homebrew\n'
+    homebrew_installer=$(curl --fail --silent --show-error --location https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+    /bin/bash -c "$homebrew_installer"
+  fi
+  eval "$("$homebrew_prefix/bin/brew" shellenv)"
+
+  printf 'update   Homebrew\n'
+  brew update
+
+  printf 'install  Brewfile packages\n'
+  brew bundle --file="$repo_root/darwin/Brewfile"
+
+  DOTFILES_LOCAL=${DOTFILES_LOCAL:-$HOME/.dotfiles.local}
+  export DOTFILES_LOCAL
+  private_provisioner="$DOTFILES_LOCAL/script/provision"
+  if [[ -f $private_provisioner ]]; then
+    printf '== private/provision\n'
+    bash "$private_provisioner"
+  else
+    printf 'skip     private provisioner not found\n'
+  fi
+
+  exit 0
+fi
+
 if [[ -z ${WSL_DISTRO_NAME:-} ]]; then
   printf 'script/provision: this provisioner requires WSL\n' >&2
   exit 1
