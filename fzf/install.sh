@@ -4,6 +4,15 @@ set -e
 
 case "$(uname -s)" in
     Linux) ;;
+    Darwin)
+        # Homebrew owns fzf on macOS (darwin/Brewfile); the clone install
+        # below is the Linux path.
+        if command -v fzf >/dev/null 2>&1; then
+            echo "ok       fzf -> $(command -v fzf)"
+        else
+            echo "note     fzf: not installed; on macOS it comes from Homebrew (script/provision)" >&2
+        fi
+        exit 0 ;;
     MINGW*|MSYS*|CYGWIN*)
         echo "skip     fzf: on Windows install through script/install.ps1" >&2
         exit 0 ;;
