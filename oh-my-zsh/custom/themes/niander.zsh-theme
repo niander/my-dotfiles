@@ -11,10 +11,7 @@ function ret_status_prompt_info() {
   echo "%(?:%F{green}%B$prompt_symbol :%F{red}%B$prompt_symbol )%b%f"
 }
 
-PROMPT='$(ret_status_prompt_info)$(conda_prompt_info)\
-%F{yellow}%~%f \
-$(git_prompt_info)\
-%(!.#.$) '
+PROMPT='$(ret_status_prompt_info)$(conda_prompt_info)%F{yellow}%~%f $(git_prompt_info)%(!.#.$) '
 PROMPT2='%F{green}(%_)%f %F{yellow}\%f '
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%F{blue} ("
