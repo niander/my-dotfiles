@@ -9,5 +9,8 @@ brew "fzf"
 brew "eza"
 
 # Apps:
-cask "iterm2"
+cask "ghostty"
 cask "git-credential-manager"
+
+# Fonts:
+cask "font-caskaydia-mono-nerd-font"

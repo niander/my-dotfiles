@@ -75,7 +75,7 @@ From a checkout:
 ./script/bootstrap
 ```
 
-The provisioner installs the Xcode Command Line Tools (and waits for the install dialog to finish), installs Homebrew, and applies `darwin/Brewfile`: the CLI tools the topics expect (tmux, git-delta, jq, ripgrep, gh, fzf, eza) plus iTerm2 and Git Credential Manager as casks.
+The provisioner installs the Xcode Command Line Tools and Homebrew, then installs the packages declared in [`darwin/Brewfile`](darwin/Brewfile).
 
 ### Windows
 
